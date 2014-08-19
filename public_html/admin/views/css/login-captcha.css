@@ -1,0 +1,16 @@
+.notarytoolzInput
+{
+	display : none;
+	position : absolute;
+}
+
+.Input1,.Input2,.Input3,.Input4
+{
+	top: -9999px;
+	left: -9999px;
+}
+
+#recaptcha_widget_div
+{
+	margin : 0 auto 0;
+}
