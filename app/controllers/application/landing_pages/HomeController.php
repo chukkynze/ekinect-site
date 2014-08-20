@@ -158,6 +158,9 @@ class HomeController extends AbstractLandingController
             case '26'   :   $ErrorMsg       =   "There appears to be an issue with your account. Please check your inbox and/or email " . $customerService . ". We are sure they can help you.";
                             break;
 
+            case '27'   :   $ErrorMsg       =   "Unfortunately, you've attempted to login too many times. Please email " . $customerService . ". We are sure they can help you.";
+                            break;
+
 			/**
 			 * Change Password Errors
 			 */

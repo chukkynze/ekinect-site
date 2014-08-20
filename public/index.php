@@ -1,4 +1,4 @@
-<?php
+<?php echo "Chukky's Site<br>" . phpinfo(); exit;
 /**
  * Laravel - A PHP Framework For Web Artisans
  *

@@ -20,7 +20,8 @@ App::missing(function($exception){
 
 
 // Custom Error Pages
-Route::get('/there-was-a-problem/{errorNumber}',         array('as' =>  'custom-error',     'uses'  =>  'HomeController@processErrors',));
+Route::get('/there-was-a-problem/{errorNumber}',    array('as' =>  'custom-error',             'uses'  =>  'HomeController@processErrors',));
+Route::get('/there-was-a-problem/24',               array('as' =>  'access-temp-disabled',     'uses'  =>  'HomeController@processErrors',));
 
 
 // Outside Paywall Routes - Core Landing Pages
@@ -77,21 +78,24 @@ Route::group(array('prefix' => 'admin'), function()
 Route::group(array('prefix' => 'vendor', 'before' => 'auth',), function()
 {
     // Behind Paywall Routes
-    Route::get('dashboard',             array('as' =>  'showVendorDashboard',           'uses'  =>  'VendorController@showDashboard',            ));
+    Route::get('dashboard',             array('as' =>  'showVendorDashboard',           'uses'  =>  'VendorController@showDashboard',               ));
+    Route::get('logout',                array('as' =>  'vendorLogout',                  'uses'  =>  'VendorController@vendorLogout',                ));
 });
 
 // Vendor Clients
-Route::group(array('prefix' => 'vendor-client'), function()
+Route::group(array('prefix' => 'vendor-client', 'before' => 'auth'), function()
 {
     // Behind Paywall Routes
-    Route::get('dashboard',             array('as' =>  'showVendorClientDashboard',     'uses'  =>  'VendorClientController@showDashboard',     'before' => 'auth', ));
+    Route::get('dashboard',             array('as' =>  'showVendorClientDashboard',     'uses'  =>  'VendorClientController@showDashboard',             ));
+    Route::get('logout',                array('as' =>  'vendorClientLogout',            'uses'  =>  'VendorClientController@vendorClientLogout',        ));
 });
 
 // Freelancer Dashboard
-Route::group(array('prefix' => 'freelancer'), function()
+Route::group(array('prefix' => 'freelancer', 'before' => 'auth'), function()
 {
     // Behind Paywall Routes
-    Route::get('dashboard',             array('as' =>  'showFreelancerDashboard',       'uses'  =>  'FreelancerController@showDashboard',       'before' => 'auth', ));
+    Route::get('dashboard',             array('as' =>  'showFreelancerDashboard',       'uses'  =>  'FreelancerController@showDashboard',               ));
+    Route::get('logout',                array('as' =>  'freelancerLogout',              'uses'  =>  'FreelancerController@freelancerLogout',            ));
 });
 
 

@@ -32,5 +32,17 @@
 
 
 
+        public function vendorLogout()
+        {
+            // Perform vendor specific action before logging out
+
+            $this->memberLogout();
+
+            // Redirect to the logged out page
+            return $this->makeResponseView('application/members/member-logout', array());
+        }
+
+
+
 
     }

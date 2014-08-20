@@ -267,7 +267,7 @@ class AuthController extends BaseController
                 $returnToRoute  =   array
                                     (
                                         'name'  =>  'custom-error',
-                                        'data'  =>  array('errorNumber' => 18),
+                                        'data'  =>  array('errorNumber' => 27),
                                     );
             }
         }

@@ -185,7 +185,10 @@ class BaseController extends Controller
 
     public function authCheckAfterAccess()
     {
-
+        if (!Auth::check())
+        {
+            return $this->makeResponseView("application/members/member-logout", array());
+        }
     }
 
     public function authCheckOnAccess()
@@ -219,7 +222,7 @@ class BaseController extends Controller
 
                     case 'freelancer'       :   $returnToRoute  =   array
                                                                 (
-                                                                    'name'  =>  'get-member-home',
+                                                                    'name'  =>  'showFreelancerDashboard',
                                                                 );
                                                 break;
 
@@ -246,5 +249,8 @@ class BaseController extends Controller
 
         return $returnToRoute;
     }
+
+
+
 
 }

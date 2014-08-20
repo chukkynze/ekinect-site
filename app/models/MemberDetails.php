@@ -42,6 +42,198 @@ class MemberDetails extends Eloquent
                                     'id',
                                 );
 
+    public function getPrimaryKeyByMemberID($memberID)
+    {
+        try
+        {
+            $query   =   DB::connection($this->connection)->table($this->table)
+                ->select('id')
+                ->where('member_id' , '=', $memberID)
+                ->get();
+
+            $result =   $query[0];
+            return $result->id;
+        }
+        catch(\Whoops\Example\Exception $e)
+        {
+            throw new \Whoops\Example\Exception($e);
+        }
+    }
+
+    public function getMemberDetailsPrefix($format)
+    {
+       	$outputValues	=	array
+							(
+								0	=>	0,
+								''	=>	'',
+								1 	=> 'Ms',
+								2 	=> 'Miss',
+								3 	=> 'Mrs',
+								4 	=> 'Mr',
+								5 	=> 'Dr',
+								6 	=> 'Atty',
+								7 	=> 'Ofc',
+								8 	=> 'Ntry',
+							);
+		switch(trim(strtolower($format)))
+		{
+			case 'text'	:	$output = $outputValues[$this->prefix]; break;
+			case 'raw'	:	$output = $this->prefix; break;
+			default		:	$output = $outputValues[$this->prefix];
+		}
+
+		return $output;
+    }
+
+    public function getMemberDetailsFirstName()
+    {
+        return (isset($this->first_name) ? $this->first_name : "Valued");
+    }
+
+    public function getMemberDetailsMidName1()
+    {
+        return $this->mid_name1;
+    }
+
+    public function getMemberDetailsMidName2()
+    {
+        return $this->mid_name2;
+    }
+
+    public function getMemberDetailsLastName()
+    {
+        return  (isset($this->last_name) ? $this->last_name : "Member");
+    }
+
+    public function getMemberDetailsDisplayName()
+    {
+        return 	(isset($this->display_name) && $this->display_name != ''
+					? 	$this->display_name
+					:	$this->first_name);
+    }
+
+    public function getMemberDetailsFullName()
+    {
+        return $this->first_name . " " . $this->last_name;
+    }
+
+    public function getMemberDetailsSuffix($format)
+    {
+        $outputValues	=	array
+							(
+								0	=>	0,
+								''	=>	'',
+								1 	=> 'II',
+								2 	=> 'III',
+								3 	=> 'IV',
+								4 	=> 'Jr',
+								5 	=> 'Sr',
+								6 	=> 'PhD',
+								7 	=> 'PC',
+								8 	=> 'Ntry',
+							);
+		switch(trim(strtolower($format)))
+		{
+			case 'text'	:	$output = $outputValues[$this->suffix]; break;
+			case 'raw'	:	$output = $this->suffix; break;
+			default		:	$output = $outputValues[$this->suffix];
+		}
+
+		return $output;
+    }
+
+    public function getMemberDetailsGender($format)
+    {
+		$outputValues	=	array
+							(
+								0 => 'Other',
+								1 => 'Female',
+								2 => 'Male',
+							);
+		switch(trim(strtolower($format)))
+		{
+			case 'text'	:	$output = $outputValues[$this->gender]; break;
+			case 'abbr'	:	$output = $outputValues[$this->gender][0]; break;
+			case 'raw'	:	$output = $this->gender; break;
+			default		:	$output = $outputValues[$this->gender];
+		}
+
+		return $output;
+    }
+
+    public function getMemberDetailsBirthDate()
+    {
+		// Database format is YYYY-MM-DD. Change to MM-DD-YYYY
+		$birthDate 		=	$this->birth_date;
+		$birthDateYear	=	substr($birthDate, 0, 4);
+		$birthDateMonth	=	substr($birthDate, 5, 2);
+		$birthDateDay	=	substr($birthDate, 8, 2);
+        return $birthDateMonth . "-". $birthDateDay . "-" . $birthDateYear;
+    }
+
+    public function getMemberDetailsZipCode()
+    {
+        return $this->zipcode;
+    }
+
+    public function getMemberDetailsPersonalSummary()
+    {
+        return $this->personal_summary;
+    }
+
+    public function getMemberDetailsProfilePicUrl()
+    {
+        return $this->profile_pic_url;
+    }
+
+    public function getMemberDetailsPersonalSiteUrl()
+    {
+        return $this->personal_website_url;
+    }
+
+    public function getMemberDetailsLinkedInUrl()
+    {
+        return $this->linkedin_url;
+    }
+
+    public function getMemberDetailsGooglePlusUrl()
+    {
+        return $this->google_plus_url;
+    }
+
+    public function getMemberDetailsTwitterUrl()
+    {
+        return $this->twitter_url;
+    }
+
+    public function getMemberDetailsFacebookUrl()
+    {
+        return $this->facebook_url;
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
     public function doMemberDetailsExist($memberID)
     {

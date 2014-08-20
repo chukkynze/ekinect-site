@@ -32,5 +32,12 @@ class AbstractFreelancerController extends AbstractMemberController
 
 
 
+    public function freelancerLogout()
+    {
+        // Perform freelancer specific action before logging out
+
+        $this->memberLogout();
+    }
+
 
 }

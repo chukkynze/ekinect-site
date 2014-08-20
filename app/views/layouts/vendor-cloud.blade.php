@@ -20,17 +20,17 @@
     <meta name="description" content="">
     <meta name="author" content="">
 
-    <link href="/notarytoolz/notary-view/notary-module.css" media="screen" rel="stylesheet" type="text/css">
-    <link href="/notarytoolz/notary-view/notary/notary/css/index.css" media="screen" rel="stylesheet" type="text/css">
-    <link href="/notary/css/cloud-admin.css" media="screen" rel="stylesheet" type="text/css">
-    <link href="/notary/css/themes/default.css" media="screen" rel="stylesheet" type="text/css">
-    <link href="/notary/css/responsive.css" media="screen" rel="stylesheet" type="text/css">
-    <link href="/notary/font-awesome/css/font-awesome.min.css" media="screen" rel="stylesheet" type="text/css">
-    <link href="/notary/css/animatecss/animate.min.css" media="screen" rel="stylesheet" type="text/css">
-    <link href="/notary/js/bootstrap-daterangepicker/daterangepicker-bs3.css" media="screen" rel="stylesheet" type="text/css">
-    <link href="/notary/js/jquery-todo/css/styles.css" media="screen" rel="stylesheet" type="text/css">
-    <link href="/notary/js/fullcalendar/fullcalendar.min.css" media="screen" rel="stylesheet" type="text/css">
-    <link href="/notary/js/gritter/css/jquery.gritter.css" media="screen" rel="stylesheet" type="text/css">
+    <link href="/app/members/vendor/vendor-module.css" media="screen" rel="stylesheet" type="text/css">
+    <link href="/app/members/vendor/controllers/vendor/css/index.css" media="screen" rel="stylesheet" type="text/css">
+    <link href="/app/members/vendor/css/cloud-admin.css" media="screen" rel="stylesheet" type="text/css">
+    <link href="/app/members/vendor/css/themes/default.css" media="screen" rel="stylesheet" type="text/css">
+    <link href="/app/members/vendor/css/responsive.css" media="screen" rel="stylesheet" type="text/css">
+    <link href="/app/members/vendor/font-awesome/css/font-awesome.min.css" media="screen" rel="stylesheet" type="text/css">
+    <link href="/app/members/vendor/css/animatecss/animate.min.css" media="screen" rel="stylesheet" type="text/css">
+    <link href="/app/members/vendor/js/bootstrap-daterangepicker/daterangepicker-bs3.css" media="screen" rel="stylesheet" type="text/css">
+    <link href="/app/members/vendor/js/jquery-todo/css/styles.css" media="screen" rel="stylesheet" type="text/css">
+    <link href="/app/members/vendor/js/fullcalendar/fullcalendar.min.css" media="screen" rel="stylesheet" type="text/css">
+    <link href="/app/members/vendor/js/gritter/css/jquery.gritter.css" media="screen" rel="stylesheet" type="text/css">
     <link href="http://fonts.googleapis.com/css?family=Open+Sans:300,400,600,700" media="screen" rel="stylesheet" type="text/css">
     <link href="/application/images/favicon.ico" rel="shortcut icon" type="image/vnd.microsoft.icon">
     <!--[if lt IE 9]><script type="text/javascript" src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script><![endif]-->
@@ -46,8 +46,8 @@
 		<div class="container">
 				<div class="navbar-brand">
 					<!-- COMPANY LOGO -->
-					<a href="<?php echo $this->memberHomeLink; ?>">
-						<img src="images/site/logos/logo.png" alt="NotaryToolz.com" class="img-responsive" height="30" width="120" style="margin-top:4px;">
+					<a href="<?php echo $memberHomeLink; ?>">
+						<img src="/app/images/site_images/logo.png" alt="Ekinect.com" class="img-responsive" height="30" width="120" style="margin-top:4px;">
 					</a>
 					<!-- /COMPANY LOGO -->
 
@@ -60,15 +60,6 @@
 						</a>
 					</div>
 					-- /TEAM STATUS FOR MOBILE --
-
-
-					-- SHOP WIDGET - FOR MOBILE --
-					<div class="visible-xs">
-						<a href="#" class="shop-widget-toggle switcher btn dropdown-toggle">
-							<i class="fa fa-shopping-cart"></i>
-						</a>
-					</div>
-					-- /SHOP WIDGET FOR MOBILE --
 
 					-->
 
@@ -87,16 +78,9 @@
 				<!-- NAVBAR LEFT -->
 				<ul class="nav navbar-nav pull-left hidden-xs" id="navbar-left">
 					<li class="dropdown">
-						<a href="#" class="team-status-toggle dropdown-toggle tip-bottom" data-toggle="tooltip" title="Latest News & Articles">
+						<a href="#" class="team-status-toggle dropdown-toggle tip-bottom" data-toggle="tooltip" title="Team Updates">
 							<i class="fa fa-bullhorn"></i>
-							<span class="name">Latest News & Articles</span>
-							<i class="fa fa-angle-down"></i>
-						</a>
-					</li>
-					<li class="dropdown">
-						<a href="#" class="shop-widget-toggle dropdown-toggle tip-bottom" data-toggle="tooltip" title="Shop">
-							<i class="fa fa-shopping-cart"></i>
-							<span class="name">Shop</span>
+							<span class="name">Team Updates</span>
 							<i class="fa fa-angle-down"></i>
 						</a>
 					</li>
@@ -113,16 +97,16 @@
 					<li class="dropdown" id="header-notification">
 						<a href="#" class="dropdown-toggle" data-toggle="dropdown">
 							<i class="fa fa-bell"></i>
-							<span class="badge"><?php echo $this->ALERT_totalMessageCount ?></span>
+							<span class="badge"><?php echo $ALERT_totalMessageCount ?></span>
 						</a>
 						<ul class="dropdown-menu notification">
 							<li class="dropdown-title">
-								<span><i class="fa fa-bell"></i> <?php echo $this->ALERT_title ?></span>
+								<span><i class="fa fa-bell"></i> <?php echo $ALERT_title ?></span>
 							</li>
 
 
 							<?php
-							foreach($this->ALERT_listItemsArray as $alertKey => $alertDetails)
+							foreach($ALERT_listItemsArray as $alertKey => $alertDetails)
 							{
 								echo 	'<li>
 											<a href="' . $alertDetails['alertLink'] . '' . $alertDetails['alertLinkID'] . '">
@@ -141,7 +125,7 @@
 
 
 							<li class="footer">
-								<a href="<?php echo $this->ALERT_footerLink ?>">See all notifications <i class="fa fa-arrow-circle-right"></i></a>
+								<a href="<?php echo $ALERT_footerLink ?>">See all notifications <i class="fa fa-arrow-circle-right"></i></a>
 							</li>
 						</ul>
 					</li>
@@ -152,16 +136,16 @@
 					<li class="dropdown" id="header-message">
 						<a href="#" class="dropdown-toggle" data-toggle="dropdown">
 						<i class="fa fa-envelope"></i>
-						<span class="badge"><?php echo $this->INBOX_totalMessageCount ?></span>
+						<span class="badge"><?php echo $INBOX_totalMessageCount ?></span>
 						</a>
 						<ul class="dropdown-menu inbox">
 							<li class="dropdown-title">
-								<span><i class="fa fa-envelope-o"></i> <?php echo $this->INBOX_title ?></span>
-								<span class="compose pull-right tip-right" title="Compose message"><a href="<?php echo $this->INBOX_composeNewLink ?>"><i class="fa fa-pencil-square-o"></i></a></span>
+								<span><i class="fa fa-envelope-o"></i> <?php echo $INBOX_title ?></span>
+								<span class="compose pull-right tip-right" title="Compose message"><a href="<?php echo $INBOX_composeNewLink ?>"><i class="fa fa-pencil-square-o"></i></a></span>
 							</li>
 
 							<?php
-							foreach($this->INBOX_listItemsArray as $msgKey => $msgDetails)
+							foreach($INBOX_listItemsArray as $msgKey => $msgDetails)
 							{
 								echo 	'<li>
 											<a href="' . $msgDetails['messageLink'] . '' . $msgDetails['messageLinkID'] . '">
@@ -180,7 +164,7 @@
 							?>
 
 							<li class="footer">
-								<a href="<?php echo $this->INBOX_footerLink ?>">See all messages <i class="fa fa-arrow-circle-right"></i></a>
+								<a href="<?php echo $INBOX_footerLink ?>">See all messages <i class="fa fa-arrow-circle-right"></i></a>
 							</li>
 						</ul>
 					</li>
@@ -191,15 +175,15 @@
 					<li class="dropdown" id="header-tasks">
 						<a href="#" class="dropdown-toggle" data-toggle="dropdown">
 						<i class="fa fa-tasks"></i>
-						<span class="badge"><?php echo $this->TODO_listTotalNumber; ?></span>
+						<span class="badge"><?php echo $TODO_listTotalNumber; ?></span>
 						</a>
 						<ul class="dropdown-menu tasks">
 							<li class="dropdown-title">
-								<span><i class="fa fa-check"></i> You have <?php echo $this->TODO_listTotalNumber; ?> <?php echo "task" . ($this->TODO_listTotalNumber == 1 ? "" : "s") ?> in progress</span>
+								<span><i class="fa fa-check"></i> You have <?php echo $TODO_listTotalNumber; ?> <?php echo "task" . ($TODO_listTotalNumber == 1 ? "" : "s") ?> in progress</span>
 							</li>
 
 							<?php
-							foreach($this->TODO_listItemsArray as $taskKey => $taskDetails)
+							foreach($TODO_listItemsArray as $taskKey => $taskDetails)
 							{
 								echo 	'<li>
 											<a href="#">
@@ -225,7 +209,7 @@
 							?>
 
 							<li class="footer">
-								<a href="<?php echo $this->TODO_footerLink; ?>">See all tasks <i class="fa fa-arrow-circle-right"></i></a>
+								<a href="<?php echo $TODO_footerLink; ?>">See all tasks <i class="fa fa-arrow-circle-right"></i></a>
 							</li>
 						</ul>
 					</li>
@@ -237,18 +221,18 @@
 					<!-- BEGIN USER LOGIN DROPDOWN -->
 					<li class="dropdown user" id="header-user">
 						<a href="#" class="dropdown-toggle" data-toggle="dropdown">
-							<img id="ProfileBox_pic_ImageUserIcon" alt="" src="<?php echo $this->notarySmallProfilePicUrl; ?>" />
-							<span class="username"><?php echo $this->memberLoginDropDownDisplayName; ?>&nbsp;</span>
+							<img id="ProfileBox_pic_ImageUserIcon" alt="" src="<?php echo $memberSmallProfilePicUrl; ?>" />
+							<span class="username"><?php echo $memberLoginDropDownDisplayName; ?>&nbsp;</span>
 							<i class="fa fa-angle-down"></i>
 						</a>
 
 						<?php
 
-						if(is_array($this->memberUserMenuArray) && count($this->memberUserMenuArray) > 0)
+						if(is_array($memberUserMenuArray) && count($memberUserMenuArray) > 0)
 						{
 							echo '<ul class="dropdown-menu">';
 
-							foreach($this->memberUserMenuArray as $menuKey => $menuDetails)
+							foreach($memberUserMenuArray as $menuKey => $menuDetails)
 							{
 								echo 	'<li>
 											<a href="' . $menuDetails['link'] . '">
@@ -281,7 +265,7 @@
 				<li class="current">
 				  <a href="javascript:void(0);">
 				  <span class="image">
-					  <img src="notary/img/avatars/avatar3.jpg" alt="" />
+					  <img src="/app/members/vendor/img/avatars/avatar3.jpg" alt="" />
 				  </span>
 				  <span class="title">
 					You
@@ -316,7 +300,7 @@
 				<li>
 				  <a href="javascript:void(0);">
 				  <span class="image">
-					  <img src="notary/img/avatars/avatar1.jpg" alt="" />
+					  <img src="/app/members/vendor/img/avatars/avatar1.jpg" alt="" />
 				  </span>
 				  <span class="title">
 					Max Doe
@@ -351,7 +335,7 @@
 				<li>
 				  <a href="javascript:void(0);">
 				  <span class="image">
-					  <img src="notary/img/avatars/avatar2.jpg" alt="" />
+					  <img src="/app/members/vendor/img/avatars/avatar2.jpg" alt="" />
 				  </span>
 				  <span class="title">
 					Jane Doe
@@ -386,7 +370,7 @@
 				<li>
 				  <a href="javascript:void(0);">
 				  <span class="image">
-					  <img src="notary/img/avatars/avatar4.jpg" alt="" />
+					  <img src="/app/members/vendor/img/avatars/avatar4.jpg" alt="" />
 				  </span>
 				  <span class="title">
 					Ellie Doe
@@ -421,7 +405,7 @@
 				<li>
 				  <a href="javascript:void(0);">
 				  <span class="image">
-					  <img src="notary/img/avatars/avatar5.jpg" alt="" />
+					  <img src="/app/members/vendor/img/avatars/avatar5.jpg" alt="" />
 				  </span>
 				  <span class="title">
 					Lisa Doe
@@ -456,7 +440,7 @@
 				<li>
 				  <a href="javascript:void(0);">
 				  <span class="image">
-					  <img src="notary/img/avatars/avatar6.jpg" alt="" />
+					  <img src="/app/members/vendor/img/avatars/avatar6.jpg" alt="" />
 				  </span>
 				  <span class="title">
 					Kelly Doe
@@ -491,7 +475,7 @@
 				<li>
 				  <a href="javascript:void(0);">
 				  <span class="image">
-					  <img src="notary/img/avatars/avatar7.jpg" alt="" />
+					  <img src="/app/members/vendor/img/avatars/avatar7.jpg" alt="" />
 				  </span>
 				  <span class="title">
 					Jessy Doe
@@ -526,7 +510,7 @@
 				<li>
 				  <a href="javascript:void(0);">
 				  <span class="image">
-					  <img src="notary/img/avatars/avatar8.jpg" alt="" />
+					  <img src="/app/members/vendor/img/avatars/avatar8.jpg" alt="" />
 				  </span>
 				  <span class="title">
 					Debby Doe
@@ -565,27 +549,13 @@
 
 
 
-		<!-- SHOP WIDGET -->
-		<div class="container shop-widget" id="shop-widget">
-		  	<div id="scrollbar">
-				<div class="handle">
-				</div>
-		  	</div>
-		  	<div id="shop-widget-slider">
-			  store widget
-			</div>
-		</div>
-		<!-- /SHOP WIDGET -->
-
-
-
 	</header>
 	<!--/HEADER -->
 
 
 
 	<!-- PAGE -->
-	<section id="<?php echo $this->cloudLayoutJSPageName; ?>">
+	<section id="<?php echo $cloudLayoutJSPageName; ?>">
 
 
 
@@ -607,7 +577,7 @@
 						<!-- SIDEBAR MENU -->
 						<ul>
 							<li class="active">
-								<a href="<?php echo $this->memberHomeLink; ?>">
+								<a href="<?php echo $memberHomeLink; ?>">
 								<i class="fa fa-home fa-fw"></i> <span class="menu-text">Home</span>
 								<span class="selected"></span>
 								</a>
@@ -628,13 +598,13 @@
 							</li>
 							<li class="has-sub">
 								<a href="javascript:;" class="">
-								<i class="fa fa-envelope-o fa-fw"></i> <span class="menu-text">Inbox <span class="badge pull-right"><?php echo $this->INBOX_totalMessageCount ?></span></span>
+								<i class="fa fa-envelope-o fa-fw"></i> <span class="menu-text">Inbox <span class="badge pull-right"><?php echo $INBOX_totalMessageCount ?></span></span>
 								<span class="arrow"></span>
 								</a>
 								<ul class="sub">
-									<li><a class="" href="<?php echo $this->INBOX_sidebarLink_new ?>"><span class="sub-menu-text">New</span></a></li>
-									<li><a class="" href="<?php echo $this->INBOX_sidebarLink_favorites ?>"><span class="sub-menu-text">Favorites</span></a></li>
-									<li><a class="" href="<?php echo $this->INBOX_sidebarLink_all ?>"><span class="sub-menu-text">All</span></a></li>
+									<li><a class="" href="<?php echo $INBOX_sidebarLink_new ?>"><span class="sub-menu-text">New</span></a></li>
+									<li><a class="" href="<?php echo $INBOX_sidebarLink_favorites ?>"><span class="sub-menu-text">Favorites</span></a></li>
+									<li><a class="" href="<?php echo $INBOX_sidebarLink_all ?>"><span class="sub-menu-text">All</span></a></li>
 								</ul>
 							</li>
 
@@ -795,22 +765,22 @@
 	</section>
 	<!--/PAGE -->
 
-    <script type="text/javascript" src="/notary/js/jquery/jquery-2.0.3.min.js"></script>
-    <script type="text/javascript" src="/notary/js/jquery-ui-1.10.3.custom/js/jquery-ui-1.10.3.custom.min.js"></script>
-    <script type="text/javascript" src="/notary/bootstrap-dist/js/bootstrap.min.js"></script>
-    <script type="text/javascript" src="/notary/js/bootstrap-daterangepicker/moment.min.js"></script>
-    <script type="text/javascript" src="/notary/js/bootstrap-daterangepicker/daterangepicker.min.js"></script>
-    <script type="text/javascript" src="/notary/js/jQuery-slimScroll-1.3.0/jquery.slimscroll.min.js"></script>
-    <script type="text/javascript" src="/notary/js/jQuery-slimScroll-1.3.0/slimScrollHorizontal.min.js"></script>
-    <script type="text/javascript" src="/notary/js/jQuery-BlockUI/jquery.blockUI.min.js"></script>
-    <script type="text/javascript" src="/notary/js/sparklines/jquery.sparkline.min.js"></script>
-    <script type="text/javascript" src="/notary/js/jquery-easing/jquery.easing.min.js"></script>
-    <script type="text/javascript" src="/notary/js/jquery-todo/js/paddystodolist.js"></script>
-    <script type="text/javascript" src="/notary/js/fullcalendar/fullcalendar.min.js"></script>
-    <script type="text/javascript" src="/notary/js/jQuery-Cookie/jquery.cookie.min.js"></script>
-    <script type="text/javascript" src="/notary/js/gritter/js/jquery.gritter.min.js"></script>
-    <script type="text/javascript" src="/notary/js/script.js"></script>
-    <script type="text/javascript" src="/notarytoolz/notary-view/notary/notary/css/index.js"></script>
+    <script type="text/javascript" src="/app/members/vendor/js/jquery/jquery-2.0.3.min.js"></script>
+    <script type="text/javascript" src="/app/members/vendor/js/jquery-ui-1.10.3.custom/js/jquery-ui-1.10.3.custom.min.js"></script>
+    <script type="text/javascript" src="/app/members/vendor/bootstrap-dist/js/bootstrap.min.js"></script>
+    <script type="text/javascript" src="/app/members/vendor/js/bootstrap-daterangepicker/moment.min.js"></script>
+    <script type="text/javascript" src="/app/members/vendor/js/bootstrap-daterangepicker/daterangepicker.min.js"></script>
+    <script type="text/javascript" src="/app/members/vendor/js/jQuery-slimScroll-1.3.0/jquery.slimscroll.min.js"></script>
+    <script type="text/javascript" src="/app/members/vendor/js/jQuery-slimScroll-1.3.0/slimScrollHorizontal.min.js"></script>
+    <script type="text/javascript" src="/app/members/vendor/js/jQuery-BlockUI/jquery.blockUI.min.js"></script>
+    <script type="text/javascript" src="/app/members/vendor/js/sparklines/jquery.sparkline.min.js"></script>
+    <script type="text/javascript" src="/app/members/vendor/js/jquery-easing/jquery.easing.min.js"></script>
+    <script type="text/javascript" src="/app/members/vendor/js/jquery-todo/js/paddystodolist.js"></script>
+    <script type="text/javascript" src="/app/members/vendor/js/fullcalendar/fullcalendar.min.js"></script>
+    <script type="text/javascript" src="/app/members/vendor/js/jQuery-Cookie/jquery.cookie.min.js"></script>
+    <script type="text/javascript" src="/app/members/vendor/js/gritter/js/jquery.gritter.min.js"></script>
+    <script type="text/javascript" src="/app/members/vendor/js/script.js"></script>
+    <script type="text/javascript" src="/app/members/vendor/controllers/vendor/js/index.js"></script>
 
 	<script>
 		var ModuleDirectoryReference = 'vendor/';
