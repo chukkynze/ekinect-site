@@ -33,7 +33,7 @@ $app = new Illuminate\Foundation\Application;
  */
 $env = $app->detectEnvironment(function() {
 
-    return getenv('APPLICATION_ENV') ?: 'development';
+    return getenv('APPLICATION_ENV') ?: 'homestead';
 
 });
 /*
