@@ -162,6 +162,7 @@ class AuthController extends BaseController
                         $salts              =   $this->getMemberSaltFromID($memberID);
                         $loginCredentials   =   $this->generateMemberLoginCredentials($formFields['returning_member'], $formFields['LoginFormPasswordField'], $salts['salt1'], $salts['salt2'], $salts['salt3']);
 
+                        $this->addMemberSiteStatus("Attempting log in.", $memberID);
 
                         // Check if Member Status is valid
                         $isMemberStatusLocked      =   $this->isMemberStatusLocked($memberID);
@@ -189,7 +190,11 @@ class AuthController extends BaseController
                                     {
                                         $this->registerAccessAttempt($this->getSiteUser()->getID(),$FormName, 1);
                                         $authCheck  =   $this->authCheckOnAccess();
-                                        if(FALSE != $authCheck){return Redirect::route($authCheck['name']);}
+                                        if(FALSE != $authCheck)
+                                        {
+                                            $this->addMemberSiteStatus("Successfully logged in.", $memberID);
+                                            return Redirect::route($authCheck['name']);
+                                        }
                                     }
                                     else
                                     {

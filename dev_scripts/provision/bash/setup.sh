@@ -32,8 +32,11 @@ echo "Ensure Composer is up to date."
 composer self-update
 echo "Composer updated."
 
-echo "Composer is updating project."
+echo "Composer is installing project."
 composer install
 
-php artisan migrate --seed
+echo "Composer is updating project."
+composer update
+
+php artisan migrate --seed --force
 

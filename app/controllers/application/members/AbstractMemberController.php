@@ -58,7 +58,7 @@ class AbstractMemberController extends BaseController
     public function memberLogout()
     {
         // perform generic member activities before logging out
-
+        $this->addMemberSiteStatus("Successfully logged out.", $this->memberID);
 
         // Actual Logout
         Auth::logout();

@@ -170,6 +170,31 @@ class SetupMainDb extends Migration
         });
 
         /**
+         * Entity: MemberSiteStatus
+         * Table: member_site_status
+         */
+		Schema::connection($this->connection)->dropIfExists('member_site_status');
+		Schema::connection($this->connection)->create('member_site_status', function($table)
+        {
+            // Parameters
+            $table->engine = 'InnoDB';
+
+            // Columns
+            $table->increments('id');
+            $table->integer('member_id');
+            $table->string('status', 250);
+
+            $table->timestamps();
+
+            // Indexes
+            $table->index(array('member_id')                        , 'ndx1');
+            $table->index(array('created_at')                       , 'ndx2');
+            $table->index(array('member_id', 'status')              , 'ndx1_s');
+            $table->index(array('member_id', 'created_at')          , 'ndx1_2');
+            $table->index(array('member_id', 'status', 'created_at'), 'ndx1_s_2');
+        });
+
+        /**
          * Entity: MemberEmails
          * Table: member_emails
          */
@@ -392,6 +417,11 @@ class SetupMainDb extends Migration
          * Table: member_status
          */
 		Schema::connection($this->connection)->dropIfExists('member_status');
+        /**
+         * Entity: MemberSiteStatus
+         * Table: member_site_status
+         */
+		Schema::connection($this->connection)->dropIfExists('member_site_status');
         /**
          * Entity: MemberEmails
          * Table: member_emails

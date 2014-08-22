@@ -250,7 +250,19 @@ class BaseController extends Controller
         return $returnToRoute;
     }
 
-
+    public function addMemberSiteStatus($status, $memberID)
+    {
+        try
+        {
+            $NewMemberSiteStatus    =   new MemberSiteStatus();
+            return $NewMemberSiteStatus->addMemberSiteStatus($status, $memberID);
+        }
+        catch(\Whoops\Example\Exception $e)
+        {
+            Log::error("Could not add the new Member Site Status [" . $status . "] for Member [" . $memberID . "]. " . $e);
+            return FALSE;
+        }
+    }
 
 
 }
