@@ -102,6 +102,15 @@ class BaseController extends Controller
 
 
 
+    public function addAdminAlert()
+    {
+        // todo: Add an Admin Alert for certain issues
+    }
+
+
+
+
+
 	/**
 	 * Setup the layout used by the controller.
 	 *
@@ -162,19 +171,7 @@ class BaseController extends Controller
                     :   Response::make(View::make($viewName, $viewData))->withCookie($this->SiteUserCookie);
     }
 
-    public function getMemberTypeFromFormValue($memberTypeIdentifier)
-    {
-        $currentMemberTypes =   array(
-            '0'     =>  'unknown',
-            '1'     =>  'vendor',
-            '2'     =>  'freelancer',
-            '3'     =>  'vendor-client',
-            '4'     =>  'report-viewer',
-            '900'   =>  'employee',
-        );
 
-        return $currentMemberTypes[(isset($memberTypeIdentifier) && is_numeric($memberTypeIdentifier) ? $memberTypeIdentifier : 0)];
-    }
 
 
     public function failedAuthCheck()
@@ -182,72 +179,173 @@ class BaseController extends Controller
 
     }
 
-
-    public function authCheckAfterAccess()
+	/**
+	 * Checks if form is clean
+     *
+     * This could mean:
+     * 1. form has been populated by robots
+     * 2.
+	 *
+	 * @param $formName
+	 * @param $formValues
+	 *
+	 * @return bool
+	 */
+	public function isFormClean($formName, $formValues)
     {
-        if (!Auth::check())
-        {
-            return $this->makeResponseView("application/members/member-logout", array());
-        }
-    }
+        $returnValue    =   FALSE;
 
-    public function authCheckOnAccess()
-    {
-        if (Auth::check())
+        if(is_array($formValues))
         {
-            $memberID       =   Auth::id();
-            $memberType     =   Auth::user()->member_type;
-
-            if($memberID >= 1)
+            switch($formName)
             {
-                switch($memberType)
+                case 'LoginForm'            					:   $dummyInput     =   array
+																						(
+																							'usr'           =>  '',
+																							'username'      =>  '',
+																							'email'         =>  '',
+																							'login_email'   =>  '',
+																						);
+																	break;
+
+                case 'SignupForm'     							:   $dummyInput     =   array
+																						(
+																							'usr'           =>  '',
+																							'username'      =>  '',
+																							'email'         =>  '',
+																							'login_email'   =>  '',
+																						);
+																	break;
+
+                case 'VerificationDetailsForm'     	            :   $dummyInput     =   array
+																						(
+																							'usr'           =>  '',
+																							'username'      =>  '',
+																							'email'         =>  '',
+																							'login_email'   =>  '',
+																						);
+																	break;
+
+                case 'LostSignupVerificationForm'     	        :   $dummyInput     =   array
+																						(
+																							'usr'           =>  '',
+																							'username'      =>  '',
+																							'email'         =>  '',
+																							'login_email'   =>  '',
+																						);
+																	break;
+
+                case 'ForgotForm'     							:   $dummyInput     =   array
+																						(
+																							'usr'           =>  '',
+																							'username'      =>  '',
+																							'email'         =>  '',
+																							'login_email'   =>  '',
+																						);
+																	break;
+
+                case 'LoginCaptchaForm'     					:   $dummyInput     =   array
+																						(
+																							'usr'           =>  '',
+																							'username'      =>  '',
+																							'email'         =>  '',
+																							'login_email'   =>  '',
+																						);
+																	break;
+
+                case 'ChangePasswordWithVerifyLinkForm'     	:   $dummyInput     =   array
+																						(
+																							'usr'           =>  '',
+																							'username'      =>  '',
+																							'email'         =>  '',
+																							'login_email'   =>  '',
+																						);
+                                                					break;
+
+                case 'ChangePasswordWithOldPasswordForm'     	:   $dummyInput     =   array
+																						(
+
+																						);
+																	break;
+
+
+                default  :   $dummyInput     =	array
+												(
+													'false'     =>  'FALSE',
+												);
+            }
+
+            if(count($dummyInput) >= 1)
+            {
+                foreach ($dummyInput as $dumbKey => $dumbValue)
                 {
-                    case 'employee'         :   $returnToRoute  =   array
-                                                                (
-                                                                    'name'  =>  'employeeCheckBeforeAccess',
-                                                                );
-                                                break;
-
-                    case 'vendor'           :   $returnToRoute  =   array
-                                                                (
-                                                                    'name'  =>  'showVendorDashboard',
-                                                                );
-                                                break;
-
-                    case 'vendor-client'    :   $returnToRoute  =   array
-                                                                (
-                                                                    'name'  =>  'showVendorClientDashboard',
-                                                                );
-                                                break;
-
-                    case 'freelancer'       :   $returnToRoute  =   array
-                                                                (
-                                                                    'name'  =>  'showFreelancerDashboard',
-                                                                );
-                                                break;
-
-                    default :   Auth::logout();
-                                $returnToRoute  =   array
-                                                    (
-                                                        'name'  =>  'memberLogout',
-                                                        'data'  =>  array
-                                                                    (
-                                                                        'memberID'  =>  $memberID
-                                                                    ),
-                                                    );
+                    if(array_key_exists($dumbKey, $formValues))
+                    {
+                        if($dummyInput[$dumbKey] != 'FALSE')
+                        {
+                            if($formValues[$dumbKey] == $dummyInput[$dumbKey])
+                            {
+                                $returnValue    =   TRUE;
+                            }
+                            else
+                            {
+                                Log::info("Form value for dummy input has incorrect value of [" . $formValues[$dumbKey]. "]. It should be [" . $dummyInput[$dumbKey]. "].");
+                                $returnValue    =   FALSE;
+                            }
+                        }
+                        else
+                        {
+                            Log::info("Invalid formName. => dummyInput[" . $dumbValue . "]");
+                            $returnValue    =   FALSE;
+                        }
+                    }
+                    else
+                    {
+                        Log::info("Array key from variable dumbKey (" . $dumbKey . ") does not exist in variable array formValues.");
+                        $returnValue    =   FALSE;
+                    }
                 }
             }
             else
             {
-                $returnToRoute  =   FALSE;
+                $returnValue    =   TRUE;
             }
         }
         else
         {
-            $returnToRoute  =   FALSE;
+            Log::info("Variable formValues is not an array.");
+            $returnValue    =   FALSE;
         }
 
-        return $returnToRoute;
+        return $returnValue;
+    }
+
+
+
+    public function generateVerifyEmailLink($memberEmail, $memberID, $emailTemplateName )
+    {
+        $siteSalt           =   $_ENV['ENCRYPTION_KEY_SITE_default_salt'];
+
+        $a                  =   base64_encode($this->twoWayCrypt('e',$memberEmail,$siteSalt));      // email address
+        $b                  =   base64_encode($this->createHash($memberID,$siteSalt));              // one-way hashed mid
+        $c                  =   base64_encode($this->twoWayCrypt('e',strtotime("now"),$siteSalt));  // vCode creation time
+        $addOn              =   str_replace("/", "--::--", $a . self::POLICY_EncryptedURLDelimiter . $b . self::POLICY_EncryptedURLDelimiter . $c);
+        $addOn              =   str_replace("+", "--:::--", $addOn);
+
+		switch($emailTemplateName)
+		{
+			case 'verify-new-member'		:	$router	=	'email-verification';
+												break;
+
+			case 'forgot-logins-success'	:	$router	=	'change-password-verification';
+												break;
+
+			default : throw new \Exception('Invalid Email route passed (' . $emailTemplateName . '.');
+		}
+        #$verifyEmailLink    =   self::POLICY_CompanyURL_protocol . self::POLICY_CompanyURL_prd . $router . "/" . $addOn;
+        $verifyEmailLink    =   (isset($_SERVER['HTTPS']) ? "https" : "http") . "://" . $_SERVER['HTTP_HOST'] . "/" . $router . "/" . $addOn;
+
+        return $verifyEmailLink;
     }
 
     public function addMemberSiteStatus($status, $memberID)
@@ -264,5 +362,28 @@ class BaseController extends Controller
         }
     }
 
+    public function changeArrayFormat($inputArray, $outputFormat)
+    {
+        switch($outputFormat)
+        {
+            case 'array'    :   $output =   $inputArray; break;
+            case 'json'     :   $output =   json_encode($inputArray); break;
+
+            /**
+             * Uses Array2XML
+             * app/controllers/library/Array2XML.php
+             */
+            case 'xml'      :   $xml    =   Array2XML::createXML('restaurant', $inputArray);
+                                $output =   $xml->saveXML();
+                                break;
+
+            case 'string'   :   $output =  serialize($inputArray); break;
+            case 'text'     :   $output =  serialize($inputArray); break;
+
+            default : $output = FALSE;
+        }
+
+        return $output;
+    }
 
 }

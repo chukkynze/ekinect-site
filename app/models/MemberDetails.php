@@ -11,7 +11,7 @@
   */
  
 
-class MemberDetails extends Eloquent
+class MemberDetails extends AbstractModel
 {
     protected $table        =   'member_details';
     protected $primaryKey   =   'id';
@@ -41,24 +41,6 @@ class MemberDetails extends Eloquent
                                 (
                                     'id',
                                 );
-
-    public function getPrimaryKeyByMemberID($memberID)
-    {
-        try
-        {
-            $query   =   DB::connection($this->connection)->table($this->table)
-                ->select('id')
-                ->where('member_id' , '=', $memberID)
-                ->get();
-
-            $result =   $query[0];
-            return $result->id;
-        }
-        catch(\Whoops\Example\Exception $e)
-        {
-            throw new \Whoops\Example\Exception($e);
-        }
-    }
 
     public function getMemberDetailsPrefix($format)
     {

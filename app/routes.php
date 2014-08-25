@@ -37,55 +37,54 @@ Route::group(array('prefix' => '/'), function()
 // Entering Paywall Routes - Access Authorization
 Route::group(array('prefix' => '/'), function()
 {
-    Route::get('/login',                                                    array('as' =>  'login',                                 'uses'  =>  'AuthController@showAccess',                        ));
-    Route::post('/login',                                                   array('as' =>  'processLogin',                          'uses'  =>  'AuthController@processLogin',                      ));
-    Route::get('/login-again',                                              array('as' =>  'loginAgain',                            'uses'  =>  'AuthController@loginAgain',                        ));
-    Route::get('/you-have-successfully-logged-out',                         array('as' =>  'successfulLogout',                      'uses'  =>  'AuthController@successfulLogout',                  ));
-    Route::get('/you-have-successfully-changed-your-access-credentials',    array('as' =>  'successfulAccessCredentialChange',      'uses'  =>  'AuthController@successfulAccessCredentialChange',  ));
-    Route::get('/login-captcha',                                            array('as' =>  'loginCaptcha',                          'uses'  =>  'AuthController@loginCaptcha',                      ));
-    Route::get('/member-logout',                                            array('as' =>  'memberLogout',                          'uses'  =>  'AuthController@memberLogout',                      ));
-    Route::get('/member-logout-expired-session',                            array('as' =>  'memberLogoutExpiredSession',            'uses'  =>  'AuthController@memberLogoutExpiredSession',        ));
-    Route::get('/signup',                                                   array('as' =>  'signup',                                'uses'  =>  'AuthController@signup',                            ));
-    Route::post('/signup',                                                  array('as' =>  'processSignup',                         'uses'  =>  'AuthController@processSignup',                     'before' => 'csrf',));
-    Route::get('/vendor-signup',                                            array('as' =>  'vendorSignup',                          'uses'  =>  'AuthController@vendorSignup',                      ));
-    Route::get('/freelancer-signup',                                        array('as' =>  'freelancerSignup',                      'uses'  =>  'AuthController@freelancerSignup',                  ));
-    Route::get('/forgot',                                                   array('as' =>  'forgot',                                'uses'  =>  'AuthController@forgot',                            ));
-    Route::post('/forgot',                                                  array('as' =>  'processForgotPassword',                 'uses'  =>  'AuthController@processForgotPassword',             'before' => 'csrf',));
-    Route::get('/reset-password',                                           array('as' =>  'resetPassword',                         'uses'  =>  'AuthController@resetPassword',                     ));
-    Route::get('/password-change',                                          array('as' =>  'changePasswordWithOldPassword',         'uses'  =>  'AuthController@changePasswordWithOldPassword',     ));
-    Route::post('/verification-details',                                    array('as' =>  'processVerificationDetails',            'uses'  =>  'AuthController@processVerificationDetails',        ));
-    Route::get('/resend-signup-confirmation',                               array('as' =>  'resendSignupConfirmation',              'uses'  =>  'AuthController@resendSignupConfirmation',          ));
-    Route::post('/resend-signup-confirmation',                              array('as' =>  'processResendSignupConfirmation',       'uses'  =>  'AuthController@processResendSignupConfirmation',   ));
-    Route::get('/email-verification/{vcode}',                               array('as' =>  'verifyEmail',                           'uses'  =>  'AuthController@verifyEmail',                       ));
-    Route::get('/change-password-verification/{vcode}',                     array('as' =>  'changePasswordWithVerifyEmailLink',     'uses'  =>  'AuthController@changePasswordWithVerifyEmailLink', ));
+    Route::get('/login',                                                    array('as' =>  'login',                                 'uses'  =>  'AuthController@showAccess',                                ));
+    Route::post('/login',                                                   array('as' =>  'processLogin',                          'uses'  =>  'AuthController@processLogin',                              ));
+    Route::get('/login-again',                                              array('as' =>  'loginAgain',                            'uses'  =>  'AuthController@loginAgain',                                ));
+    Route::get('/you-have-successfully-logged-out',                         array('as' =>  'successfulLogout',                      'uses'  =>  'AuthController@successfulLogout',                          ));
+    Route::get('/you-have-successfully-changed-your-access-credentials',    array('as' =>  'successfulAccessCredentialChange',      'uses'  =>  'AuthController@successfulAccessCredentialChange',          ));
+    Route::get('/login-captcha',                                            array('as' =>  'loginCaptcha',                          'uses'  =>  'AuthController@loginCaptcha',                              ));
+    Route::get('/member-logout',                                            array('as' =>  'memberLogout',                          'uses'  =>  'AuthController@memberLogout',                              ));
+    Route::get('/member-logout-expired-session',                            array('as' =>  'memberLogoutExpiredSession',            'uses'  =>  'AuthController@memberLogoutExpiredSession',                ));
+    Route::get('/signup',                                                   array('as' =>  'signup',                                'uses'  =>  'AuthController@signup',                                    ));
+    Route::post('/signup',                                                  array('as' =>  'processSignup',                         'uses'  =>  'AuthController@processSignup',                             'before' => 'csrf',));
+    Route::get('/vendor-signup',                                            array('as' =>  'vendorSignup',                          'uses'  =>  'AuthController@vendorSignup',                              ));
+    Route::get('/freelancer-signup',                                        array('as' =>  'freelancerSignup',                      'uses'  =>  'AuthController@freelancerSignup',                          ));
+    Route::get('/forgot',                                                   array('as' =>  'forgot',                                'uses'  =>  'AuthController@forgot',                                    ));
+    Route::post('/forgot',                                                  array('as' =>  'processForgotPassword',                 'uses'  =>  'AuthController@processForgotPassword',                     'before' => 'csrf',));
+    Route::get('/reset-password',                                           array('as' =>  'resetPassword',                         'uses'  =>  'AuthController@resetPassword',                             ));
+    Route::get('/password-change',                                          array('as' =>  'changePasswordWithOldPassword',         'uses'  =>  'AuthController@changePasswordWithOldPassword',             ));
+    Route::post('/verification-details',                                    array('as' =>  'processVerificationDetails',            'uses'  =>  'AuthController@processVerificationDetails',                'before' => 'csrf',));
+    Route::get('/resend-signup-confirmation',                               array('as' =>  'resendSignupConfirmation',              'uses'  =>  'AuthController@resendSignupConfirmation',                  ));
+    Route::post('/resend-signup-confirmation',                              array('as' =>  'processResendSignupConfirmation',       'uses'  =>  'AuthController@processResendSignupConfirmation',           'before' => 'csrf',));
+    Route::get('/email-verification/{vcode}',                               array('as' =>  'verifyEmail',                           'uses'  =>  'AuthController@verifyEmail',                               ));
+    Route::get('/change-password-verification/{vcode}',                     array('as' =>  'showChangePasswordWithVerifyEmailLink', 'uses'  =>  'AuthController@showChangePasswordWithVerifyEmailLink',     ));
+    Route::post('/change-password-verification/{vcode}',                    array('as' =>  'postChangePasswordWithVerifyEmailLink', 'uses'  =>  'AuthController@postChangePasswordWithVerifyEmailLink',     'before' => 'csrf',));
 });
 
 
 
 
 // Admin
-Route::group(array('prefix' => 'admin'), function()
+Route::group(array('prefix' => 'admin', 'before' => 'auth'), function()
 {
-    // Outside Paywall Routes
-    Route::get('/login',                array('as' =>  'adminlogin',                    'uses'  =>  'AdminAuthController@showAccess',           ));
-
-    // Behind Paywall Routes
-    Route::get('dashboard',             array('as' =>  'showEmployeeDashboard',         'uses'  =>  'AdminController@showDashboard',            'before' => 'auth', ));
+    Route::get('login',                 array('as' =>  'adminlogin',                    'uses'  =>  'AdminAuthController@showAccess',           ));
+    Route::get('dashboard',             array('as' =>  'showEmployeeDashboard',         'uses'  =>  'AdminController@showDashboard',        ));
 
 });
 
 // Vendor
 Route::group(array('prefix' => 'vendor', 'before' => 'auth',), function()
 {
-    // Behind Paywall Routes
-    Route::get('dashboard',             array('as' =>  'showVendorDashboard',           'uses'  =>  'VendorController@showDashboard',               ));
-    Route::get('logout',                array('as' =>  'vendorLogout',                  'uses'  =>  'VendorController@vendorLogout',                ));
+    Route::get('home',                     array('as' =>  'showVendorDashboard',               'uses'  =>  'VendorController@showDashboard',                       ));
+    Route::get('dashboard',                     array('as' =>  'showVendorDashboard',               'uses'  =>  'VendorController@showDashboard',                       ));
+    Route::get('logout',                        array('as' =>  'vendorLogout',                      'uses'  =>  'VendorController@vendorLogout',                        ));
+    Route::get('change-password',      array('as' =>  'showChangePasswordWithOldPassword',     'uses'  =>  'VendorController@showChangePasswordWithOldPassword',       ));
+    Route::post('change-password',     array('as' =>  'postChangePasswordWithOldPassword',     'uses'  =>  'VendorController@postChangePasswordWithOldPassword',       ));
 });
 
 // Vendor Clients
 Route::group(array('prefix' => 'vendor-client', 'before' => 'auth'), function()
 {
-    // Behind Paywall Routes
     Route::get('dashboard',             array('as' =>  'showVendorClientDashboard',     'uses'  =>  'VendorClientController@showDashboard',             ));
     Route::get('logout',                array('as' =>  'vendorClientLogout',            'uses'  =>  'VendorClientController@vendorClientLogout',        ));
 });
@@ -93,7 +92,6 @@ Route::group(array('prefix' => 'vendor-client', 'before' => 'auth'), function()
 // Freelancer Dashboard
 Route::group(array('prefix' => 'freelancer', 'before' => 'auth'), function()
 {
-    // Behind Paywall Routes
     Route::get('dashboard',             array('as' =>  'showFreelancerDashboard',       'uses'  =>  'FreelancerController@showDashboard',               ));
     Route::get('logout',                array('as' =>  'freelancerLogout',              'uses'  =>  'FreelancerController@freelancerLogout',            ));
 });

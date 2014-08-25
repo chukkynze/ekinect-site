@@ -588,12 +588,11 @@
 								<span class="arrow"></span>
 								</a>
 								<ul class="sub">
-									<li><a class="" href="/notaryDashboards/overview"><span class="sub-menu-text">Overview</span></a></li>
-									<li><a class="" href="/notaryDashboards/revenue"><span class="sub-menu-text">Revenue</span></a></li>
-									<li><a class="" href="/notaryDashboards/signings"><span class="sub-menu-text">Signings</span></a></li>
-									<li><a class="" href="/notaryDashboards/expenses"><span class="sub-menu-text">Expenses</span></a></li>
-									<li><a class="" href="/notaryDashboards/resources"><span class="sub-menu-text">Resources</span></a></li>
-									<li><a class="" href="/notaryDashboards/website"><span class="sub-menu-text">Website</span></a></li>
+									<li><a class="" href="/vendor/dashboards/overview"><span class="sub-menu-text">Overview</span></a></li>
+									<li><a class="" href="/vendor/dashboards/revenue"><span class="sub-menu-text">Crews</span></a></li>
+									<li><a class="" href="/vendor/dashboards/signings"><span class="sub-menu-text">Jobs</span></a></li>
+									<li><a class="" href="/vendor/dashboards/expenses"><span class="sub-menu-text">Analytics</span></a></li>
+									<li><a class="" href="/vendor/dashboards/resources"><span class="sub-menu-text">Reports</span></a></li>
 								</ul>
 							</li>
 							<li class="has-sub">
@@ -612,107 +611,97 @@
 
 							<li class="has-sub">
 								<a href="javascript:;" class="">
-								<i class="fa fa-paperclip fa-fw"></i> <span class="menu-text">Signings</span>
+								<i class="fa fa-paperclip fa-fw"></i> <span class="menu-text">Crews</span>
 								<span class="arrow"></span>
 								</a>
 								<ul class="sub">
-									<li><a class="" href="/NotarySigningOrders"><span class="sub-menu-text">Signing Orders</span></a></li>
-									<li><a class="" href="/NotarySigningSources"><span class="sub-menu-text">Signing Sources</span></a></li>
-									<li><a class="" href="/NotaryData"><span class="sub-menu-text">View Data & Reports</span></a></li>
+									<li><a class="" href="/vendor/crew-request"><span class="sub-menu-text">New Crew Request</span></a></li>
+									<li><a class="" href="/vendor/preferred-crews"><span class="sub-menu-text">Preferred Crews</span></a></li>
+									<li><a class="" href="/vendor/crew-confirmations"><span class="sub-menu-text">Crew Confirmations</span></a></li>
+									<li><a class="" href="/vendor/freelancers"><span class="sub-menu-text">Freelancer Lists</span></a></li>
 								</ul>
 							</li>
 
 							<li class="has-sub">
 								<a href="javascript:;" class="">
-								<i class="fa fa-money fa-fw"></i> <span class="menu-text">Accounting</span>
+								<i class="fa fa-money fa-fw"></i> <span class="menu-text">Jobs</span>
 								<span class="arrow"></span>
 								</a>
 								<ul class="sub">
-									<li><a class="" href="elements.html"><span class="sub-menu-text">Elements</span></a></li><li><a class="" href="notifications.html"><span class="sub-menu-text">Hubspot Notifications</span></a></li>
-									<li><a class="" href="buttons_icons.html"><span class="sub-menu-text">Buttons & Icons</span></a></li>
-									<li><a class="" href="sliders_progress.html"><span class="sub-menu-text">Sliders & Progress</span></a></li>
-									<li><a class="" href="typography.html"><span class="sub-menu-text">Typography</span></a></li>
-									<li><a class="" href="tabs_accordions.html"><span class="sub-menu-text">Tabs & Accordions</span></a></li>
-									<li><a class="" href="treeview.html"><span class="sub-menu-text">Treeview</span></a></li>
-									<li><a class="" href="nestable_lists.html"><span class="sub-menu-text">Nestable Lists</span></a></li>
-									<li class="has-sub-sub">
-										<a href="javascript:;" class=""><span class="sub-menu-text">Third Level Menu</span>
-										<span class="arrow"></span>
-										</a>
-										<ul class="sub-sub">
-											<li><a class="" href="#"><span class="sub-sub-menu-text">Item 1</span></a></li>
-											<li><a class="" href="#"><span class="sub-sub-menu-text">Item 2</span></a></li>
-										</ul>
-									</li>
+									<li><a class="" href=""><span class="sub-menu-text">Upcoming Jobs</span></a></li>
 								</ul>
 							</li>
 
-							<li class="has-sub">
-								<a href="javascript:;" class="">
-								<i class="fa fa-th-large fa-fw"></i> <span class="menu-text">Resources</span>
-								<span class="arrow"></span>
-								</a>
-								<ul class="sub">
-									<li><a class="" href="elements.html"><span class="sub-menu-text">Elements</span></a></li><li><a class="" href="notifications.html"><span class="sub-menu-text">Hubspot Notifications</span></a></li>
-									<li><a class="" href="buttons_icons.html"><span class="sub-menu-text">Buttons & Icons</span></a></li>
-									<li><a class="" href="sliders_progress.html"><span class="sub-menu-text">Sliders & Progress</span></a></li>
-									<li><a class="" href="typography.html"><span class="sub-menu-text">Typography</span></a></li>
-									<li><a class="" href="tabs_accordions.html"><span class="sub-menu-text">Tabs & Accordions</span></a></li>
-									<li><a class="" href="treeview.html"><span class="sub-menu-text">Treeview</span></a></li>
-									<li><a class="" href="nestable_lists.html"><span class="sub-menu-text">Nestable Lists</span></a></li>
-									<li class="has-sub-sub">
-										<a href="javascript:;" class=""><span class="sub-menu-text">Third Level Menu</span>
-										<span class="arrow"></span>
-										</a>
-										<ul class="sub-sub">
-											<li><a class="" href="#"><span class="sub-sub-menu-text">Item 1</span></a></li>
-											<li><a class="" href="#"><span class="sub-sub-menu-text">Item 2</span></a></li>
-										</ul>
-									</li>
-								</ul>
-							</li>
-
-							<li class="has-sub">
-								<a href="javascript:;" class="">
-								<i class="fa fa-folder-open-o fa-fw"></i> <span class="menu-text">Documents &amp; Reports</span>
-								<span class="arrow"></span>
-								</a>
-								<ul class="sub">
-									<li><a class="" href="elements.html"><span class="sub-menu-text">Elements</span></a></li><li><a class="" href="notifications.html"><span class="sub-menu-text">Hubspot Notifications</span></a></li>
-									<li><a class="" href="buttons_icons.html"><span class="sub-menu-text">Buttons & Icons</span></a></li>
-									<li><a class="" href="sliders_progress.html"><span class="sub-menu-text">Sliders & Progress</span></a></li>
-									<li><a class="" href="typography.html"><span class="sub-menu-text">Typography</span></a></li>
-									<li><a class="" href="tabs_accordions.html"><span class="sub-menu-text">Tabs & Accordions</span></a></li>
-									<li><a class="" href="treeview.html"><span class="sub-menu-text">Treeview</span></a></li>
-									<li><a class="" href="nestable_lists.html"><span class="sub-menu-text">Nestable Lists</span></a></li>
-									<li class="has-sub-sub">
-										<a href="javascript:;" class=""><span class="sub-menu-text">Third Level Menu</span>
-										<span class="arrow"></span>
-										</a>
-										<ul class="sub-sub">
-											<li><a class="" href="#"><span class="sub-sub-menu-text">Item 1</span></a></li>
-											<li><a class="" href="#"><span class="sub-sub-menu-text">Item 2</span></a></li>
-										</ul>
-									</li>
-								</ul>
-							</li>
-
-							<li><a class="" href="calendar.html"><i class="fa fa-calendar fa-fw"></i>
-								<span class="menu-text">Calendar
+							<li><a class="" href="vendor/calendar"><i class="fa fa-calendar fa-fw"></i>
+								<span class="menu-text">
+                                    Calendar
 									<span class="tooltip-error pull-right" title="" data-original-title="3 New Events">
 										<span class="label label-success">New</span>
 									</span>
 								</span>
 								</a>
 							</li>
+
 							<li class="has-sub">
 								<a href="javascript:;" class="">
-								<i class="fa fa-map-marker fa-fw"></i> <span class="menu-text">Maps</span>
+								<i class="fa fa-th-large fa-fw"></i> <span class="menu-text">Analytics</span>
 								<span class="arrow"></span>
 								</a>
 								<ul class="sub">
-									<li><a class="" href="google_maps.html"><span class="sub-menu-text">Google Maps</span></a></li>
-									<li><a class="" href="vector_maps.html"><span class="sub-menu-text">Vector Maps</span></a></li>
+									<li><a class="" href="elements.html"><span class="sub-menu-text">Elements</span></a></li><li><a class="" href="notifications.html"><span class="sub-menu-text">Hubspot Notifications</span></a></li>
+									<li><a class="" href="buttons_icons.html"><span class="sub-menu-text">Buttons & Icons</span></a></li>
+									<li><a class="" href="sliders_progress.html"><span class="sub-menu-text">Sliders & Progress</span></a></li>
+									<li><a class="" href="typography.html"><span class="sub-menu-text">Typography</span></a></li>
+									<li><a class="" href="tabs_accordions.html"><span class="sub-menu-text">Tabs & Accordions</span></a></li>
+									<li><a class="" href="treeview.html"><span class="sub-menu-text">Treeview</span></a></li>
+									<li><a class="" href="nestable_lists.html"><span class="sub-menu-text">Nestable Lists</span></a></li>
+									<li class="has-sub-sub">
+										<a href="javascript:;" class=""><span class="sub-menu-text">Third Level Menu</span>
+										<span class="arrow"></span>
+										</a>
+										<ul class="sub-sub">
+											<li><a class="" href="#"><span class="sub-sub-menu-text">Item 1</span></a></li>
+											<li><a class="" href="#"><span class="sub-sub-menu-text">Item 2</span></a></li>
+										</ul>
+									</li>
+								</ul>
+							</li>
+
+							<li class="has-sub">
+								<a href="javascript:;" class="">
+								<i class="fa fa-folder-open-o fa-fw"></i> <span class="menu-text">Report Center</span>
+								<span class="arrow"></span>
+								</a>
+								<ul class="sub">
+									<li><a class="" href="elements.html"><span class="sub-menu-text">Elements</span></a></li><li><a class="" href="notifications.html"><span class="sub-menu-text">Hubspot Notifications</span></a></li>
+									<li><a class="" href="buttons_icons.html"><span class="sub-menu-text">Buttons & Icons</span></a></li>
+									<li><a class="" href="sliders_progress.html"><span class="sub-menu-text">Sliders & Progress</span></a></li>
+									<li><a class="" href="typography.html"><span class="sub-menu-text">Typography</span></a></li>
+									<li><a class="" href="tabs_accordions.html"><span class="sub-menu-text">Tabs & Accordions</span></a></li>
+									<li><a class="" href="treeview.html"><span class="sub-menu-text">Treeview</span></a></li>
+									<li><a class="" href="nestable_lists.html"><span class="sub-menu-text">Nestable Lists</span></a></li>
+									<li class="has-sub-sub">
+										<a href="javascript:;" class=""><span class="sub-menu-text">Third Level Menu</span>
+										<span class="arrow"></span>
+										</a>
+										<ul class="sub-sub">
+											<li><a class="" href="#"><span class="sub-sub-menu-text">Item 1</span></a></li>
+											<li><a class="" href="#"><span class="sub-sub-menu-text">Item 2</span></a></li>
+										</ul>
+									</li>
+								</ul>
+							</li>
+
+
+							<li class="has-sub">
+								<a href="javascript:;" class="">
+								<i class="fa fa-map-marker fa-fw"></i> <span class="menu-text">Help</span>
+								<span class="arrow"></span>
+								</a>
+								<ul class="sub">
+									<li><a class="" href=""><span class="sub-menu-text">FAQ</span></a></li>
+									<li><a class="" href=""><span class="sub-menu-text">Vendor Forums</span></a></li>
+									<li><a class="" href=""><span class="sub-menu-text">Customer Support</span></a></li>
 								</ul>
 							</li>
 						</ul>
@@ -753,7 +742,38 @@
 			<!-- /SAMPLE BOX CONFIGURATION MODAL FORM-->
 
 
+            @if(Session::has('successFlashMessage'))
+                <div class="alert alert-block alert-success fade in">
+                    <a class="close" data-dismiss="alert" href="#" aria-hidden="true">×</a>
+                    <ul>
+                    @foreach(Session::pull('successFlashMessage') as $message)
+                        <li>{{ $message }}</li>
+                    @endforeach
+                    </ul>
+                </div>
+            @endif
 
+            @if(Session::has('warningFlashMessage'))
+                <div class="alert alert-block alert-warning fade in">
+                    <a class="close" data-dismiss="alert" href="#" aria-hidden="true">×</a>
+                    <ul>
+                    @foreach(Session::pull('warningFlashMessage') as $message)
+                        <li>{{ $message }}</li>
+                    @endforeach
+                    </ul>
+                </div>
+            @endif
+
+            @if(Session::has('errorFlashMessage'))
+                <div class="alert alert-block alert-danger fade in">
+                    <a class="close" data-dismiss="alert" href="#" aria-hidden="true">×</a>
+                    <ul>
+                    @foreach(Session::pull('errorFlashMessage') as $message)
+                    <li>{{ $message }}</li>
+                    @endforeach
+                    </ul>
+                </div>
+            @endif
 
 
 			@yield('content')

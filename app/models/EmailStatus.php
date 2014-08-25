@@ -51,4 +51,16 @@ class EmailStatus extends Eloquent
 
         return ($count == 1 ? TRUE : FALSE);
     }
+
+	public function getEmailStatus($emailAddress)
+	{
+        $result     =   DB::connection($this->connection)->table($this->table)
+                        ->select('email_address_status')
+                        ->where('email_address'       , '=', $emailAddress)
+                        ->orderBy('created_at', 'desc')
+                        ->first()
+        ;
+
+		return $result->email_address_status;
+	}
 }

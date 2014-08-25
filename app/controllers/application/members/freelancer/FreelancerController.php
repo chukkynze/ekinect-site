@@ -22,11 +22,7 @@ class FreelancerController extends AbstractFreelancerController
 
     public function __construct()
     {
-        $this->getSiteUser();   // Find/Create a SiteUser uid from cookie
-        $this->setSiteHit();    // Register a SiteHit
-
-        $this->memberID             =   Auth::id();
-        $this->memberDetailsID      =   $this->getPrimaryKeyFromMemberID("MemberDetails");
+        parent::__construct();
     }
 
     public function showDashboard()

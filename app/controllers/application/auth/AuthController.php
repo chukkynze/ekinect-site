@@ -12,10 +12,12 @@
 
 class AuthController extends BaseController
 {
+    use MemberControls;
+
     const POLICY_AllowedVerificationSeconds_Signup				=   43200;
 	const POLICY_AllowedVerificationSeconds_ChangePassword		=   10800;
 
-	const POLICY_AllowedLoginAttempts       					=   3;
+	const POLICY_AllowedLoginAttempts       					=   300;
     const POLICY_AllowedLoginCaptchaAttempts    				=   3;
     const POLICY_AllowedSignupAttempts       					=   3;
     const POLICY_AllowedForgotAttempts       					=   3;
@@ -164,81 +166,103 @@ class AuthController extends BaseController
 
                         $this->addMemberSiteStatus("Attempting log in.", $memberID);
 
-                        // Check if Member Status is valid
-                        $isMemberStatusLocked      =   $this->isMemberStatusLocked($memberID);
+                        $wasVerificationLinkSent    =   $this->wasVerificationLinkSent($formFields['returning_member']);
 
-                        if(!$isMemberStatusLocked)
+                        if($wasVerificationLinkSent)
                         {
-                            // Ensure member is not required to perform a forced behaviour
-                            $memberHasNoForce         =   $this->checkMemberHasNoForce($memberID);
+                            $memberEmailIsVerified  =   $this->isEmailVerified($formFields['returning_member']);
 
-                            if($memberHasNoForce['AttemptStatus'])
+                            if($memberEmailIsVerified)
                             {
-                                // Check Member Financial Status
-                                $memberIsInGoodFinancialStanding		=	$this->checkMemberFinancialStatus();
+                                // Check if Member Status is valid
+                                $isMemberStatusLocked      =   $this->isMemberStatusLocked($memberID);
 
-                                if($memberIsInGoodFinancialStanding['AttemptStatus'])
+                                if(!$isMemberStatusLocked)
                                 {
-                                    // create our user data for the authentication
-                                    $authData           =   array
-                                                            (
-                                                                'id' 	            => $memberID,
-                                                                'password' => $loginCredentials,
-                                                            );
+                                    // Ensure member is not required to perform a forced behaviour
+                                    $memberHasNoForce         =   $this->checkMemberHasNoForce($memberID);
 
-                                    if (Auth::attempt($authData, true))
+                                    if($memberHasNoForce['AttemptStatus'])
                                     {
-                                        $this->registerAccessAttempt($this->getSiteUser()->getID(),$FormName, 1);
-                                        $authCheck  =   $this->authCheckOnAccess();
-                                        if(FALSE != $authCheck)
+                                        // Check Member Financial Status
+                                        $memberIsInGoodFinancialStanding		=	$this->checkMemberFinancialStatus();
+
+                                        if($memberIsInGoodFinancialStanding['AttemptStatus'])
                                         {
-                                            $this->addMemberSiteStatus("Successfully logged in.", $memberID);
-                                            return Redirect::route($authCheck['name']);
+                                            // create our user data for the authentication
+                                            $authData           =   array
+                                                                    (
+                                                                        'id' 	            => $memberID,
+                                                                        'password' => $loginCredentials,
+                                                                    );
+
+                                            if (Auth::attempt($authData, true))
+                                            {
+                                                $this->registerAccessAttempt($this->getSiteUser()->getID(),$FormName, 1);
+                                                $authCheck  =   $this->authCheckOnAccess();
+                                                if(FALSE != $authCheck)
+                                                {
+                                                    $this->addMemberSiteStatus("Successfully logged in.", $memberID);
+                                                    return Redirect::route($authCheck['name']);
+                                                }
+                                            }
+                                            else
+                                            {
+                                                $FormMessages   =   array();
+                                                $FormMessages[] =   "Unfortunately, we do not recognize your login credentials. Please retry.";
+
+                                                $this->registerAccessAttempt($this->getSiteUser()->getID(),$FormName, 0);
+                                                Log::info($FormName . " - form values did not pass.");
+                                            }
+                                        }
+                                        else
+                                        {
+                                            $this->registerAccessAttempt($this->getSiteUser()->getID(), $FormName, 0);
+                                            $this->addAdminAlert();
+                                            Log::warning($FormName . " member financials are not in order.");
+                                            $returnToRoute  =   array
+                                                                (
+                                                                    'name'  =>  'custom-error',
+                                                                    'data'  =>  array('errorNumber' => 26),
+                                                                );
                                         }
                                     }
                                     else
                                     {
-                                        $FormMessages   =   array();
-                                        $FormMessages[] =   "Unfortunately, we do not recognize your login credentials. Please retry.";
-
-                                        $this->registerAccessAttempt($this->getSiteUser()->getID(),$FormName, 0);
-                                        Log::info($FormName . " - form values did not pass.");
+                                        $this->registerAccessAttempt($this->getSiteUser()->getID(), $FormName, 0);
+                                        $this->addAdminAlert();
+                                        Log::warning($FormName . " member is under force.");
+                                        $returnToRoute  =   array
+                                                            (
+                                                                'name'  =>  'custom-error',
+                                                                'data'  =>  array('errorNumber' => 25),
+                                                            );
                                     }
                                 }
                                 else
                                 {
                                     $this->registerAccessAttempt($this->getSiteUser()->getID(), $FormName, 0);
                                     $this->addAdminAlert();
-                                    Log::warning($FormName . " member financials are not in order.");
+                                    Log::warning($FormName . " member status is under lock.");
                                     $returnToRoute  =   array
                                                         (
                                                             'name'  =>  'custom-error',
-                                                            'data'  =>  array('errorNumber' => 26),
+                                                            'data'  =>  array('errorNumber' => 24),
                                                         );
                                 }
                             }
                             else
                             {
-                                $this->registerAccessAttempt($this->getSiteUser()->getID(), $FormName, 0);
-                                $this->addAdminAlert();
-                                Log::warning($FormName . " member is under force.");
-                                $returnToRoute  =   array
-                                                    (
-                                                        'name'  =>  'custom-error',
-                                                        'data'  =>  array('errorNumber' => 25),
-                                                    );
+                                $FormMessages   =   array();
+                                $FormMessages[] =   "You must validate your email address before you can log in. Please, check your inbox.";
+                                Log::info($FormName . " - email address is not valid.");
                             }
                         }
                         else
                         {
-                            $this->registerAccessAttempt($this->getSiteUser()->getID(), $FormName, 0);
-                            $this->addAdminAlert();
-                            Log::warning($FormName . " member status is under lock.");
-                            $returnToRoute  =   array
-                                                (
-                                                    'name'  =>  'custom-error',
-                                                    'data'  =>  array('errorNumber' => 24),
-                                                );
+                            $FormMessages   =   array();
+                            $FormMessages[] =   "Your email address isn't recognized as valid. Signup first or, login with a previous email and validate this one.";
+                            Log::info($FormName . " - email address verification not sent.");
                         }
                     }
                     else
@@ -679,10 +703,8 @@ class AuthController extends BaseController
 
     public function logout()
     {
-		if ($this->getAuthService()->hasIdentity())
-        {
-            $this->getAuthService()->clearIdentity();
-        }
+		Auth::logout();
+        #return Redirect::route('memberLogout',array());
     }
 
     public function loginAgain()
@@ -716,8 +738,7 @@ class AuthController extends BaseController
     public function memberLogout()
     {
         $this->logout();
-
-		// return $this->redirect()->toRoute('member-login-after-intentional-logout');
+        return $this->makeResponseView('application/members/member-logout', array());
     }
 
     public function memberLogoutExpiredSession()
@@ -826,7 +847,7 @@ class AuthController extends BaseController
                             $this->setSiteUserMemberID($this->getSiteUser()->getID(), $NewMemberID);
 
                             // Create & Save a Member Status Object for the new Member
-                            $this->addMemberStatus($NewMemberID, 'Successful-Signup');
+                            $this->addMemberStatus('Successful-Signup', $NewMemberID);
 
                             // Create & Save a Member Emails Object
                             $NewMemberEmailID   =   $this->addMemberEmail($formFields['new_member'], $NewMemberID);
@@ -1011,11 +1032,11 @@ class AuthController extends BaseController
         if(Request::isMethod('post'))
         {
             $Attempts       =   $this->getAccessAttemptByUserIDs
-                (
-                    'ForgotForm',
-                    array($this->getSiteUser()->id),
-                    self::POLICY_AllowedAttemptsLookBackDuration
-                );
+				                (
+				                    'ForgotForm',
+				                    array($this->getSiteUser()->id),
+				                    self::POLICY_AllowedAttemptsLookBackDuration
+				                );
 
             if($Attempts['total'] < self::POLICY_AllowedForgotAttempts)
             {
@@ -1024,17 +1045,23 @@ class AuthController extends BaseController
 
                     $formFields     =   array
                                         (
-                                            'forgot_email'  =>  Input::get('forgot_email'),
+                                            'forgot_email'              =>  Input::get('forgot_email'),
+                                            'recaptcha_response_field'  =>  Input::get('recaptcha_response_field'),
                                         );
                     $formRules      =   array
                                         (
-                                            'forgot_email'  =>  array
-                                                                (
-                                                                    'required',
-                                                                    'email',
-                                                                    'exists:member_emails,email_address',
-                                                                    'between:5,120',
-                                                                ),
+                                            'forgot_email'              =>  array
+                                                                            (
+                                                                                'required',
+                                                                                'email',
+                                                                                'exists:member_emails,email_address',
+                                                                                'between:5,120',
+                                                                            ),
+                                            'recaptcha_response_field'  =>  array
+                                                                            (
+                                                                                'required',
+                                                                                'recaptcha',
+                                                                            ),
                                         );
                     $formMessages   =   array
                                         (
@@ -1042,6 +1069,9 @@ class AuthController extends BaseController
                                             'forgot_email.email'               =>  "Your email address format is invalid.",
                                             'forgot_email.exists'              =>  "Are you sure you've <a href='/signup'>signed up</a>?",
                                             'forgot_email.between'             =>  "Please, re-check your email address' size.",
+
+                                            'recaptcha_response_field.required'     =>  "Please enter the reCaptcha value.",
+                                            'recaptcha_response_field.recaptcha'    =>  "Your reCaptcha entry is incorrect.",
                                         );
 
                     $validator      =   Validator::make($formFields, $formRules, $formMessages);
@@ -1056,24 +1086,24 @@ class AuthController extends BaseController
                         $verifyEmailLink    =   $this->generateVerifyEmailLink($formFields['forgot_email'], $NewMemberID, 'forgot-logins-success');
                         $MemberDetails      =   $this->getMemberDetailsFromMemberID($NewMemberID);
                         $sendEmailStatus    =   $this->sendEmail
-                            (
-                                'forgot-logins-success',
-                                array
-                                (
-                                    'verifyEmailLink'   => $verifyEmailLink,
-                                    'first_name'	    =>	$MemberDetails->first_name,
-                                    'last_name'			=>	$MemberDetails->last_name,
-                                ),
-                                array
-                                (
-                                    'fromTag'           =>  'General',
-                                    'sendToEmail'       =>  $formFields['forgot_email'],
-                                    'sendToName'        =>  $MemberDetails->first_name . ' ' . $MemberDetails->last_name,
-                                    'subject'           =>  'Access Issues',
-                                    'ccArray'           =>  FALSE,
-                                    'attachArray'       =>  FALSE,
-                                )
-                            );
+					                            (
+					                                'forgot-logins-success',
+					                                array
+					                                (
+					                                    'verifyEmailLink'   => $verifyEmailLink,
+					                                    'first_name'	    =>	$MemberDetails->first_name,
+					                                    'last_name'			=>	$MemberDetails->last_name,
+					                                ),
+					                                array
+					                                (
+					                                    'fromTag'           =>  'General',
+					                                    'sendToEmail'       =>  $formFields['forgot_email'],
+					                                    'sendToName'        =>  $MemberDetails->first_name . ' ' . $MemberDetails->last_name,
+					                                    'subject'           =>  'Access Issues',
+					                                    'ccArray'           =>  FALSE,
+					                                    'attachArray'       =>  FALSE,
+					                                )
+					                            );
                         $this->registerAccessAttempt($FormName, $FormName, 1);
                         $viewData   =   array
                         (
@@ -1138,11 +1168,6 @@ class AuthController extends BaseController
                                     );
             return $this->makeResponseView('application/auth/forgot-success', $viewData);
         }
-    }
-
-    public function changePasswordWithOldPassword()
-    {
-
     }
 
     public function processVerificationDetails()
@@ -1276,11 +1301,12 @@ class AuthController extends BaseController
                             // Update Member Object with Member Type
                             $memberFillableArray    =   array
                                                         (
-                                                            'member_type'   =>  $this->getMemberTypeFromFormValue(strtolower($formFields['member_type'])),
+                                                            'member_type'   =>  $this->getMemberTypeFromFromValue(strtolower($formFields['member_type'])),
                                                         );
                             $this->updateMember($verifiedMemberIDArray['memberID'], $memberFillableArray);
                             $this->addMemberStatus('VerifiedStartupDetails', $verifiedMemberIDArray['memberID']);
                             $this->addMemberStatus('ValidMember', $verifiedMemberIDArray['memberID']);
+                            $this->addMemberSiteStatus('Member startup details complete.', $verifiedMemberIDArray['memberID']);
 
                             // Successful Verification Notification Email
                             $this->sendEmail
@@ -1409,18 +1435,19 @@ class AuthController extends BaseController
          * Must return both email and member id bc a member can have more than one email address
          */
         $verifiedMemberIDArray  =   $this->verifyEmailByLinkAndGetMemberIDArray($vCode, 'VerificationDetailsForm');
-        $vCodeCreateTime		=	(is_numeric($verifiedMemberIDArray['vCodeCreateTime'])
-                                        ?   (int) $verifiedMemberIDArray['vCodeCreateTime']
-                                        :   0);
-        $verificationDuration	=	( (strtotime("now") - $vCodeCreateTime) <= self::POLICY_AllowedVerificationSeconds_Signup
-                                        ?   TRUE
-                                        :   FALSE );
 
-        if($verificationDuration)
-        {
-            if (!isset($verifiedMemberIDArray['errorNbr']) && !isset($verifiedMemberIDArray['errorMsg']))
-            {
-                if (isset($verifiedMemberIDArray) && is_array($verifiedMemberIDArray))
+	    if (!isset($verifiedMemberIDArray['errorNbr']) && !isset($verifiedMemberIDArray['errorMsg']))
+	    {
+		    $vCodeCreateTime		=	(is_numeric($verifiedMemberIDArray['vCodeCreateTime'])
+	                                        ?   (int) $verifiedMemberIDArray['vCodeCreateTime']
+	                                        :   0);
+	        $verificationDuration	=	( (strtotime("now") - $vCodeCreateTime) <= self::POLICY_AllowedVerificationSeconds_Signup
+	                                        ?   TRUE
+	                                        :   FALSE );
+
+	        if($verificationDuration)
+	        {
+	            if (isset($verifiedMemberIDArray) && is_array($verifiedMemberIDArray))
                 {
                     if ($verifiedMemberIDArray['alreadyVerified'] === 0)
                     {
@@ -1436,35 +1463,35 @@ class AuthController extends BaseController
 
                     $this->addEmailStatus($verifiedMemberIDArray['email'], 'Verified');
                 }
-                else
-                {
-                    Log::info("Error #3 - returned value from verifiedMemberIDArray is not an array.");
-                    $returnToRoute  =   array
-                    (
-                        'name'  =>  'custom-error',
-                        'data'  =>  array('errorNumber' => 3),
-                    );
-                }
-            }
-            else
-            {
-                Log::info("Error #" . $verifiedMemberIDArray['errorNbr'] . " - " . $verifiedMemberIDArray['errorMsg'] . ".");
-                $returnToRoute  =   array
-                (
-                    'name'  =>  'custom-error',
-                    'data'  =>  array('errorNumber' => $verifiedMemberIDArray['errorNbr']),
-                );
-            }
-        }
-        else
-        {
-            Log::info("Error #22 - verification link has expired.");
+	            else
+	            {
+	                Log::info("Error #3 - returned value from verifiedMemberIDArray is not an array.");
+	                $returnToRoute  =   array
+	                (
+	                    'name'  =>  'custom-error',
+	                    'data'  =>  array('errorNumber' => 3),
+	                );
+	            }
+	        }
+	        else
+	        {
+	            Log::info("Error #22 - verification link has expired.");
+	            $returnToRoute  =   array
+	            (
+	                'name'  =>  'custom-error',
+	                'data'  =>  array('errorNumber' => 22),
+	            );
+	        }
+	    }
+	    else
+	    {
+		    Log::info("Error #" . $verifiedMemberIDArray['errorNbr'] . " - " . $verifiedMemberIDArray['errorMsg'] . ".");
             $returnToRoute  =   array
             (
                 'name'  =>  'custom-error',
-                'data'  =>  array('errorNumber' => 22),
+                'data'  =>  array('errorNumber' => $verifiedMemberIDArray['errorNbr']),
             );
-        }
+	    }
 
 
 
@@ -1489,9 +1516,278 @@ class AuthController extends BaseController
         }
     }
 
-    public function changePasswordWithVerifyEmailLink($vCode)
+    /**
+     * Password Resets
+     *
+     * @param $vCode
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function showChangePasswordWithVerifyEmailLink($vCode)
     {
+		$FormMessages       =   "";
+        $viewData           =   array
+                                (
+                                    'vcode'         =>  $vCode,
+                                    'FormMessages'  =>  $FormMessages,
+                                );
+        return $this->makeResponseView('application/auth/change-password-with-verified-email-link', $viewData);
+    }
 
+    public function postChangePasswordWithVerifyEmailLink()
+    {
+        $FormName           =   'ChangePasswordWithVerifyLinkForm';
+        $FormMessages       =   '';
+        $returnToRoute      =   array
+                                (
+                                    'name'  =>  FALSE,
+                                    'data'  =>  FALSE,
+                                );
+
+        if(Request::isMethod('post'))
+        {
+            $Attempts   =   $this->getAccessAttemptByUserIDs
+                            (
+                                $FormName,
+                                array($this->getSiteUser()->id),
+                                self::POLICY_AllowedAttemptsLookBackDuration
+                            );
+
+            if($Attempts['total'] < self::POLICY_AllowedSignupAttempts)
+            {
+                if($this->isFormClean($FormName, Input::all()))
+                {
+                    // Validate vcode
+                    $vcodeDetails           =   $this->verifyEmailByLinkAndGetMemberIDArray(Input::get('vcode'), 'ChangePasswordWithVerifyLinkForm');
+
+	                if (!isset($vcodeDetails['errorNbr']) && !isset($vcodeDetails['errorMsg']))
+	                {
+		                $vcodeCreateTime		=	(is_numeric($vcodeDetails['vCodeCreateTime']) ? (int) $vcodeDetails['vCodeCreateTime'] : 0);
+	                    $verificationDuration	=	( (strtotime("now") - $vcodeCreateTime) <= self::POLICY_AllowedVerificationSeconds_ChangePassword ? TRUE : FALSE );
+
+	                    if($verificationDuration)
+	                    {
+	                        if (isset($vcodeDetails) && is_array($vcodeDetails))
+                            {
+                                $formFields     =   array
+                                                    (
+                                                        'change_verify_member'      =>  Input::get('change_verify_member'),
+                                                        'password'                  =>  Input::get('password'),
+                                                        'password_confirmation '    =>  Input::get('password_confirmation'),
+                                                        'recaptcha_response_field'  =>  Input::get('recaptcha_response_field'),
+                                                    );
+                                $formRules      =   array
+                                                    (
+                                                        'change_verify_member'      =>  array
+                                                                                        (
+                                                                                            'required',
+                                                                                            'email',
+                                                                                            'exists:member_emails,email_address',
+                                                                                            'between:5,120',
+                                                                                        ),
+                                                        'password'                  =>  array
+                                                                                        (
+                                                                                            'required',
+                                                                                            'between:10,256',
+                                                                                        ),
+                                                        'password_confirmation '    =>  array
+                                                                                        (
+                                                                                            'same:password',
+                                                                                        ),
+                                                        'recaptcha_response_field'  =>  array
+                                                                                        (
+                                                                                            'required',
+                                                                                            'recaptcha',
+                                                                                        ),
+                                                    );
+                                $formMessages   =   array
+                                                    (
+                                                        'change_verify_member.required'   =>  "Your email address is required and can not be empty.",
+                                                        'change_verify_member.email'      =>  "Your email address format is invalid.",
+                                                        'change_verify_member.exists'     =>  "Please, use the primary email associated with your account.",
+                                                        'change_verify_member.between'    =>  "Please, re-check your email address' size.",
+
+                                                        'password.required'     =>  "Please enter your password.",
+                                                        'password.confirmed'    =>  "A password confirmation is required.",
+                                                        'password.between'      =>  "Passwords must be more than 10 digits.",
+
+                                                        'password_confirmation.same'    =>  "A password confirmation is required.",
+
+                                                        'recaptcha_response_field.required'     =>  "Please enter the reCaptcha value.",
+                                                        'recaptcha_response_field.recaptcha'    =>  "Your reCaptcha entry is incorrect.",
+                                                    );
+
+                                $validator      =   Validator::make($formFields, $formRules, $formMessages);
+                                $passwordCheck  =   $this->checkPasswordStrength($formFields['password']);
+
+                                if ($validator->passes() && $passwordCheck['status'])
+                                {
+	                                if( $vcodeDetails['email'] ==  $formFields['change_verify_member'])
+	                                {
+		                                // Current Member Email Status Should be Forgot
+		                                if($this->getEmailStatus($vcodeDetails['email']) == 'Forgot')
+		                                {
+			                                $this->addEmailStatus($vcodeDetails['email'], 'Remembered');
+
+			                                $LoginCredentials       =   $this->generateLoginCredentials($vcodeDetails['email'], $formFields['password']);
+					                        $memberFillableArray    =   array
+					                                                    (
+					                                                        'password'          =>  Hash::make($LoginCredentials[0]),
+					                                                        'salt1'             =>  $LoginCredentials[1],
+					                                                        'salt2'             =>  $LoginCredentials[2],
+					                                                        'salt3'             =>  $LoginCredentials[3],
+					                                                    );
+                                            $this->updateMember($vcodeDetails['memberID'], $memberFillableArray);
+                                            $this->addMemberStatus("ChangedPassword", $vcodeDetails['memberID']);
+                                            $this->addMemberStatus("ValidMember", $vcodeDetails['memberID']);
+                                            $this->addMemberSiteStatus("Member has changed their password.", $vcodeDetails['memberID']);
+
+			                                $this->registerAccessAttempt($this->getSiteUser()->getID(),$FormName, 1);
+
+			                                $successMessage[]       =   'Congratulations. You have successfully changed your password!';
+                                            Session::put('successFlashMessage', $successMessage);
+
+			                                $MemberDetailsObject    =   $this->getMemberDetailsFromMemberID($vcodeDetails['memberID']);
+			                                $sendEmailStatus        =   $this->sendEmail
+				                                                        (
+				                                                            'genericPasswordChange',
+				                                                            array
+				                                                            (
+				                                                                'first_name' 	=> 	$MemberDetailsObject->getMemberDetailsFirstName(),
+																				'last_name' 	=> 	$MemberDetailsObject->getMemberDetailsLastName(),
+				                                                            ),
+				                                                            array
+				                                                            (
+				                                                                'fromTag'       =>  'General',
+				                                                                'sendToEmail'   =>  $vcodeDetails['email'],
+				                                                                'sendToName'    =>  $MemberDetailsObject->getMemberDetailsFullName(),
+				                                                                'subject'       =>  'Password Reset',
+				                                                                'ccArray'       =>  FALSE,
+				                                                                'attachArray'   =>  FALSE,
+				                                                            )
+				                                                        );
+
+			                                $viewData   =   array
+		                                                    (
+		                                                        'emailAddress'        =>  $vcodeDetails['email'],
+		                                                    );
+		                                    return $this->makeResponseView('application/auth/reset-verified-password-success', $viewData);
+
+		                                }
+		                                else
+		                                {
+			                                $FormMessages[]   =   'Your new access credentials can not be updated at this time. Please retry the link or contact Customer Service';
+			                                $this->registerAccessAttempt($this->getSiteUser()->getID(),$FormName, 0);
+		                                    Log::info($FormName . " - getEmailStatusStatus != 'Forgot'");
+		                                }
+	                                }
+	                                else
+	                                {
+		                                $FormMessages[]   =   'Your new access credentials can not be updated at this time. Please retry the link or contact Customer Service';
+		                                $this->registerAccessAttempt($this->getSiteUser()->getID(),$FormName, 0);
+	                                    Log::info($FormName . " - vcodeDetails['email'] !=  formFields['change_verify_member'].");
+	                                }
+                                }
+                                else
+                                {
+                                    $FormErrors   =   $validator->messages()->toArray();
+                                    $FormMessages =   array();
+                                    foreach($FormErrors as $errors)
+                                    {
+                                        $FormMessages[]   =   $errors[0];
+                                    }
+
+                                    if(array_key_exists('errors', $passwordCheck))
+                                    {
+                                        foreach($passwordCheck['errors'] as $errors)
+                                        {
+                                            $FormMessages[]   =   $errors;
+                                        }
+                                    }
+
+                                    $this->registerAccessAttempt($this->getSiteUser()->getID(),$FormName, 0);
+                                    Log::info($FormName . " - form values did not pass.");
+                                }
+                            }
+                            else
+                            {
+                                $this->registerAccessAttempt($this->getSiteUser()->getID(), $FormName, 0);
+                                Log::info("Error #3 - returned value from verifiedMemberIDArray is not an array.");
+                                $returnToRoute  =   array
+                                (
+                                    'name'  =>  'custom-error',
+                                    'data'  =>  array('errorNumber' => 3),
+                                );
+                            }
+	                    }
+	                    else
+	                    {
+	                        $this->addAdminAlert();
+	                        Log::warning($FormName . " has expired vcode.");
+	                        $returnToRoute  =   array
+	                                            (
+	                                                'name'  =>  'custom-error',
+	                                                'data'  =>  array('errorNumber' => 22),
+	                                            );
+	                    }
+	                }
+	                else
+                    {
+                        $this->registerAccessAttempt($this->getSiteUser()->getID(), $FormName, 0);
+                        Log::info("Error #" . $vcodeDetails['errorNbr'] . " - " . $vcodeDetails['errorMsg'] . ".");
+                        $returnToRoute  =   array
+                        (
+                            'name'  =>  'custom-error',
+                            'data'  =>  array('errorNumber' => $vcodeDetails['errorNbr']),
+                        );
+                    }
+                }
+                else
+                {
+                    $this->registerAccessAttempt($this->getSiteUser()->getID(), $FormName, 0);
+                    $this->addAdminAlert();
+                    Log::warning($FormName . " has invalid dummy variables passed.");
+                    $returnToRoute  =   array
+                                        (
+                                            'name'  =>  'custom-error',
+                                            'data'  =>  array('errorNumber' => 23),
+                                        );
+                }
+            }
+            else
+            {
+                $this->applyLock('Locked:Excessive-ChangeVerifiedLinkPassword-Attempts', '','excessive-change-verified-member-password', []);
+                Log::warning($FormName . " has attempted to change password via verification link too many times.");
+                $returnToRoute  =   array
+                                    (
+                                        'name'  =>  'custom-error',
+                                        'data'  =>  array('errorNumber' => 19),
+                                    );
+            }
+        }
+        else
+        {
+            $this->addAdminAlert();
+            Log::warning($FormName . " is not being correctly posted to.");
+            $returnToRoute  =   array
+                                (
+                                    'name'  =>  'custom-error',
+                                    'data'  =>  array('errorNumber' => 23),
+                                );
+        }
+
+        if(FALSE != $returnToRoute['name'])
+        {
+            return Redirect::route($returnToRoute['name'],$returnToRoute['data']);
+        }
+        else
+        {
+            $viewData   =   array(
+                'vcode'         =>  Input::get('vcode'),
+                'FormMessages'  =>  $FormMessages,
+            );
+            return $this->makeResponseView('application/auth/change-password-with-verified-email-link', $viewData);
+        }
     }
 
 	/**
@@ -1545,7 +1841,7 @@ class AuthController extends BaseController
                                                 :   "Ekinect Member");
 
                     // Lock the member
-                    $this->updateMemberStatus($memberID, ['status' => $lockStatus]);
+                    $this->addMemberStatus($lockStatus, $memberID);
 
                     // Email Options for a Member
                     $messageOptionsArray    =   $this->getLockMessageOptions($lockStatus) + ['sendToEmail'   =>  $memberPriEmail, 'sendToName' => $sendToName,];
@@ -1622,139 +1918,6 @@ class AuthController extends BaseController
 
 
 
-	/**
-	 * Checks if form has been populated by robots
-	 *
-	 * @param $formName
-	 * @param $formValues
-	 *
-	 * @return bool
-	 */
-	public function isFormClean($formName, $formValues)
-    {
-        $returnValue    =   FALSE;
-
-        if(is_array($formValues))
-        {
-            switch($formName)
-            {
-                case 'LoginForm'            					:   $dummyInput     =   array
-																						(
-																							'usr'           =>  '',
-																							'username'      =>  '',
-																							'email'         =>  '',
-																							'login_email'   =>  '',
-																						);
-																	break;
-
-                case 'SignupForm'     							:   $dummyInput     =   array
-																						(
-																							'usr'           =>  '',
-																							'username'      =>  '',
-																							'email'         =>  '',
-																							'login_email'   =>  '',
-																						);
-																	break;
-
-                case 'VerificationDetailsForm'     	            :   $dummyInput     =   array
-																						(
-																							'usr'           =>  '',
-																							'username'      =>  '',
-																							'email'         =>  '',
-																							'login_email'   =>  '',
-																						);
-																	break;
-
-                case 'LostSignupVerificationForm'     	        :   $dummyInput     =   array
-																						(
-																							'usr'           =>  '',
-																							'username'      =>  '',
-																							'email'         =>  '',
-																							'login_email'   =>  '',
-																						);
-																	break;
-
-                case 'ForgotForm'     							:   $dummyInput     =   array
-																						(
-																							'usr'           =>  '',
-																							'username'      =>  '',
-																							'email'         =>  '',
-																							'login_email'   =>  '',
-																						);
-																	break;
-
-                case 'LoginCaptchaForm'     					:   $dummyInput     =   array
-																						(
-																							'usr'           =>  '',
-																							'username'      =>  '',
-																							'email'         =>  '',
-																							'login_email'   =>  '',
-																						);
-																	break;
-
-                case 'ChangePasswordWithVerifyLinkForm'     	:   $dummyInput     =   array
-																						(
-																							'usr'           =>  '',
-																							'username'      =>  '',
-																							'email'         =>  '',
-																							'login_email'   =>  '',
-																						);
-                                                					break;
-
-                case 'ChangePasswordWithOldPasswordForm'     	:   $dummyInput     =   array
-																						(
-																							'usr'           =>  '',
-																							'username'      =>  '',
-																							'email'         =>  '',
-																							'login_email'   =>  '',
-																						);
-																	break;
-
-
-                default  :   $dummyInput     =	array
-												(
-													'false'     =>  'FALSE',
-												);
-            }
-
-            foreach ($dummyInput as $dumbKey => $dumbValue)
-            {
-                if(array_key_exists($dumbKey, $formValues))
-                {
-                    if($dummyInput[$dumbKey] != 'FALSE')
-                    {
-                        if($formValues[$dumbKey] == $dummyInput[$dumbKey])
-                        {
-                            $returnValue    =   TRUE;
-                        }
-                        else
-                        {
-                            Log::info("Form value for dummy input has incorrect value of [" . $formValues[$dumbKey]. "]. It should be [" . $dummyInput[$dumbKey]. "].");
-                            $returnValue    =   FALSE;
-                        }
-                    }
-                    else
-                    {
-                        Log::info("Invalid formName. => dummyInput[" . $dumbValue . "]");
-                        $returnValue    =   FALSE;
-                    }
-                }
-                else
-                {
-                    Log::info("Array key from variable dumbKey (" . $dumbKey . ") does not exist in variable array formValues.");
-                    $returnValue    =   FALSE;
-                }
-            }
-        }
-        else
-        {
-            Log::info("Variable formValues is not an array.");
-            $returnValue    =   FALSE;
-        }
-
-        return $returnValue;
-    }
-
 
     public function getAccessAttemptByUserIDs($accessFormName, $userIDArray, $timeFrame)
     {
@@ -1791,6 +1954,19 @@ class AuthController extends BaseController
         }
     }
 
+    public function getEmailStatus($emailAddress)
+    {
+        try
+        {
+            $EmailStatus    =   new EmailStatus();
+            $EmailStatus->getEmailStatus($emailAddress);
+        }
+        catch(\Whoops\Example\Exception $e)
+        {
+            Log::error("Could not get current Email Status. " . $e);
+        }
+    }
+
     public function addEmailStatus($emailAddress, $status)
     {
         try
@@ -1816,77 +1992,6 @@ class AuthController extends BaseController
             Log::error("Could not check for previous Email Status. " . $e);
             return FALSE;
         }
-    }
-
-    public function generateLoginCredentials($newMemberEmail, $newMemberPassword)
-    {
-        $siteSalt           =   $_ENV['ENCRYPTION_KEY_SITE_default_salt'];
-        $memberSalt1        =   uniqid(mt_rand(0, 61), true);
-        $memberSalt2        =   uniqid(mt_rand(0, 61), true);
-        $memberSalt3        =   uniqid(mt_rand(0, 61), true);
-        $loginCredentials   =   $this->createHash
-                                (
-                                    $memberSalt1 . $newMemberEmail . $siteSalt . $newMemberPassword . $memberSalt2,
-                                    $siteSalt . $memberSalt3
-                                );
-        return  array
-                (
-                    $loginCredentials,
-                    $memberSalt1,
-                    $memberSalt2,
-                    $memberSalt3,
-                );
-    }
-
-    public function getMemberSaltFromID($memberID)
-    {
-        try
-        {
-            $Member   =   new Member();
-            return $Member->getMemberSaltFromID($memberID);
-        }
-        catch(\Whoops\Example\Exception $e)
-        {
-            Log::error("Could not get member salts from id [" . $memberID . "]. " . $e);
-            return FALSE;
-        }
-    }
-
-    public function generateMemberLoginCredentials($newMemberEmail, $newMemberPassword, $memberSalt1, $memberSalt2, $memberSalt3)
-    {
-        $siteSalt           =   $_ENV['ENCRYPTION_KEY_SITE_default_salt'];
-        $loginCredentials   =   $this->createHash
-                                (
-                                     $memberSalt1 . $newMemberEmail . $siteSalt . $newMemberPassword . $memberSalt2,
-                                     $siteSalt . $memberSalt3
-                                );
-
-        return $loginCredentials;
-    }
-
-    public function generateVerifyEmailLink($memberEmail, $memberID, $emailTemplateName )
-    {
-        $siteSalt           =   $_ENV['ENCRYPTION_KEY_SITE_default_salt'];
-
-        $a                  =   base64_encode($this->twoWayCrypt('e',$memberEmail,$siteSalt));      // email address
-        $b                  =   base64_encode($this->createHash($memberID,$siteSalt));              // one-way hashed mid
-        $c                  =   base64_encode($this->twoWayCrypt('e',strtotime("now"),$siteSalt));  // vCode creation time
-        $addOn              =   str_replace("/", "--::--", $a . self::POLICY_EncryptedURLDelimiter . $b . self::POLICY_EncryptedURLDelimiter . $c);
-        $addOn              =   str_replace("+", "--:::--", $addOn);
-
-		switch($emailTemplateName)
-		{
-			case 'verify-new-member'		:	$router	=	'email-verification';
-												break;
-
-			case 'forgot-logins-success'	:	$router	=	'change-password-verification';
-												break;
-
-			default : throw new \Exception('Invalid Email route passed (' . $emailTemplateName . '.');
-		}
-        $verifyEmailLink    =   self::POLICY_CompanyURL_protocol . self::POLICY_CompanyURL_prd . $router . "/" . $addOn;
-
-        return $verifyEmailLink;
     }
 
     public function verifyEmailByLinkAndGetMemberIDArray($passedVCode, $verificationFormName='')
@@ -1918,8 +2023,7 @@ class AuthController extends BaseController
                 default :	throw new \Exception('Invalid verification link form.');
             }
 
-
-            return  array
+	        return  array
             (
                 'statusMsg'         =>  '',
                 'memberID'          =>  $memberID,
@@ -1941,19 +2045,7 @@ class AuthController extends BaseController
         }
     }
 
-    public function isEmailVerified($email)
-    {
-        try
-        {
-            $MemberEmails   =   new MemberEmails();
-            return $MemberEmails->isEmailVerified($email);
-        }
-        catch(\Whoops\Example\Exception $e)
-        {
-            Log::error("Could not verify this email address [" . $email . "]. " . $e);
-            return FALSE;
-        }
-    }
+
 
     public function getMemberIDFromEmailAddress($emailAddress)
     {
@@ -1985,11 +2077,11 @@ class AuthController extends BaseController
 
     public function getMemberIDFromVerifyLink($emailAddress, $memberIDHash)
     {
-        $MemberEmails               =   new MemberEmails();
-        $wasVerificationLinkSent    =   $MemberEmails->wasVerificationLinkSent($emailAddress);
+        $wasVerificationLinkSent    =   $this->wasVerificationLinkSent($emailAddress);
 
         if($wasVerificationLinkSent)
         {
+            $MemberEmails               =   new MemberEmails();
             $memberID   =   $MemberEmails->getMemberIDFromEmailAddress($emailAddress);
             if($memberID >= 1)
             {
@@ -2032,48 +2124,6 @@ class AuthController extends BaseController
         }
     }
 
-    public function updateMember($memberID, $fillableArray)
-    {
-        try
-        {
-            $Member    =   new Member();
-            return $Member->updateMember($memberID, $fillableArray);
-        }
-        catch(\Whoops\Example\Exception $e)
-        {
-            Log::error("Could not update Member ID [" . $memberID . "] - " . $e);
-            return FALSE;
-        }
-    }
-
-    public function addMemberStatus($status, $memberID)
-    {
-        try
-        {
-            $NewMemberStatus    =   new MemberStatus();
-            return $NewMemberStatus->addMemberStatus($status, $memberID);
-        }
-        catch(\Whoops\Example\Exception $e)
-        {
-            Log::error("Could not add the new Member Status [" . $status . "] for Member [" . $memberID . "]. " . $e);
-            return FALSE;
-        }
-    }
-
-    public function updateMemberStatus($memberID, $fillableArray)
-    {
-        try
-        {
-            $MemberStatus    =   new MemberStatus();
-            return $MemberStatus->updateMemberStatus($memberID, $fillableArray);
-        }
-        catch(\Whoops\Example\Exception $e)
-        {
-            Log::error("Could not update MemberStatus ID [" . $memberID . "] - " . $e);
-            return FALSE;
-        }
-    }
-
     public function doMemberDetailsExist($memberID)
     {
         try
@@ -2084,25 +2134,6 @@ class AuthController extends BaseController
         catch(\Whoops\Example\Exception $e)
         {
             Log::error("Could not add details for Member ID [" . $memberID . "] - " . $e);
-            return FALSE;
-        }
-    }
-
-    public function getMemberDetailsObject($memberDetailsID)
-    {
-
-    }
-
-    public function getMemberDetailsFromMemberID($memberID)
-    {
-        try
-        {
-            $MemberDetails    =   new MemberDetails();
-            return $MemberDetails->getMemberDetailsFromMemberID($memberID);
-        }
-        catch(\Whoops\Example\Exception $e)
-        {
-            Log::error("Could not get member details for Member ID [" . $memberID . "] - " . $e);
             return FALSE;
         }
     }
@@ -2178,47 +2209,6 @@ class AuthController extends BaseController
         }
     }
 
-    public function checkPasswordStrength($password)
-    {
-        if( !preg_match("#[0-9]+#", $password) )
-        {
-            $error[]    =   "Password must include at least one number!";
-        }
-
-        if( !preg_match("#[a-z]+#", $password) )
-        {
-            $error[]    =   "Password must include at least one letter!";
-        }
-
-        if( !preg_match("#[A-Z]+#", $password) )
-        {
-            $error[]    =   "Password must include at least one CAPS!";
-        }
-
-        if( !preg_match("#\W+#", $password) )
-        {
-            $error[]    =   "Password must include at least one symbol!";
-        }
-
-        if(isset($error) && count($error) >= 1)
-        {
-            $output     =   array
-                            (
-                                'status' =>   FALSE,
-                                'errors' =>   $error,
-                            );
-        }
-        else
-        {
-            $output     =   array
-                            (
-                                'status' =>   TRUE,
-                            );
-        }
-
-        return $output;
-    }
-
 	/**
 	 * Sends an email
 	 *
@@ -2283,10 +2273,5 @@ class AuthController extends BaseController
             Log::error("Could not send the " . $emailTemplateName . " email to " . $emailTemplateDataVariables['sendToEmail'] . ". " . $e);
             return FALSE;
         }
-    }
-
-    public function addAdminAlert()
-    {
-        // todo: Add an Admin Alert for certain issues
     }
 }

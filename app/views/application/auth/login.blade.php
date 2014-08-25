@@ -273,6 +273,10 @@
                                         <i class="fa fa-envelope"></i>
                                         <?php echo Form::text('forgot_email', null, array('class' => "form-control")); ?>
                                     </div>
+
+                                    <div class="form-actions">
+                                        <?php echo Form::captcha(array('theme' => 'blackglass')); ?>
+                                    </div>
                                     <div class="form-actions">
                                         <button type="submit" class="btn-lg btn-info">Send Me Reset Instructions</button>
                                     </div>

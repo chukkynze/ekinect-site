@@ -31,41 +31,37 @@ class MemberStatus extends Eloquent
 
     public function addMemberStatus($newStatus, $memberID)
     {
-        if($memberID > 0)
-        {
-            $newMemberStatus    =   MemberStatus::create
-                                    (
-                                        array
-                                        (
-                                            'member_id' =>  $memberID,
-                                            'status'    =>  $newStatus,
-                                        )
-                                    );
-            $newMemberStatus->save();
-            return TRUE;
-        }
-    }
-
-    public function updateMemberStatus($memberID, $fillableArray)
-    {
-        if($memberID > 0)
-        {
-            try
-            {
-                $MemberStatus =   MemberStatus::where("member_id","=", $memberID)->first();
-                $MemberStatus->fill($fillableArray);
-                $MemberStatus->save();
-                return TRUE;
-            }
-            catch(\Whoops\Example\Exception $e)
-            {
-                throw new \Whoops\Example\Exception($e);
-            }
-        }
-        else
-        {
-            throw new \Whoops\Example\Exception("MemberStatus ID is invalid.");
-        }
+	    try
+	    {
+		    if($memberID > 0)
+	        {
+		        if($newStatus != "")
+		        {
+			        $newMemberStatus    =   MemberStatus::create
+		                                    (
+		                                        array
+		                                        (
+		                                            'member_id' =>  $memberID,
+		                                            'status'    =>  $newStatus,
+		                                        )
+		                                    );
+		            $newMemberStatus->save();
+		            return TRUE;
+		        }
+		        else
+		        {
+			        throw new Exception("Empty member status to be added.");
+		        }
+	        }
+	        else
+	        {
+		        throw new Exception("Empty member id to be added.");
+	        }
+	    }
+	    catch(Exception $e)
+	    {
+		    throw new Exception("Could not add new member status [$newStatus] for member id [$memberID]. - " . $e );
+	    }
     }
 
     public function checkMemberHasNoForce($memberID)

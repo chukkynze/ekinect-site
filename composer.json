@@ -20,6 +20,8 @@
 			"app/controllers/application/members",
 			"app/controllers/application/members/vendor",
 			"app/controllers/application/members/freelancer",
+			"app/controllers/traits",
+			"app/controllers/library",
 			"app/controllers/utilities",
 			"app/models",
 			"app/database/migrations",
