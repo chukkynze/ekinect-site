@@ -93,7 +93,7 @@
                                 You Did It!
                             </h1>
                             <br> <br>
-                            <p>Your password change was successful and you should be receiving verification instructions at <?php echo $emailAddress ?: "your email address"; ?> very soon.</p>
+                            <p>Your password change was successful and you should be receiving a notice at <?php echo $emailAddress ?: "your email address"; ?> very soon.</p>
                             <a href="/" class="btn btn-large btn-inverse">Back to homepage</a>
                         </div>
                     </div>
