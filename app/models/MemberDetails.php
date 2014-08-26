@@ -200,23 +200,6 @@ class MemberDetails extends AbstractModel
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
     public function doMemberDetailsExist($memberID)
     {
         $count  =   DB::connection($this->connection)->table($this->table)

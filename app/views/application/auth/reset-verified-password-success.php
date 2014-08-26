@@ -90,11 +90,10 @@
                     <div class="span12">
                         <div class="hero-unit hero-color text-center">
                             <h1>
-                                Welcome<br/>
-                                to eKinect.com
+                                You Did It!
                             </h1>
                             <br> <br>
-                            <p>Your signup was successful and you should be receiving verification instructions at <?php echo $emailAddress ?: "your email address"; ?> very soon.</p>
+                            <p>Your password change was successful and you should be receiving verification instructions at <?php echo $emailAddress ?: "your email address"; ?> very soon.</p>
                             <a href="/" class="btn btn-large btn-inverse">Back to homepage</a>
                         </div>
                     </div>

@@ -86,7 +86,8 @@ trait MemberControls
         try
         {
             $MemberDetails    =   new MemberDetails();
-            return $MemberDetails->getMemberDetailsFromMemberID($memberID);
+            #return $MemberDetails->getMemberDetailsFromMemberID($memberID);
+            return MemberDetails::where('member_id', '=', $memberID)->first();
         }
         catch(\Whoops\Example\Exception $e)
         {

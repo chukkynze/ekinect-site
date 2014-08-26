@@ -21,7 +21,7 @@ class AuthController extends BaseController
     const POLICY_AllowedLoginCaptchaAttempts    				=   3;
     const POLICY_AllowedSignupAttempts       					=   3;
     const POLICY_AllowedForgotAttempts       					=   3;
-    const POLICY_AllowedChangeVerifiedMemberPasswordAttempts 	=   3;
+    const POLICY_AllowedChangeVerifiedMemberPasswordAttempts 	=   300;
     const POLICY_AllowedChangeOldMemberPasswordAttempts 		=   3;
     const POLICY_AllowedLostSignupVerificationAttempts 			=   3;
     const POLICY_AllowedAttemptsLookBackDuration  				=   'Last1Hour';
@@ -1553,7 +1553,7 @@ class AuthController extends BaseController
                                 self::POLICY_AllowedAttemptsLookBackDuration
                             );
 
-            if($Attempts['total'] < self::POLICY_AllowedSignupAttempts)
+            if($Attempts['total'] < self::POLICY_AllowedChangeVerifiedMemberPasswordAttempts)
             {
                 if($this->isFormClean($FormName, Input::all()))
                 {
@@ -1959,11 +1959,12 @@ class AuthController extends BaseController
         try
         {
             $EmailStatus    =   new EmailStatus();
-            $EmailStatus->getEmailStatus($emailAddress);
+            return $EmailStatus->getEmailStatus($emailAddress);
         }
         catch(\Whoops\Example\Exception $e)
         {
             Log::error("Could not get current Email Status. " . $e);
+            return FALSE;
         }
     }
 
