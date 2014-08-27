@@ -43,7 +43,7 @@
 						<h1>Jobs</h1>
 						<p>Payoff statement for jobs. </p>
 						<p>
-							<a href="/vendor/jobs" class="btn btn-primary btn-icon input-block-level btn-lg" role="button">
+							<a href="/freelancer/jobs" class="btn btn-primary btn-icon input-block-level btn-lg" role="button">
 								<span class="visible-xs"><i class="fa fa-money fa-fw"></i> <?php echo $jobsSectionButtonText_xs; ?></span>
 								<span class="visible-sm"><i class="fa fa-money fa-fw"></i> <?php echo $jobsSectionButtonText_sm; ?></span>
 								<span class="visible-md"><i class="fa fa-money fa-fw"></i> <?php echo $jobsSectionButtonText_md; ?></span>
@@ -60,7 +60,7 @@
 						<h1>History</h1>
 						<p>Payoff statement for history. </p>
 						<p>
-							<a href="/vendor/jobs" class="btn btn-primary btn-icon input-block-level btn-lg" role="button">
+							<a href="/freelancer/jobs" class="btn btn-primary btn-icon input-block-level btn-lg" role="button">
 								<span class="visible-xs"><i class="fa fa-money fa-fw"></i> <?php echo $jobsSectionButtonText_xs; ?></span>
 								<span class="visible-sm"><i class="fa fa-money fa-fw"></i> <?php echo $jobsSectionButtonText_sm; ?></span>
 								<span class="visible-md"><i class="fa fa-money fa-fw"></i> <?php echo $jobsSectionButtonText_md; ?></span>
@@ -83,7 +83,7 @@
 						<h1>Calender</h1>
 						<p>Keep track of jobs, deadlines.</p>
 						<p>
-							<a href="/vendor/calendar" class="btn btn-primary btn-icon input-block-level btn-lg" role="button">
+							<a href="/freelancer/calendar" class="btn btn-primary btn-icon input-block-level btn-lg" role="button">
 								<span class="visible-xs"><i class="fa fa-laptop fa-fw"></i> <?php echo $calendarSectionButtonText_xs; ?></span>
 								<span class="visible-sm"><i class="fa fa-laptop fa-fw"></i> <?php echo $calendarSectionButtonText_sm; ?></span>
 								<span class="visible-md"><i class="fa fa-laptop fa-fw"></i> <?php echo $calendarSectionButtonText_md; ?></span>
@@ -99,7 +99,7 @@
 					<div class="jumbotron">
 						<h1>Analytics</h1>
 						<p>Your personal number cruncher!</p>
-						<a href="/vendor/analytics" class="btn btn-primary btn-icon input-block-level btn-lg" role="button">
+						<a href="/freelancer/analytics" class="btn btn-primary btn-icon input-block-level btn-lg" role="button">
 							<span class="visible-xs"><i class="fa fa-bar-chart-o fa-fw"></i> <?php echo $analyticsSectionButtonText_xs; ?></span>
 							<span class="visible-sm"><i class="fa fa-bar-chart-o fa-fw"></i> <?php echo $analyticsSectionButtonText_sm; ?></span>
 							<span class="visible-md"><i class="fa fa-bar-chart-o fa-fw"></i> <?php echo $analyticsSectionButtonText_md; ?></span>
@@ -120,7 +120,7 @@
 					<div class="jumbotron">
 						<h1>Document Center</h1>
 						<p>Generate reports. Download data</p>
-						<a href="/vendor/reports" class="btn btn-primary btn-icon input-block-level btn-lg" role="button">
+						<a href="/freelancer/reports" class="btn btn-primary btn-icon input-block-level btn-lg" role="button">
 							<span class="visible-xs"><i class="fa fa-folder-open fa-fw"></i> <?php echo $reportsSectionButtonText_xs; ?></span>
 							<span class="visible-sm"><i class="fa fa-folder-open fa-fw"></i> <?php echo $reportsSectionButtonText_sm; ?></span>
 							<span class="visible-md"><i class="fa fa-folder-open fa-fw"></i> <?php echo $reportsSectionButtonText_md; ?></span>
@@ -135,7 +135,7 @@
 					<div class="jumbotron">
 						<h1>Help & Settings</h1>
 						<p>Get answers. Contact support.</p>
-						<a href="/vendor/help" class="btn btn-primary btn-icon input-block-level btn-lg" role="button">
+						<a href="/freelancer/help" class="btn btn-primary btn-icon input-block-level btn-lg" role="button">
 							<span class="visible-xs"><i class="fa fa-question-circle fa-fw"></i> <?php echo $helpSectionButtonText_xs; ?></span>
 							<span class="visible-sm"><i class="fa fa-question-circle fa-fw"></i> <?php echo $helpSectionButtonText_sm; ?></span>
 							<span class="visible-md"><i class="fa fa-question-circle fa-fw"></i> <?php echo $helpSectionButtonText_md; ?></span>

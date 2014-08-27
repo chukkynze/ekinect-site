@@ -67,33 +67,36 @@ Route::group(array('prefix' => '/'), function()
 // Admin
 Route::group(array('prefix' => 'admin', 'before' => 'auth'), function()
 {
-    Route::get('login',                 array('as' =>  'adminlogin',                    'uses'  =>  'AdminAuthController@showAccess',           ));
-    Route::get('dashboard',             array('as' =>  'showEmployeeDashboard',         'uses'  =>  'AdminController@showDashboard',        ));
+    Route::get('login',                 array('as' =>  'adminlogin',                            'uses'  =>  'AdminAuthController@showAccess',           ));
+    Route::get('dashboard',             array('as' =>  'showEmployeeDashboard',                 'uses'  =>  'AdminController@showDashboard',        ));
 
 });
 
 // Vendor
 Route::group(array('prefix' => 'vendor', 'before' => 'auth',), function()
 {
-    Route::get('home',                     array('as' =>  'showVendorDashboard',               'uses'  =>  'VendorController@showDashboard',                       ));
-    Route::get('dashboard',                     array('as' =>  'showVendorDashboard',               'uses'  =>  'VendorController@showDashboard',                       ));
-    Route::get('logout',                        array('as' =>  'vendorLogout',                      'uses'  =>  'VendorController@vendorLogout',                        ));
-    Route::get('change-password',      array('as' =>  'showChangePasswordWithOldPassword',     'uses'  =>  'VendorController@showChangePasswordWithOldPassword',       ));
-    Route::post('change-password',     array('as' =>  'postChangePasswordWithOldPassword',     'uses'  =>  'VendorController@postChangePasswordWithOldPassword',       ));
+    Route::get('home',                 array('as' =>  'showVendorDashboard',                    'uses'  =>  'VendorController@showDashboard',                           ));
+    Route::get('dashboard',            array('as' =>  'showVendorDashboard',                    'uses'  =>  'VendorController@showDashboard',                           ));
+    Route::get('logout',               array('as' =>  'vendorLogout',                           'uses'  =>  'VendorController@vendorLogout',                            ));
+    Route::get('change-password',      array('as' =>  'showChangePasswordWithOldPassword',      'uses'  =>  'VendorController@showChangePasswordWithOldPassword',       ));
+    Route::post('change-password',     array('as' =>  'postChangePasswordWithOldPassword',      'uses'  =>  'VendorController@postChangePasswordWithOldPassword',       ));
 });
 
 // Vendor Clients
 Route::group(array('prefix' => 'vendor-client', 'before' => 'auth'), function()
 {
-    Route::get('dashboard',             array('as' =>  'showVendorClientDashboard',     'uses'  =>  'VendorClientController@showDashboard',             ));
-    Route::get('logout',                array('as' =>  'vendorClientLogout',            'uses'  =>  'VendorClientController@vendorClientLogout',        ));
+    Route::get('dashboard',             array('as' =>  'showVendorClientDashboard',             'uses'  =>  'VendorClientController@showDashboard',                     ));
+    Route::get('logout',                array('as' =>  'vendorClientLogout',                    'uses'  =>  'VendorClientController@vendorClientLogout',                ));
 });
 
 // Freelancer Dashboard
 Route::group(array('prefix' => 'freelancer', 'before' => 'auth'), function()
 {
-    Route::get('dashboard',             array('as' =>  'showFreelancerDashboard',       'uses'  =>  'FreelancerController@showDashboard',               ));
-    Route::get('logout',                array('as' =>  'freelancerLogout',              'uses'  =>  'FreelancerController@freelancerLogout',            ));
+    Route::get('home',                  array('as' =>  'showFreelancerDashboard',               'uses'  =>  'FreelancerController@showDashboard',                       ));
+    Route::get('dashboard',             array('as' =>  'showFreelancerDashboard',               'uses'  =>  'FreelancerController@showDashboard',                       ));
+    Route::get('logout',                array('as' =>  'freelancerLogout',                      'uses'  =>  'FreelancerController@freelancerLogout',                    ));
+    Route::get('change-password',       array('as' =>  'showChangePasswordWithOldPassword',     'uses'  =>  'FreelancerController@showChangePasswordWithOldPassword',   ));
+    Route::post('change-password',      array('as' =>  'postChangePasswordWithOldPassword',     'uses'  =>  'FreelancerController@postChangePasswordWithOldPassword',   ));
 });
 
 
