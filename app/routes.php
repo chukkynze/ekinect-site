@@ -37,6 +37,9 @@ Route::group(array('prefix' => '/'), function()
 // Entering Paywall Routes - Access Authorization
 Route::group(array('prefix' => '/'), function()
 {
+	Route::get('/admin/login',                                              array('as' =>  'showAdminLogin',                        'uses'  =>  'AdminAuthController@showLogin',                            ));
+	Route::post('/admin/login',                                             array('as' =>  'postAdminLogin',                        'uses'  =>  'AdminAuthController@postLogin',                            ));
+
     Route::get('/login',                                                    array('as' =>  'login',                                 'uses'  =>  'AuthController@showAccess',                                ));
     Route::post('/login',                                                   array('as' =>  'processLogin',                          'uses'  =>  'AuthController@processLogin',                              ));
     Route::get('/login-again',                                              array('as' =>  'loginAgain',                            'uses'  =>  'AuthController@loginAgain',                                ));
@@ -67,7 +70,7 @@ Route::group(array('prefix' => '/'), function()
 // Admin
 Route::group(array('prefix' => 'admin', 'before' => 'auth'), function()
 {
-    Route::get('login',                 array('as' =>  'adminlogin',                            'uses'  =>  'AdminAuthController@showAccess',           ));
+
     Route::get('dashboard',             array('as' =>  'showEmployeeDashboard',                 'uses'  =>  'AdminController@showDashboard',        ));
 
 });

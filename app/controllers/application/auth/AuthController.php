@@ -160,110 +160,122 @@ class AuthController extends BaseController
                     if ($validator->passes())
                     {
                         // Get the member id from the submitted email
-                        $memberID           =   $this->getMemberIDFromEmailAddress($formFields['returning_member']);
-                        $salts              =   $this->getMemberSaltFromID($memberID);
-                        $loginCredentials   =   $this->generateMemberLoginCredentials($formFields['returning_member'], $formFields['LoginFormPasswordField'], $salts['salt1'], $salts['salt2'], $salts['salt3']);
+                        $memberID               =   $this->getMemberIDFromEmailAddress($formFields['returning_member']);
+	                    $isMemberTypeAllowed    =   $this->isMemberTypeAllowedHere($memberID);
 
-                        $this->addMemberSiteStatus("Attempting log in.", $memberID);
+	                    if($isMemberTypeAllowed)
+	                    {
+		                    $salts              =   $this->getMemberSaltFromID($memberID);
+	                        $loginCredentials   =   $this->generateMemberLoginCredentials($formFields['returning_member'], $formFields['LoginFormPasswordField'], $salts['salt1'], $salts['salt2'], $salts['salt3']);
 
-                        $wasVerificationLinkSent    =   $this->wasVerificationLinkSent($formFields['returning_member']);
+	                        $this->addMemberSiteStatus("Attempting log in.", $memberID);
 
-                        if($wasVerificationLinkSent)
-                        {
-                            $memberEmailIsVerified  =   $this->isEmailVerified($formFields['returning_member']);
+	                        $wasVerificationLinkSent    =   $this->wasVerificationLinkSent($formFields['returning_member']);
 
-                            if($memberEmailIsVerified)
-                            {
-                                // Check if Member Status is valid
-                                $isMemberStatusLocked      =   $this->isMemberStatusLocked($memberID);
+	                        if($wasVerificationLinkSent)
+	                        {
+	                            $memberEmailIsVerified  =   $this->isEmailVerified($formFields['returning_member']);
 
-                                if(!$isMemberStatusLocked)
-                                {
-                                    // Ensure member is not required to perform a forced behaviour
-                                    $memberHasNoForce         =   $this->checkMemberHasNoForce($memberID);
+	                            if($memberEmailIsVerified)
+	                            {
+	                                // Check if Member Status is valid
+	                                $isMemberStatusLocked      =   $this->isMemberStatusLocked($memberID);
 
-                                    if($memberHasNoForce['AttemptStatus'])
-                                    {
-                                        // Check Member Financial Status
-                                        $memberIsInGoodFinancialStanding		=	$this->checkMemberFinancialStatus();
+	                                if(!$isMemberStatusLocked)
+	                                {
+	                                    // Ensure member is not required to perform a forced behaviour
+	                                    $memberHasNoForce         =   $this->checkMemberHasNoForce($memberID);
 
-                                        if($memberIsInGoodFinancialStanding['AttemptStatus'])
-                                        {
-                                            // create our user data for the authentication
-                                            $authData           =   array
-                                                                    (
-                                                                        'id' 	            => $memberID,
-                                                                        'password' => $loginCredentials,
-                                                                    );
+	                                    if($memberHasNoForce['AttemptStatus'])
+	                                    {
+	                                        // Check Member Financial Status
+	                                        $memberIsInGoodFinancialStanding		=	$this->checkMemberFinancialStatus();
 
-                                            if (Auth::attempt($authData, true))
-                                            {
-                                                $this->registerAccessAttempt($this->getSiteUser()->getID(),$FormName, 1);
-                                                $authCheck  =   $this->authCheckOnAccess();
-                                                if(FALSE != $authCheck)
-                                                {
-                                                    $this->addMemberSiteStatus("Successfully logged in.", $memberID);
-                                                    return Redirect::route($authCheck['name']);
-                                                }
-                                            }
-                                            else
-                                            {
-                                                $FormMessages   =   array();
-                                                $FormMessages[] =   "Unfortunately, we do not recognize your login credentials. Please retry.";
+	                                        if($memberIsInGoodFinancialStanding['AttemptStatus'])
+	                                        {
+	                                            // create our user data for the authentication
+	                                            $authData           =   array
+	                                                                    (
+	                                                                        'id' 	            => $memberID,
+	                                                                        'password' => $loginCredentials,
+	                                                                    );
 
-                                                $this->registerAccessAttempt($this->getSiteUser()->getID(),$FormName, 0);
-                                                Log::info($FormName . " - form values did not pass.");
-                                            }
-                                        }
-                                        else
-                                        {
-                                            $this->registerAccessAttempt($this->getSiteUser()->getID(), $FormName, 0);
-                                            $this->addAdminAlert();
-                                            Log::warning($FormName . " member financials are not in order.");
-                                            $returnToRoute  =   array
-                                                                (
-                                                                    'name'  =>  'custom-error',
-                                                                    'data'  =>  array('errorNumber' => 26),
-                                                                );
-                                        }
-                                    }
-                                    else
-                                    {
-                                        $this->registerAccessAttempt($this->getSiteUser()->getID(), $FormName, 0);
-                                        $this->addAdminAlert();
-                                        Log::warning($FormName . " member is under force.");
-                                        $returnToRoute  =   array
-                                                            (
-                                                                'name'  =>  'custom-error',
-                                                                'data'  =>  array('errorNumber' => 25),
-                                                            );
-                                    }
-                                }
-                                else
-                                {
-                                    $this->registerAccessAttempt($this->getSiteUser()->getID(), $FormName, 0);
-                                    $this->addAdminAlert();
-                                    Log::warning($FormName . " member status is under lock.");
-                                    $returnToRoute  =   array
-                                                        (
-                                                            'name'  =>  'custom-error',
-                                                            'data'  =>  array('errorNumber' => 24),
-                                                        );
-                                }
-                            }
-                            else
-                            {
-                                $FormMessages   =   array();
-                                $FormMessages[] =   "You must validate your email address before you can log in. Please, check your inbox.";
-                                Log::info($FormName . " - email address is not valid.");
-                            }
-                        }
-                        else
-                        {
-                            $FormMessages   =   array();
-                            $FormMessages[] =   "Your email address isn't recognized as valid. Signup first or, login with a previous email and validate this one.";
-                            Log::info($FormName . " - email address verification not sent.");
-                        }
+	                                            if (Auth::attempt($authData, true))
+	                                            {
+	                                                $this->registerAccessAttempt($this->getSiteUser()->getID(),$FormName, 1);
+	                                                $authCheck  =   $this->authCheckOnAccess();
+	                                                if(FALSE != $authCheck)
+	                                                {
+	                                                    $this->addMemberSiteStatus("Successfully logged in.", $memberID);
+		                                                // todo: Send email stating you have logged in
+	                                                    return Redirect::route($authCheck['name']);
+	                                                }
+	                                            }
+	                                            else
+	                                            {
+	                                                $FormMessages   =   array();
+	                                                $FormMessages[] =   "Unfortunately, we do not recognize your login credentials. Please retry.";
+
+	                                                $this->registerAccessAttempt($this->getSiteUser()->getID(),$FormName, 0);
+	                                                Log::info($FormName . " - form values did not pass.");
+	                                            }
+	                                        }
+	                                        else
+	                                        {
+	                                            $this->registerAccessAttempt($this->getSiteUser()->getID(), $FormName, 0);
+	                                            $this->addAdminAlert();
+	                                            Log::warning($FormName . " member financials are not in order.");
+	                                            $returnToRoute  =   array
+	                                                                (
+	                                                                    'name'  =>  'custom-error',
+	                                                                    'data'  =>  array('errorNumber' => 26),
+	                                                                );
+	                                        }
+	                                    }
+	                                    else
+	                                    {
+	                                        $this->registerAccessAttempt($this->getSiteUser()->getID(), $FormName, 0);
+	                                        $this->addAdminAlert();
+	                                        Log::warning($FormName . " member is under force.");
+	                                        $returnToRoute  =   array
+	                                                            (
+	                                                                'name'  =>  'custom-error',
+	                                                                'data'  =>  array('errorNumber' => 25),
+	                                                            );
+	                                    }
+	                                }
+	                                else
+	                                {
+	                                    $this->registerAccessAttempt($this->getSiteUser()->getID(), $FormName, 0);
+	                                    $this->addAdminAlert();
+	                                    Log::warning($FormName . " member status is under lock.");
+	                                    $returnToRoute  =   array
+	                                                        (
+	                                                            'name'  =>  'custom-error',
+	                                                            'data'  =>  array('errorNumber' => 24),
+	                                                        );
+	                                }
+	                            }
+	                            else
+	                            {
+	                                $FormMessages   =   array();
+	                                $FormMessages[] =   "You must validate your email address before you can log in. Please, check your inbox.";
+	                                Log::info($FormName . " - email address is not valid.");
+	                            }
+	                        }
+	                        else
+	                        {
+	                            $FormMessages   =   array();
+	                            $FormMessages[] =   "Your email address isn't recognized as valid. Signup first or, login with a previous email and validate this one.";
+	                            Log::info($FormName . " - email address verification not sent.");
+	                        }
+	                    }
+	                    else
+	                    {
+		                    $FormMessages   =   array();
+                            $FormMessages[] =   "Your membership is valid, yet this is not your correct access point. Please check your emailed login instructions.";
+                            Log::info($FormName . " - member type not allowed here.");
+	                    }
                     }
                     else
                     {
@@ -329,6 +341,29 @@ class AuthController extends BaseController
             return $this->makeResponseView('application/auth/login', $viewData);
         }
     }
+
+
+	public function isMemberTypeAllowedHere($memberID)
+	{
+        try
+        {
+            $Member     =   Member::where("id", "=", $memberID)->first();
+            switch($Member->getMemberType())
+            {
+	            case 'vendor'       :
+	            case 'freelancer'   :
+	                return TRUE;
+	                break;
+
+	            default : return FALSE;
+            }
+        }
+        catch(\Whoops\Example\Exception $e)
+        {
+            Log::error("Could not find if member id [" . $memberID . "] is allowed here. " . $e);
+            return FALSE;
+        }
+	}
 
 	/**
 	 * This is the catch all method for the policies affecting whether a user/member is allowed access.

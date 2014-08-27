@@ -1,8 +1,8 @@
 <?php
  /**
-  * Class MemberControls
+  * Class EmployeeControls
   *
-  * filename:   MemberControls.php
+  * filename:   EmployeeControls.php
   * 
   * @author      Chukwuma J. Nze <chukkynze@ekinect.com>
   * @since       8/23/14 10:21 PM
@@ -11,7 +11,7 @@
   */
  
 
-trait MemberControls
+trait EmployeeControls
 {
 
     public function checkPasswordStrength($password)
@@ -183,7 +183,11 @@ trait MemberControls
         }
     }
 
-    public function authCheckOnAccess()
+
+	/**
+	 * @return array|bool
+	 */
+	public function authCheckOnAccess()
     {
         if (Auth::check())
         {
@@ -197,30 +201,11 @@ trait MemberControls
                 {
                     case 'employee'         :   $returnToRoute  =   array
                                                                 (
-                                                                    'name'  =>  'employeeCheckBeforeAccess',
+                                                                    'name'  =>  'showEmployeeDashboard',
                                                                 );
                                                 break;
 
-                    case 'vendor'           :   $returnToRoute  =   array
-                                                                (
-                                                                    'name'  =>  'showVendorDashboard',
-                                                                );
-                                                break;
-
-                    case 'vendor-client'    :   $returnToRoute  =   array
-                                                                (
-                                                                    'name'  =>  'showVendorClientDashboard',
-                                                                );
-                                                break;
-
-                    case 'freelancer'       :   $returnToRoute  =   array
-                                                                (
-                                                                    'name'  =>  'showFreelancerDashboard',
-                                                                );
-                                                break;
-
-                    default :   $verifyEmailLink    =   $this->generateVerifyEmailLink($memberEmail, $memberID, 'verify-new-member');
-                                Session::put('memberLogoutMessage', 'We did not recognize your member type. Please ensure your verification process is complete by <a href="' . $verifyEmailLink . '">completing your verification details.</a>.');
+                    default :   Session::put('memberLogoutMessage', 'We did not recognize your member type.');
                                 Auth::logout();
                                 $returnToRoute  =   array
                                                     (

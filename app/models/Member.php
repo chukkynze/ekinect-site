@@ -145,4 +145,14 @@ class Member extends Eloquent
             throw new \Whoops\Example\Exception($e);
         }
     }
+
+
+
+
+
+
+	public function getMemberType()
+    {
+        return $this->member_type;
+    }
 }
