@@ -589,10 +589,10 @@
 								</a>
 								<ul class="sub">
 									<li><a class="" href="/vendor/dashboards/overview"><span class="sub-menu-text">Overview</span></a></li>
-									<li><a class="" href="/vendor/dashboards/revenue"><span class="sub-menu-text">Crews</span></a></li>
-									<li><a class="" href="/vendor/dashboards/signings"><span class="sub-menu-text">Jobs</span></a></li>
-									<li><a class="" href="/vendor/dashboards/expenses"><span class="sub-menu-text">Analytics</span></a></li>
-									<li><a class="" href="/vendor/dashboards/resources"><span class="sub-menu-text">Reports</span></a></li>
+									<li><a class="" href="/vendor/dashboards/crews"><span class="sub-menu-text">Crews</span></a></li>
+									<li><a class="" href="/vendor/dashboards/jobs"><span class="sub-menu-text">Jobs</span></a></li>
+									<li><a class="" href="/vendor/dashboards/analytics"><span class="sub-menu-text">Analytics</span></a></li>
+									<li><a class="" href="/vendor/dashboards/reports"><span class="sub-menu-text">Reports</span></a></li>
 								</ul>
 							</li>
 							<li class="has-sub">
