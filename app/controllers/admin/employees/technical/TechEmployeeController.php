@@ -1,24 +1,18 @@
 <?php
  /**
-  * Class FreelancerController
+  * Class VendorController
   *
-  * filename:   FreelancerController.php
-  *
+  * filename:   VendorController.php
+  * 
   * @author      Chukwuma J. Nze <chukkynze@ekinect.com>
-  * @since       7/8/14 5:24 AM
-  *
+  * @since       8/15/14 11:30 PM
+  * 
   * @copyright   Copyright (c) 2014 www.eKinect.com
   */
+ 
 
-
-class FreelancerController extends AbstractFreelancerController
+class VendorController extends AbstractVendorController
 {
-    public $viewRootFolder = 'application/members/freelancer/';
-
-    /**
-     * The layout that should be used for responses.
-     */
-    protected $layout = 'layouts.employees-cloud';
 
     public function __construct()
     {

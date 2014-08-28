@@ -105,7 +105,7 @@ class SetupMainDb extends Migration
                                             'vendor',
                                             'vendor-client',
                                             'freelancer',
-                                            'employee',
+                                            'employees',
                                             'report-viewer',
                                         ));
             $table->string('password', 256);

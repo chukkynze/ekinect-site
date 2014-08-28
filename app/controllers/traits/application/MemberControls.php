@@ -75,7 +75,7 @@ trait MemberControls
             '2'     =>  'freelancer',
             '3'     =>  'vendor-client',
             '4'     =>  'report-viewer',
-            '900'   =>  'employee',
+            '900'   =>  'employees',
         );
 
         return $currentMemberTypes[(isset($memberTypeIdentifier) && is_numeric($memberTypeIdentifier) ? $memberTypeIdentifier : 0)];
@@ -195,7 +195,7 @@ trait MemberControls
             {
                 switch($memberType)
                 {
-                    case 'employee'         :   $returnToRoute  =   array
+                    case 'employees'         :   $returnToRoute  =   array
                                                                 (
                                                                     'name'  =>  'employeeCheckBeforeAccess',
                                                                 );

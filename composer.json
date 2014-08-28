@@ -13,17 +13,30 @@
 		"classmap": [
 			"app/commands",
 			"app/controllers",
+
 			"app/controllers/admin/auth",
-			"app/controllers/admin/employee/dashboards",
+			"app/controllers/admin/employees/superuser",
+			"app/controllers/admin/employees/technical",
+			"app/controllers/admin/employees/executive",
+			"app/controllers/admin/employees/financial",
+
 			"app/controllers/application/auth",
 			"app/controllers/application/landing_pages",
 			"app/controllers/application/members",
 			"app/controllers/application/members/vendor",
 			"app/controllers/application/members/freelancer",
+
 			"app/controllers/traits",
+			"app/controllers/traits/admin",
+			"app/controllers/traits/application",
+
 			"app/controllers/library",
 			"app/controllers/utilities",
+
 			"app/models",
+			"app/models/admin",
+			"app/models/application",
+
 			"app/database/migrations",
 			"app/database/seeds",
 			"app/tests/TestCase.php"

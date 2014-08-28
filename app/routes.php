@@ -71,6 +71,7 @@ Route::group(array('prefix' => '/'), function()
 Route::group(array('prefix' => 'admin', 'before' => 'auth'), function()
 {
 
+    Route::get('home',                  array('as' =>  'showEmployeeDashboard',                 'uses'  =>  'AdminController@showDashboard',        ));
     Route::get('dashboard',             array('as' =>  'showEmployeeDashboard',                 'uses'  =>  'AdminController@showDashboard',        ));
 
 });

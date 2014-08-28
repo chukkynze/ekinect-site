@@ -208,6 +208,15 @@ class BaseController extends Controller
 																						);
 																	break;
 
+                case 'EmployeeLoginForm'            	        :   $dummyInput     =   array
+																						(
+																							'usr'           =>  '',
+																							'username'      =>  '',
+																							'email'         =>  '',
+																							'login_email'   =>  '',
+																						);
+																	break;
+
                 case 'SignupForm'     							:   $dummyInput     =   array
 																						(
 																							'usr'           =>  '',

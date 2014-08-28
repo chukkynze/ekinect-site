@@ -13,12 +13,11 @@
 
 class AdminController extends AbstractAdminController
 {
-    public $viewRootFolder = 'admin/employee/dashboards/';
+    public $viewRootFolder = 'admin/employees/';
 
     public function __construct()
     {
-        $this->getSiteUser();   // Find/Create a SiteUser uid from cookie
-        $this->setSiteHit();    // Register a SiteHit
+        parent::__construct();
     }
 
     public function showDashboard()

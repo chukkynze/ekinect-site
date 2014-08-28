@@ -153,14 +153,14 @@ class AdminAuthController extends BaseController
 	                                    if($memberHasNoForce['AttemptStatus'])
 	                                    {
 	                                        // Check Member Financial Status
-	                                        $memberIsInGoodFinancialStanding		=	$this->checkMemberFinancialStatus();
+	                                        $memberIsInGoodFinancialStanding		=	$this->checkMemberEmploymentStatus();
 
 	                                        if($memberIsInGoodFinancialStanding['AttemptStatus'])
 	                                        {
 	                                            // create our user data for the authentication
 	                                            $authData           =   array
 	                                                                    (
-	                                                                        'id' 	            => $memberID,
+	                                                                        'id' 	   => $memberID,
 	                                                                        'password' => $loginCredentials,
 	                                                                    );
 
@@ -294,14 +294,7 @@ class AdminAuthController extends BaseController
         else
         {
             $viewData   =   array(
-                'activity'                  =>  "login",
-
-                'LoginAttemptMessages'      =>  $AttemptMessages,
-                'LoginFormMessages'         =>  $FormMessages,
-                'LoginHeaderMessage'        =>  $LoginHeaderMessage,
-
-                'SignupFormMessages'        =>  '',
-                'ForgotFormMessages'        =>  '',
+                'FormMessages'         =>  $FormMessages,
             );
             return $this->makeResponseView('admin/auth/login', $viewData);
         }
@@ -315,8 +308,7 @@ class AdminAuthController extends BaseController
             $Member     =   Member::where("id", "=", $memberID)->first();
             switch($Member->getMemberType())
             {
-	            case 'vendor'       :
-	            case 'freelancer'   :
+	            case 'employees'       :
 	                return TRUE;
 	                break;
 
@@ -331,8 +323,8 @@ class AdminAuthController extends BaseController
 	}
 
 	/**
-	 * This is the catch all method for the policies affecting whether a employee is allowed access.
-	 * It also takes into consideration reasons to lock the site that may go beyond just a single employee/user
+	 * This is the catch all method for the policies affecting whether a employees is allowed access.
+	 * It also takes into consideration reasons to lock the site that may go beyond just a single employees/user
 	 *
 	 * @return bool
 	 */

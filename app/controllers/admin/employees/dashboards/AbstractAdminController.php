@@ -1,8 +1,8 @@
 <?php
 /**
- * Class AbstractFreelancerController
+ * Class AbstractAdminController
  *
- * filename:   AbstractFreelancerController.php
+ * filename:   AbstractAdminController.php
  *
  * @author      Chukwuma J. Nze <chukkynze@ekinect.com>
  * @since       7/8/14 5:19 AM
@@ -11,22 +11,56 @@
  */
 
 
-class AbstractFreelancerController extends AbstractMemberController
+class AbstractAdminController extends BaseController
 {
-    use MemberControls;
+	use EmployeeControls;
+
+    public $memberID;
+        public $memberType;
+
+    public $memberDetailsID;
+        public $memberNamePrefix;
+        public $memberFirstName;
+        public $memberMidName1;
+        public $memberMidName2;
+        public $memberLastName;
+        public $memberFullName;
+        public $memberDisplayName;
+        public $memberNameSuffix;
+
+        public $memberGender;
+        public $memberGenderRaw;
+        public $memberBirthDate;
+
+        public $memberPersonalSummary;
+
+        public $memberLargeProfilePicUrl;
+        public $memberMediumProfilePicUrl;
+        public $memberSmallProfilePicUrl;
+        public $memberXSmallProfilePicUrl;
+
+        public $memberPersonalWebsiteLink;
+        public $memberSocialLinkLinkedIn;
+        public $memberSocialLinkGooglePlus;
+        public $memberSocialLinkTwitter;
+        public $memberSocialLinkFacebook;
+
+        public $memberHomeLink;
+        public $memberProfileLink;
+
+    public $memberPrimaryEmail;
 
     public $layoutData;
-    public $viewRootFolder = 'application/members/freelancer/';
+    public $viewRootFolder = 'admin/employees/';
 
     /**
      * The layout that should be used for responses.
      */
-    protected $layout = 'layouts.freelancer-cloud';
+    protected $layout = 'layouts.employees-cloud';
 
 
     public function __construct()
     {
-        parent::__construct();
 
         $this->layoutData         =   $this->getCloudLayoutVariables("array");
     }
@@ -49,37 +83,31 @@ class AbstractFreelancerController extends AbstractMemberController
     }
 
 
-
-    public function freelancerLogout()
+    public function employeeLogout()
     {
-        // Perform freelancer specific action before logging out
+        // perform generic member activities before logging out
+        $this->addMemberSiteStatus("Successfully logged out employees.", $this->memberID);
 
-        $this->memberLogout();
+        // Actual Logout
+        Auth::logout();
 
         // Redirect to the logged out page
-        return $this->makeResponseView('application/members/member-logout', array());
+        return $this->makeResponseView('admin/employees/employees-logout', array());
     }
 
 
 
-    public function forceFreelancerLogout()
+    public function forceEmployeeLogout()
     {
         // Redirect to the logged out page
         return  array
         (
-            'name'  =>  'freelancerLogout',
+            'name'  =>  'employeeLogout',
             'data'  =>  array(),
         );
     }
 
-    /**
-     * Gets default/current values for the cloud layout.
-     * Subsequent values are defined by regular AJAX calls
-     *
-     * @param   string  $outputFormat
-     *
-     * @return bool|string|array
-     */
+
     public function getCloudLayoutVariables($outputFormat="array")
     {
         $MemberDetailsObject	            =	$this->getMemberDetailsObject($this->memberDetailsID);
@@ -113,8 +141,8 @@ class AbstractFreelancerController extends AbstractMemberController
         $this->memberSocialLinkTwitter 		=	$MemberDetailsObject->getMemberDetailsTwitterUrl();
         $this->memberSocialLinkFacebook		=	$MemberDetailsObject->getMemberDetailsFacebookUrl();
 
-        $this->memberHomeLink				=	'/freelancer/home';
-        $this->memberProfileLink			=	'/freelancer/profile';
+        $this->memberHomeLink				=	'/admin/home';
+        $this->memberProfileLink			=	'/admin/profile';
 
         /**
          * ALERT Dropdown Variables
@@ -123,7 +151,7 @@ class AbstractFreelancerController extends AbstractMemberController
         (
             array
             (
-                'alertLink' 			=>	'/freelancer/alert/notice/',
+                'alertLink' 			=>	'/admin/alert/notice/',
                 'alertLinkID'			=>	'1',
                 'alertLabelClass'		=>	'label label-success',
                 'alertIconClass'		=>	'fa fa-user',
@@ -133,7 +161,7 @@ class AbstractFreelancerController extends AbstractMemberController
             ),
             array
             (
-                'alertLink' 			=>	'/freelancer/alert/notice/',
+                'alertLink' 			=>	'/admin/alert/notice/',
                 'alertLinkID'			=>	'1',
                 'alertLabelClass'		=>	'label label-primary',
                 'alertIconClass'		=>	'fa fa-comment',
@@ -143,7 +171,7 @@ class AbstractFreelancerController extends AbstractMemberController
             ),
             array
             (
-                'alertLink' 			=>	'/freelancer/alert/notice/',
+                'alertLink' 			=>	'/admin/alert/notice/',
                 'alertLinkID'			=>	'1',
                 'alertLabelClass'		=>	'label label-warning',
                 'alertIconClass'		=>	'fa fa-lock',
@@ -161,9 +189,9 @@ class AbstractFreelancerController extends AbstractMemberController
         (
             array
             (
-                'messageLink' 			=>	'/freelancer/inbox/message/',
+                'messageLink' 			=>	'/admin/inbox/message/',
                 'messageLinkID'			=>	'1',
-                'messageAvatar'			=>	'/app/members/freelancer/img/avatars/avatar8.jpg',
+                'messageAvatar'			=>	'/app/members/admin/img/avatars/avatar8.jpg',
                 'messageAvatarAltText'	=>	'Jane Doe',
                 'messageFromMemberType'	=>	'Signing Agency',
                 'messageFrom'			=>	'Jane Doe',
@@ -175,9 +203,9 @@ class AbstractFreelancerController extends AbstractMemberController
             ),
             array
             (
-                'messageLink' 			=>	'/freelancer/inbox/message/',
+                'messageLink' 			=>	'/admin/inbox/message/',
                 'messageLinkID'			=>	'2',
-                'messageAvatar'			=>	'/app/members/freelancer/img/avatars/avatar7.jpg',
+                'messageAvatar'			=>	'/app/members/admin/img/avatars/avatar7.jpg',
                 'messageAvatarAltText'	=>	'Jane Doe',
                 'messageFromMemberType'	=>	'Freelancer',
                 'messageFrom'			=>	'Jane Doe',
@@ -189,9 +217,9 @@ class AbstractFreelancerController extends AbstractMemberController
             ),
             array
             (
-                'messageLink' 			=>	'/freelancer/inbox/message/',
+                'messageLink' 			=>	'/admin/inbox/message/',
                 'messageLinkID'			=>	'3',
-                'messageAvatar'			=>	'/app/members/freelancer/img/avatars/avatar6.jpg',
+                'messageAvatar'			=>	'/app/members/admin/img/avatars/avatar6.jpg',
                 'messageAvatarAltText'	=>	'Jane Doe',
                 'messageFromMemberType'	=>	'Signing Source',
                 'messageFrom'			=>	'Jane Doe',
@@ -203,9 +231,9 @@ class AbstractFreelancerController extends AbstractMemberController
             ),
             array
             (
-                'messageLink' 			=>	'/freelancer/inbox/message/',
+                'messageLink' 			=>	'/admin/inbox/message/',
                 'messageLinkID'			=>	'3',
-                'messageAvatar'			=>	'/app/members/freelancer/img/avatars/default-male.jpg',
+                'messageAvatar'			=>	'/app/members/admin/img/avatars/default-male.jpg',
                 'messageAvatarAltText'	=>	'Jane Doe',
                 'messageFromMemberType'	=>	'Client',
                 'messageFrom'			=>	'Jane Doe',
@@ -217,9 +245,9 @@ class AbstractFreelancerController extends AbstractMemberController
             ),
             array
             (
-                'messageLink' 			=>	'/freelancer/inbox/message/',
+                'messageLink' 			=>	'/admin/inbox/message/',
                 'messageLinkID'			=>	'3',
-                'messageAvatar'			=>	'/app/members/freelancer/img/avatars/default-male.jpg',
+                'messageAvatar'			=>	'/app/members/admin/img/avatars/default-male.jpg',
                 'messageAvatarAltText'	=>	'Jane Doe',
                 'messageFromMemberType'	=>	'Guest',
                 'messageFrom'			=>	'Jane Doe',
@@ -325,56 +353,56 @@ class AbstractFreelancerController extends AbstractMemberController
              */
             array
             (
-                'link'			=>	'/freelancer/profile',
+                'link'			=>	'/admin/profile',
                 'iconClass'		=>	'fa fa-user',
                 'sectionName'	=>	'My Profile',
                 'labelClass'	=>	'',
             ),
             array
             (
-                'link'			=>	'/freelancer/account-ettings',
+                'link'			=>	'/admin/account-ettings',
                 'iconClass'		=>	'fa fa-cog',
                 'sectionName'	=>	'Account Settings',
                 'labelClass'	=>	'',
             ),
             array
             (
-                'link'			=>	'/freelancer/address-book',
+                'link'			=>	'/admin/address-book',
                 'iconClass'		=>	'fa fa-book',
                 'sectionName'	=>	'Address Book',
                 'labelClass'	=>	'',
             ),
             array
             (
-                'link'			=>	'/freelancer/privacy-settings',
+                'link'			=>	'/admin/privacy-settings',
                 'iconClass'		=>	'fa fa-eye',
                 'sectionName'	=>	'Privacy Settings',
                 'labelClass'	=>	'',
             ),
             array
             (
-                'link'			=>	'/freelancer/change-password',
+                'link'			=>	'/admin/change-password',
                 'iconClass'		=>	'fa fa-lock',
                 'sectionName'	=>	'Change Password',
                 'labelClass'	=>	'',
             ),
             array
             (
-                'link'			=>	'/freelancer/logout',
+                'link'			=>	'/admin/logout',
                 'iconClass'		=>	'fa fa-power-off',
                 'sectionName'	=>	'Log Out',
                 'labelClass'	=>	'',
             ),
             array
             (
-                'link'			=>	'/freelancer/terms',
+                'link'			=>	'/admin/terms',
                 'iconClass'		=>	'fa fa-lock',
                 'sectionName'	=>	'Terms',
                 'labelClass'	=>	'',
             ),
             array
             (
-                'link'			=>	'/freelancer/privacy',
+                'link'			=>	'/admin/privacy',
                 'iconClass'		=>	'fa fa-power-off',
                 'sectionName'	=>	'Privacy Policy',
                 'labelClass'	=>	'',
@@ -386,7 +414,7 @@ class AbstractFreelancerController extends AbstractMemberController
         (
             'memberID'      =>  $this->memberID,
             'displayName'  =>  $this->memberDisplayName,
-            'profileLink'  =>  'freelancer/profile',
+            'profileLink'  =>  'admin/profile',
 
 
             /**
@@ -427,8 +455,8 @@ class AbstractFreelancerController extends AbstractMemberController
              * Custom Ekinect JSS & CSS Files
              */
             'turnOnFlotCharts' 						=> 	FALSE,
-            'ModuleDirectoryReference' 				=>	'freelancer/',
-            'cloudLayoutJSPageName'					=>	'freelancerHome',
+            'ModuleDirectoryReference' 				=>	'admin/',
+            'cloudLayoutJSPageName'					=>	'adminHome',
             'actionSpecificCSSFilesArray'			=>	array(),
             'actionSpecificJSFilesTopArray'			=>	array(),
             'actionSpecificJSFilesBottomArray'		=>	array(),
@@ -437,7 +465,7 @@ class AbstractFreelancerController extends AbstractMemberController
             /**
              * NOTIFICATION/Alerts Dropdown Variables
              */
-            'ALERT_footerLink'  					=> 	'/freelancer/alerts',
+            'ALERT_footerLink'  					=> 	'/admin/alerts',
             'ALERT_totalMessageCount'  				=> 	(string) $ALERT_listItemsCount > 0 ? $ALERT_listItemsCount : '0',
             'ALERT_title'  							=> 	'' . $ALERT_listItemsCount . ' Notification' . ($ALERT_listItemsCount == 1 ? '' : 's'),
             'ALERT_listItemsArray'  				=> 	$ALERT_listItemsArray,
@@ -446,12 +474,12 @@ class AbstractFreelancerController extends AbstractMemberController
             /**
              * INBOX Dropdown Variables
              */
-            'INBOX_sidebarLink'  					=> 	'/freelancer/inbox',
-            'INBOX_sidebarLink_all'  				=> 	'/freelancer/inbox/all',
-            'INBOX_sidebarLink_new'  				=> 	'/freelancer/inbox/new',
-            'INBOX_sidebarLink_favorites'  			=> 	'/freelancer/inbox/favorites',
-            'INBOX_footerLink'  					=> 	'/freelancer/inbox',
-            'INBOX_composeNewLink'  				=> 	'/freelancer/inbox/compose-new-message',
+            'INBOX_sidebarLink'  					=> 	'/admin/inbox',
+            'INBOX_sidebarLink_all'  				=> 	'/admin/inbox/all',
+            'INBOX_sidebarLink_new'  				=> 	'/admin/inbox/new',
+            'INBOX_sidebarLink_favorites'  			=> 	'/admin/inbox/favorites',
+            'INBOX_footerLink'  					=> 	'/admin/inbox',
+            'INBOX_composeNewLink'  				=> 	'/admin/inbox/compose-new-message',
             'INBOX_totalMessageCount'  				=> 	(string) $INBOX_listItemsCount > 0 ? $INBOX_listItemsCount : '0',
             'INBOX_title'  							=> 	'' . $INBOX_listItemsCount . ' Message' . ($INBOX_listItemsCount == 1 ? '' : 's'),
             'INBOX_listItemsArray'  				=> 	$INBOX_listItemsArray,
@@ -460,7 +488,7 @@ class AbstractFreelancerController extends AbstractMemberController
             /**
              * TODO_ Dropdown Variables
              */
-            'TODO_footerLink'  						=> 	'/freelancer/tasks',
+            'TODO_footerLink'  						=> 	'/admin/tasks',
             'TODO_listTotalNumber'  				=> 	(string) count($TODO_listItemsArray) > 0 ? count($TODO_listItemsArray) : '0',
             'TODO_listItemsArray'  					=> 	$TODO_listItemsArray,
 
@@ -470,7 +498,7 @@ class AbstractFreelancerController extends AbstractMemberController
              */
             'memberLoginDropDownDisplayName' 		=> 	$MemberDetailsObject->getMemberDetailsFirstName(),
             'memberFullName' 						=> 	$MemberDetailsObject->getMemberDetailsFullName(),
-            'memberHomeLink' 						=> 	'/freelancer/home',
+            'memberHomeLink' 						=> 	'/admin/home',
             'memberUserMenuArray' 					=> 	$memberUserMenuArray,
 
 
@@ -487,174 +515,6 @@ class AbstractFreelancerController extends AbstractMemberController
     }
 
 
-
-
-
-    public function showChangePasswordWithOldPassword()
-    {
-        $this->addMemberSiteStatus("Member has chosen to change password.", $this->memberID);
-
-        $FormMessages       =   '';
-        $AttemptMessages    =   '';
-        $customViewData     =   array
-        (
-            'FormMessages'      =>  $FormMessages,
-            'AttemptMessages'   =>  $AttemptMessages,
-        );
-        $viewData           =   array_merge($this->layoutData, $customViewData);
-
-        return $this->makeResponseView($this->viewRootFolder . 'change-password-with-old-password', $viewData);
-    }
-
-    public function postChangePasswordWithOldPassword()
-    {
-        $this->addMemberSiteStatus("Member is submitting a password change.", $this->memberID);
-
-        $FormName           =   'ChangePasswordWithOldPasswordForm';
-        $AttemptMessages    =   '';
-        $FormMessages       =   '';
-        $returnToRoute      =   array
-        (
-            'name'  =>  FALSE,
-            'data'  =>  FALSE,
-        );
-
-        if(Request::isMethod('post'))
-        {
-            if($this->isFormClean($FormName, Input::all()))
-            {
-                $formFields     =   array
-                (
-                    'current_password'          =>  Input::get('current_password'),
-                    'password'                  =>  Input::get('password'),
-                    'password_confirmation '    =>  Input::get('password_confirmation'),
-                );
-                $formRules      =   array
-                (
-                    'current_password'          =>  array
-                    (
-                        'required',
-                        'between:10,256',
-                    ),
-                    'password'                  =>  array
-                    (
-                        'required',
-                        'between:10,256',
-                        'different:current_password'
-                    ),
-                    'password_confirmation '    =>  array
-                    (
-                        'same:password',
-                    ),
-                );
-                $formMessages   =   array
-                (
-                    'current_password.required'     =>  "Please enter your current password.",
-                    'current_password.between'      =>  "Valid passwords are more than 10 digits.",
-
-                    'password.required'             =>  "Please enter your new password.",
-                    'password.between'              =>  "Passwords must be more than 10 digits.",
-                    'password.different'            =>  "Your New Password must be different from your Current Password.",
-
-                    'password_confirmation.same'    =>  "A password confirmation is required.",
-                );
-
-                $validator      =   Validator::make($formFields, $formRules, $formMessages);
-                $passwordCheck  =   $this->checkPasswordStrength($formFields['password']);
-
-                if ($validator->passes() && $passwordCheck['status'])
-                {
-                    $salts              =   $this->getMemberSaltFromID($this->memberID);
-                    $loginCredentials   =   $this->generateMemberLoginCredentials($this->memberPrimaryEmail, $formFields['current_password'], $salts['salt1'], $salts['salt2'], $salts['salt3']);
-
-                    // create our user data for the authentication
-                    $authData           =   array
-                    (
-                        'id' 	    =>  $this->memberID,
-                        'password'  =>  $loginCredentials,
-                    );
-
-                    if (Auth::attempt($authData, true))
-                    {
-                        $LoginCredentials       =   $this->generateLoginCredentials($this->memberPrimaryEmail, $formFields['password']);
-                        $memberFillableArray    =   array
-                        (
-                            'password'          =>  Hash::make($LoginCredentials[0]),
-                            'salt1'             =>  $LoginCredentials[1],
-                            'salt2'             =>  $LoginCredentials[2],
-                            'salt3'             =>  $LoginCredentials[3],
-                        );
-                        $this->updateMember($this->memberID, $memberFillableArray);
-                        $this->addMemberStatus("ChangedPassword.", $this->memberID);
-                        $this->addMemberStatus("ValidMember.", $this->memberID);
-                        $this->addMemberSiteStatus("Member has changed their password.", $this->memberID);
-
-                        $successMessage[]   =   'Congratulations. You have successfully changed your password!';
-                        Session::put('successFlashMessage', $successMessage);
-                    }
-                    else
-                    {
-                        $this->addAdminAlert();
-                        Session::put('memberLogoutMessage', 'We did not recognize your login credentials. Please login and retry.');
-                        Log::info($FormName . " - invalid login credentials.");
-                        $returnToRoute  =   $this->forceFreelancerLogout();
-                    }
-                }
-                else
-                {
-                    $FormErrors   =   $validator->messages()->toArray();
-                    $FormMessages =   array();
-                    foreach($FormErrors as $errors)
-                    {
-                        $FormMessages[]   =   $errors[0];
-                    }
-
-                    if(array_key_exists('errors', $passwordCheck))
-                    {
-                        foreach($passwordCheck['errors'] as $errors)
-                        {
-                            $FormMessages[]   =   $errors;
-                        }
-                    }
-
-                    Log::info($FormName . " - form values did not validate.");
-                }
-            }
-            else
-            {
-                $this->addAdminAlert();
-                Session::put('memberLogoutMessage', 'Unfortunately, there was an issue with your submission. Please login and retry.');
-                Log::warning($FormName . " is not clean.");
-                $returnToRoute  =   $this->forceFreelancerLogout();
-            }
-        }
-        else
-        {
-            $this->addAdminAlert();
-            Session::put('memberLogoutMessage', 'Unfortunately, there was an issue with your submission. Please login and retry.');
-            Log::info($FormName . " - is not being correctly posted to.");
-            $returnToRoute  =   $this->forceFreelancerLogout();
-        }
-
-
-
-        if(FALSE != $returnToRoute['name'])
-        {
-            return Redirect::route($returnToRoute['name'],$returnToRoute['data']);
-        }
-        else
-        {
-            $customViewData   = array
-            (
-                'AttemptMessages'      =>  $AttemptMessages,
-                'FormMessages'         =>  $FormMessages,
-            );
-            $viewData           =   array_merge($this->layoutData, $customViewData);
-
-            return $this->makeResponseView($this->viewRootFolder . 'change-password-with-old-password', $viewData);
-        }
-
-    }
 
 
 }
