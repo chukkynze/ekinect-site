@@ -38,6 +38,7 @@ class SetupMainDb extends Migration
                                         (
                                             'Open',
                                             'Locked:Excessive-Login-Attempts',
+                                            'Locked:Excessive-EmployeeLogin-Attempts',
                                             'Locked:Excessive-Signup-Attempts',
                                             'Locked:Excessive-ForgotLogin-Attempts',
                                             'Locked:Excessive-ChangeVerifiedLinkPassword-Attempts',
@@ -152,6 +153,7 @@ class SetupMainDb extends Migration
                                         'Cancelled-Member',
                                         'Cancelled-Financial',
                                         'Locked:Excessive-Login-Attempts',
+                                        'Locked:Excessive-EmployeeLogin-Attempts',
                                         'Locked:Excessive-Signup-Attempts',
                                         'Locked:Excessive-ForgotLogin-Attempts',
                                         'Locked:Excessive-ChangeVerifiedLinkPassword-Attempts',
@@ -374,6 +376,7 @@ class SetupMainDb extends Migration
                                                     'Deleted',
                                                     'ChangedPassword',
                                                     'Locked:Excessive-Login-Attempts',
+                                                    'Locked:Excessive-EmployeeLogin-Attempts',
                                                     'Locked:Excessive-Signup-Attempts',
                                                     'Locked:Excessive-ForgotLogin-Attempts',
                                                     'Locked:Excessive-ChangeVerifiedLinkPassword-Attempts',

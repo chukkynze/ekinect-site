@@ -20,17 +20,17 @@
 
     <title>EKinect - Member Access</title>
 
-	<!--[if lt IE 9]><script type="text/javascript" src="/auth/theme/js/flot/excanvas.min.js"></script><![endif]-->
+	<!--[if lt IE 9]><script type="text/javascript" src="/admin/theme/js/flot/excanvas.min.js"></script><![endif]-->
     <!--[if lt IE 9]><script type="text/javascript" src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script><![endif]-->
     <!--[if lt IE 9]><script type="text/javascript" src="http://css3-mediaqueries-js.googlecode.com/svn/trunk/css3-mediaqueries.js"></script><![endif]-->
 
-    <link href="/auth/theme/css/cloud-admin.css" media="screen" rel="stylesheet" type="text/css">
-    <link href="/auth/theme/font-awesome/css/font-awesome.min.css" media="screen" rel="stylesheet" type="text/css">
-    <link href="/auth/theme/js/bootstrap-daterangepicker/daterangepicker-bs3.css" media="screen" rel="stylesheet" type="text/css">
-    <link href="/auth/theme/js/uniform/css/uniform.default.min.css" media="screen" rel="stylesheet" type="text/css">
-    <link href="/auth/theme/css/animatecss/animate.min.css" media="screen" rel="stylesheet" type="text/css">
+    <link href="/admin/theme/css/cloud-admin.css" media="screen" rel="stylesheet" type="text/css">
+    <link href="/admin/theme/font-awesome/css/font-awesome.min.css" media="screen" rel="stylesheet" type="text/css">
+    <link href="/admin/theme/js/bootstrap-daterangepicker/daterangepicker-bs3.css" media="screen" rel="stylesheet" type="text/css">
+    <link href="/admin/theme/js/uniform/css/uniform.default.min.css" media="screen" rel="stylesheet" type="text/css">
+    <link href="/admin/theme/css/animatecss/animate.min.css" media="screen" rel="stylesheet" type="text/css">
     <link href="http://fonts.googleapis.com/css?family=Open+Sans:300,400,600,700" media="screen" rel="stylesheet" type="text/css">
-    <link href="/auth/views/css/login.css" media="screen" rel="stylesheet" type="text/css">
+    <link href="/admin/views/css/login.css" media="screen" rel="stylesheet" type="text/css">
     <link href="/favicon.ico" rel="shortcut icon" type="image/vnd.microsoft.icon">
 
 </head>
@@ -58,26 +58,18 @@
 					<div class="row">
 						<div class="col-md-4 col-md-offset-4">
 							<div class="login-box-plain">
-								<h2 class="bigintro">Member Login</h2>
+								<h2 class="bigintro">Employee Login</h2>
 
-                                <?php if( $LoginFormMessages != '' || $LoginAttemptMessages != ''): ?>
+                                <?php if( $FormMessages != ''): ?>
                                 <div class="alert alert-block alert-danger fade in">
 
                                     <a class="close" data-dismiss="alert" href="#" aria-hidden="true">×</a>
                                     <h4><i class="fa fa-times"></i> Oh snap! You got an error!</h4>
 
-                                    <?php if($LoginFormMessages != '' ): ?>
+                                    <?php if($FormMessages != '' ): ?>
                                     <ul>
-                                        <?php foreach($LoginFormMessages as $LoginFormMessage): ?>
-                                        <li><?php echo $LoginFormMessage; ?></li>
-                                        <?php endforeach ?>
-                                    </ul>
-                                    <?php endif; ?>
-
-                                    <?php if($LoginAttemptMessages != '' ): ?>
-                                    <ul>
-                                         <?php foreach($LoginAttemptMessages as $LoginAttemptMessage): ?>
-                                        <li><?php echo $LoginAttemptMessage; ?></li>
+                                        <?php foreach($FormMessages as $FormMessage): ?>
+                                        <li><?php echo $FormMessage; ?></li>
                                         <?php endforeach ?>
                                     </ul>
                                     <?php endif; ?>
@@ -118,12 +110,12 @@
 	</section>
 	<!--/PAGE -->
 
-    <script type="text/javascript" src="/auth/theme/js/jquery/jquery-2.0.3.min.js"></script>
-    <script type="text/javascript" src="/auth/theme/js/jquery-ui-1.10.3.custom/js/jquery-ui-1.10.3.custom.min.js"></script>
-    <script type="text/javascript" src="/auth/theme/bootstrap-dist/js/bootstrap.min.js"></script>
-    <script type="text/javascript" src="/auth/theme/js/uniform/jquery.uniform.min.js"></script>
-    <script type="text/javascript" src="/auth/theme/js/script.js"></script>
-    <!--[if lt IE 9]><script type="text/javascript" src="/auth/theme/js/flot/excanvas.min.js"></script><![endif]-->
+    <script type="text/javascript" src="/admin/theme/js/jquery/jquery-2.0.3.min.js"></script>
+    <script type="text/javascript" src="/admin/theme/js/jquery-ui-1.10.3.custom/js/jquery-ui-1.10.3.custom.min.js"></script>
+    <script type="text/javascript" src="/admin/theme/bootstrap-dist/js/bootstrap.min.js"></script>
+    <script type="text/javascript" src="/admin/theme/js/uniform/jquery.uniform.min.js"></script>
+    <script type="text/javascript" src="/admin/theme/js/script.js"></script>
+    <!--[if lt IE 9]><script type="text/javascript" src="/admin/theme/js/flot/excanvas.min.js"></script><![endif]-->
     <!--[if lt IE 9]><script type="text/javascript" src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script><![endif]-->
     <!--[if lt IE 9]><script type="text/javascript" src="http://css3-mediaqueries-js.googlecode.com/svn/trunk/css3-mediaqueries.js"></script><![endif]-->
 

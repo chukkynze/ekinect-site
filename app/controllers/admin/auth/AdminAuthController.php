@@ -18,6 +18,7 @@ class AdminAuthController extends BaseController
 	const POLICY_AllowedVerificationSeconds_ChangePassword		=   10800;
 
 	const POLICY_AllowedLoginAttempts       					=   300;
+	const POLICY_AllowedEmployeeLoginAttempts       		    =   300;
     const POLICY_AllowedLoginCaptchaAttempts    				=   3;
     const POLICY_AllowedSignupAttempts       					=   3;
     const POLICY_AllowedForgotAttempts       					=   3;
@@ -48,32 +49,26 @@ class AdminAuthController extends BaseController
                         (
                             'FormMessages'         =>  $FormMessages,
                         );
-        return $this->makeResponseView('application/auth/login', $viewData);
+        return $this->makeResponseView('admin/auth/login', $viewData);
 	}
 
 
     public function postLogin()
     {
-        $FormName       =   'LoginForm';
+        $FormName       =   'EmployeeLoginForm';
         $returnToRoute  =   array
                             (
                                 'name'  =>  FALSE,
                                 'data'  =>  FALSE,
                             );
-        switch($this->reason)
-        {
-            case 'expired-session' 		:	$LoginHeaderMessage 	=	1; break;
-            case 'intentional-logout' 	:	$LoginHeaderMessage 	=	2; break;
-            case 'changed-password' 	:	$LoginHeaderMessage 	=	3; break;
 
-            default : $LoginHeaderMessage 	=	'';
-        }
         $FormMessages       =   '';
         $AttemptMessages    =   '';
 
         if(Request::isMethod('post'))
         {
-            $this->authCheckOnAccess();
+            $authCheck  =   $this->authCheckOnAccess();
+            if(FALSE != $authCheck){return Redirect::route($authCheck['name']);}
 
             // Check if Access is allowed
             if(!$this->isAccessAllowed())
@@ -84,44 +79,44 @@ class AdminAuthController extends BaseController
 
             $Attempts   =   $this->getAccessAttemptByUserIDs
                                     (
-                                        'LoginForm',
+                                        'EmployeeLoginForm',
                                         array($this->getSiteUser()->id),
                                         self::POLICY_AllowedAttemptsLookBackDuration
                                     );
 
-            if($Attempts['total'] < self::POLICY_AllowedLoginAttempts)
+            if($Attempts['total'] < self::POLICY_AllowedEmployeeLoginAttempts)
             {
                 if($this->isFormClean($FormName, Input::all()))
                 {
                     $formFields     =   array
                                         (
-                                            'returning_member'          =>  Input::get('returning_member'),
-                                            'LoginFormPasswordField'    =>  Input::get('LoginFormPasswordField'),
+                                            'returning_employee'            =>  Input::get('returning_employee'),
+                                            'employee_password'             =>  Input::get('employee_password'),
                                         );
                     $formRules      =   array
                                         (
-                                            'returning_member'          =>  array
-                                                                            (
-                                                                                'required',
-                                                                                'email',
-                                                                                'exists:member_emails,email_address',
-                                                                                'between:5,120',
-                                                                            ),
-                                            'LoginFormPasswordField'    =>  array
-                                                                            (
-                                                                                'required',
-                                                                                'between:10,256',
-                                                                            ),
+                                            'returning_employee'            =>  array
+                                                                                (
+                                                                                    'required',
+                                                                                    'email',
+                                                                                    'exists:member_emails,email_address',
+                                                                                    'between:5,120',
+                                                                                ),
+                                            'employee_password'             =>  array
+                                                                                (
+                                                                                    'required',
+                                                                                    'between:10,256',
+                                                                                ),
                                         );
                     $formMessages   =   array
                                         (
-                                            'returning_member.required'   =>  "Your email address is required and can not be empty.",
-                                            'returning_member.email'      =>  "Your email address format is invalid.",
-                                            'returning_member.exists'     =>  "Have you previously <a href=\"#\" onclick=\"swapScreen('register');return false;\">signed up</a>?",
-                                            'returning_member.between'    =>  "Your email address is too long.",
+                                            'returning_employee.required'   =>  "Your email address is required and can not be empty.",
+                                            'returning_employee.email'      =>  "Your email address format is invalid.",
+                                            'returning_employee.exists'     =>  "Your email address does not exist in our records.",
+                                            'returning_employee.between'    =>  "Your email address is too long.",
 
-                                            'LoginFormPasswordField.required'     =>  "Please enter your password.",
-                                            'LoginFormPasswordField.between'      =>  "Passwords must be more than 10 digits.",
+                                            'employee_password.required'    =>  "Please enter your password.",
+                                            'employee_password.between'     =>  "Passwords must be more than 10 digits.",
                                         );
 
                     $validator      =   Validator::make($formFields, $formRules, $formMessages);
@@ -129,21 +124,21 @@ class AdminAuthController extends BaseController
                     if ($validator->passes())
                     {
                         // Get the member id from the submitted email
-                        $memberID               =   $this->getMemberIDFromEmailAddress($formFields['returning_member']);
+                        $memberID               =   $this->getMemberIDFromEmailAddress($formFields['returning_employee']);
 	                    $isMemberTypeAllowed    =   $this->isMemberTypeAllowedHere($memberID);
 
 	                    if($isMemberTypeAllowed)
 	                    {
 		                    $salts              =   $this->getMemberSaltFromID($memberID);
-	                        $loginCredentials   =   $this->generateMemberLoginCredentials($formFields['returning_member'], $formFields['LoginFormPasswordField'], $salts['salt1'], $salts['salt2'], $salts['salt3']);
+	                        $loginCredentials   =   $this->generateMemberLoginCredentials($formFields['returning_employee'], $formFields['employee_password'], $salts['salt1'], $salts['salt2'], $salts['salt3']);
 
 	                        $this->addMemberSiteStatus("Attempting log in.", $memberID);
 
-	                        $wasVerificationLinkSent    =   $this->wasVerificationLinkSent($formFields['returning_member']);
+	                        $wasVerificationLinkSent    =   $this->wasVerificationLinkSent($formFields['returning_employee']);
 
 	                        if($wasVerificationLinkSent)
 	                        {
-	                            $memberEmailIsVerified  =   $this->isEmailVerified($formFields['returning_member']);
+	                            $memberEmailIsVerified  =   $this->isEmailVerified($formFields['returning_employee']);
 
 	                            if($memberEmailIsVerified)
 	                            {
@@ -273,7 +268,7 @@ class AdminAuthController extends BaseController
             }
             else
             {
-                $this->applyLock('Locked:Excessive-Login-Attempts', '','excessive-logins', []);
+                $this->applyLock('Locked:Excessive-EmployeeLogin-Attempts', '','excessive-logins', []);
                 $returnToRoute  =   array
                                     (
                                         'name'  =>  'custom-error',
@@ -291,6 +286,7 @@ class AdminAuthController extends BaseController
                                 );
         }
 
+
         if(FALSE != $returnToRoute['name'])
         {
             return Redirect::route($returnToRoute['name'],$returnToRoute['data']);
@@ -307,7 +303,7 @@ class AdminAuthController extends BaseController
                 'SignupFormMessages'        =>  '',
                 'ForgotFormMessages'        =>  '',
             );
-            return $this->makeResponseView('application/auth/login', $viewData);
+            return $this->makeResponseView('admin/auth/login', $viewData);
         }
     }
 
@@ -335,8 +331,8 @@ class AdminAuthController extends BaseController
 	}
 
 	/**
-	 * This is the catch all method for the policies affecting whether a user/member is allowed access.
-	 * It also takes into consideration reasons to lock the site that may go beyond just a single user
+	 * This is the catch all method for the policies affecting whether a employee is allowed access.
+	 * It also takes into consideration reasons to lock the site that may go beyond just a single employee/user
 	 *
 	 * @return bool
 	 */
@@ -465,7 +461,7 @@ class AdminAuthController extends BaseController
 	{
 		$BlockedMemberStatuses 	=	array
 									(
-										'Locked:Excessive-Login-Attempts',
+										'Locked:Excessive-EmployeeLogin-Attempts',
 									);
 
 		return (	$this->getUser()->getUserMemberID()*1 > 0
@@ -516,7 +512,7 @@ class AdminAuthController extends BaseController
     public function memberLogout()
     {
         $this->logout();
-        return $this->makeResponseView('application/members/member-logout', array());
+        return $this->makeResponseView('admin/members/member-logout', array());
     }
 
     public function memberLogoutExpiredSession()
@@ -692,7 +688,7 @@ class AdminAuthController extends BaseController
                                                 'emailAddress'  =>  $verifiedMemberIDArray['email'],
                                             );
 
-                            return  $this->makeResponseView('application/auth/verification-details-success', $viewData);
+                            return  $this->makeResponseView('admin/auth/verification-details-success', $viewData);
                         }
                         else
                         {
@@ -768,7 +764,7 @@ class AdminAuthController extends BaseController
                                 'zipCode'       =>  Input::get('zipcode'),
                                 'VerificationDetailsFormMessages'   => $VerificationDetailsFormMessages,
                             );
-            return  $this->makeResponseView('application/auth/verified_email_success', $viewData);
+            return  $this->makeResponseView('admin/auth/verified_email_success', $viewData);
         }
     }
 
@@ -868,7 +864,7 @@ class AdminAuthController extends BaseController
                                 'zipCode'       =>  '',
                                 'VerificationDetailsFormMessages'   => (isset($VerificationDetailsFormMessages) && $VerificationDetailsFormMessages != '' ?: ''),
                             );
-            return $this->makeResponseView('application/auth/verified_email_success', $viewData);
+            return $this->makeResponseView('admin/auth/verified_email_success', $viewData);
         }
     }
 
@@ -887,7 +883,7 @@ class AdminAuthController extends BaseController
                                     'vcode'         =>  $vCode,
                                     'FormMessages'  =>  $FormMessages,
                                 );
-        return $this->makeResponseView('application/auth/change-password-with-verified-email-link', $viewData);
+        return $this->makeResponseView('admin/auth/change-password-with-verified-email-link', $viewData);
     }
 
     public function postChangePasswordWithVerifyEmailLink()
@@ -1027,7 +1023,7 @@ class AdminAuthController extends BaseController
 		                                                    (
 		                                                        'emailAddress'        =>  $vcodeDetails['email'],
 		                                                    );
-		                                    return $this->makeResponseView('application/auth/reset-verified-password-success', $viewData);
+		                                    return $this->makeResponseView('admin/auth/reset-verified-password-success', $viewData);
 
 		                                }
 		                                else
@@ -1142,7 +1138,7 @@ class AdminAuthController extends BaseController
                 'vcode'         =>  Input::get('vcode'),
                 'FormMessages'  =>  $FormMessages,
             );
-            return $this->makeResponseView('application/auth/change-password-with-verified-email-link', $viewData);
+            return $this->makeResponseView('admin/auth/change-password-with-verified-email-link', $viewData);
         }
     }
 
@@ -1217,7 +1213,7 @@ class AdminAuthController extends BaseController
     {
         switch($lockStatus)
         {
-            case 'Locked:Excessive-Login-Attempts'                      :   $messageOptionsArray    =   [
+            case 'Locked:Excessive-EmployeeLogin-Attempts'                      :   $messageOptionsArray    =   [
                                                                                 'fromTag'       =>  'Customer Service',
                                                                                 'subject'       =>  'Profile Change Notification',
                                                                                 'ccArray'       =>  FALSE,
