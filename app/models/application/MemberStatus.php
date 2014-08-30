@@ -92,7 +92,7 @@ class MemberStatus extends Eloquent
 																	 * Force member to change password
 																	 * Keep in mind this presents a slew of problems
 																	 * 1. Password cannot be the same as the previous
-																	 * 2. Inform members not to do stupid things like change password to what it was before
+																	 * 2. Inform customer not to do stupid things like change password to what it was before
 																	 * 3. Add Status 'PasswordChange:WithOld
 																	 */
 																	$AttemptStatus 			=	FALSE;

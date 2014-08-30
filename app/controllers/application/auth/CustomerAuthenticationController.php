@@ -1,8 +1,8 @@
 <?php
  /**
-  * Class AuthController
+  * Class CustomerAuthenticationController
   *
-  * filename:   AuthController.php
+  * filename:   CustomerAuthenticationController.php
   * 
   * @author      Chukwuma J. Nze <chukkynze@ekinect.com>
   * @since       7/9/14 8:58 PM
@@ -10,20 +10,35 @@
   * @copyright   Copyright (c) 2014 www.eKinect.com
   */
 
-class AuthController extends BaseController
+class CustomerAuthenticationController extends BaseController
 {
     use MemberControls;
+    use CustomerControls;
 
+    /**
+     * This is the maximum amount of time it can take for a customer to verify their email address.
+     */
     const POLICY_AllowedVerificationSeconds_Signup				=   43200;
-	const POLICY_AllowedVerificationSeconds_ChangePassword		=   10800;
+    /**
+     * This is the maximum amount of time it can take for a customer to verify & completely change their password.
+     */
+    const POLICY_AllowedVerificationSeconds_ChangePassword		=   10800;
 
-	const POLICY_AllowedLoginAttempts       					=   300;
+
+    /**
+     * How many attempts are allowed per access activity
+     */
+    const POLICY_AllowedLoginAttempts       					=   300;
     const POLICY_AllowedLoginCaptchaAttempts    				=   3;
     const POLICY_AllowedSignupAttempts       					=   3;
     const POLICY_AllowedForgotAttempts       					=   3;
     const POLICY_AllowedChangeVerifiedMemberPasswordAttempts 	=   300;
     const POLICY_AllowedChangeOldMemberPasswordAttempts 		=   3;
     const POLICY_AllowedLostSignupVerificationAttempts 			=   3;
+
+    /**
+     * How far back to compare access attempts
+     */
     const POLICY_AllowedAttemptsLookBackDuration  				=   'Last1Hour';
 
 
@@ -39,17 +54,23 @@ class AuthController extends BaseController
 
     public function showAccess()
 	{
+        /**
+         * Is member already logged in and logged in correctly by type
+         */
         $authCheck  =   $this->authCheckOnAccess();
         if(FALSE != $authCheck){return Redirect::route($authCheck['name']);}
 
         $activity   =   ( isset($this->activity)    ?   $this->activity :   'login');
         $reason     =   ( isset($this->reason)      ?   $this->reason   :   '');
 
+        /**
+         * 3 Access Forms
+         */
         $LoginFormMessages          =   '';
         $SignupFormMessages         =   '';
         $ForgotFormMessages         =   '';
 
-        $LoginAttemptMessages        =   '';
+        $LoginAttemptMessages       =   '';
 
         if($activity == 'login')
 		{
@@ -739,7 +760,6 @@ class AuthController extends BaseController
     public function logout()
     {
 		Auth::logout();
-        #return Redirect::route('memberLogout',array());
     }
 
     public function loginAgain()
@@ -770,10 +790,10 @@ class AuthController extends BaseController
         return $this->showAccess();
     }
 
-    public function memberLogout()
+    public function customerLogout()
     {
         $this->logout();
-        return $this->makeResponseView('application/members/member-logout', array());
+        return $this->makeResponseView('application/customers/customer-logout', array());
     }
 
     public function memberLogoutExpiredSession()

@@ -504,7 +504,7 @@ class AdminAuthController extends BaseController
     public function memberLogout()
     {
         $this->logout();
-        return $this->makeResponseView('admin/members/member-logout', array());
+        return $this->makeResponseView('admin/customer/member-logout', array());
     }
 
     public function memberLogoutExpiredSession()

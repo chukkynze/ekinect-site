@@ -22,9 +22,9 @@
 
 			"app/controllers/application/auth",
 			"app/controllers/application/landing_pages",
-			"app/controllers/application/members",
-			"app/controllers/application/members/vendor",
-			"app/controllers/application/members/freelancer",
+			"app/controllers/application/customers",
+			"app/controllers/application/customers/vendor",
+			"app/controllers/application/customers/freelancer",
 
 			"app/controllers/traits",
 			"app/controllers/traits/admin",

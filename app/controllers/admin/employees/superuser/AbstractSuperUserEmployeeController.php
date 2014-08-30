@@ -1,8 +1,8 @@
 <?php
     /**
-     * Class AbstractVendorController
+     * Class AbstractSuperUserEmployeeController
      *
-     * filename:   AbstractVendorController.php
+     * filename:   AbstractSuperUserEmployeeController.php
      *
      * @author      Chukwuma J. Nze <chukkynze@ekinect.com>
      * @since       7/8/14 5:19 AM
@@ -11,17 +11,17 @@
      */
 
 
-class AbstractVendorController extends AbstractMemberController
+class AbstractSuperUserEmployeeController extends AbstractEmployeeController
 {
-    use MemberControls;
+    use EmployeeControls;
 
     public $layoutData;
-    public $viewRootFolder = 'application/members/vendor/';
+    public $viewRootFolder = 'admin/employees/superuser/';
 
     /**
      * The layout that should be used for responses.
      */
-    protected $layout = 'layouts.vendor-cloud';
+    protected $layout = 'layouts.employee-cloud';
 
 
     public function __construct()
@@ -50,24 +50,24 @@ class AbstractVendorController extends AbstractMemberController
 
 
 
-    public function vendorLogout()
+    public function superUserLogout()
     {
-        // Perform vendor specific action before logging out
+        // Perform superuser specific action before logging out
 
-        $this->memberLogout();
+        $this->employeeLogout();
 
         // Redirect to the logged out page
-        return $this->makeResponseView('application/members/member-logout', array());
+        return $this->makeResponseView('application/employees/employee-logout', array());
     }
 
 
 
-    public function forceVendorLogout()
+    public function forceSuperUserEmployeeLogout()
     {
         // Redirect to the logged out page
         return  array
                 (
-                    'name'  =>  'vendorLogout',
+                    'name'  =>  'superUserLogout',
                     'data'  =>  array(),
                 );
     }
@@ -82,39 +82,39 @@ class AbstractVendorController extends AbstractMemberController
      */
     public function getCloudLayoutVariables($outputFormat="array")
     {
-        $MemberDetailsObject	            =	$this->getMemberDetailsObject($this->memberDetailsID);
+        $EmployeeDetailsObject	                =	$this->getEmployeeDetailsObject($this->employeeDetailsID);
 
 		/**
 		 * Update Class Properties
 		 */
-		$this->memberNamePrefix   			=   $MemberDetailsObject->getMemberDetailsPrefix("text");
-		$this->memberFirstName   			=   $MemberDetailsObject->getMemberDetailsFirstName();
-		$this->memberMidName1   			=   $MemberDetailsObject->getMemberDetailsMidName1();
-		$this->memberMidName2  				=   $MemberDetailsObject->getMemberDetailsMidName2();
-    	$this->memberLastName   			=   $MemberDetailsObject->getMemberDetailsLastName();
-    	$this->memberFullName				=	$MemberDetailsObject->getMemberDetailsFullName();
-    	$this->memberDisplayName			=	$MemberDetailsObject->getMemberDetailsDisplayName();
-    	$this->memberNameSuffix				=	$MemberDetailsObject->getMemberDetailsSuffix("text");
+		$this->employeeNamePrefix   			=   $EmployeeDetailsObject->getEmployeeDetailsPrefix("text");
+		$this->employeeFirstName   			    =   $EmployeeDetailsObject->getEmployeeDetailsFirstName();
+		$this->employeeMidName1   			    =   $EmployeeDetailsObject->getEmployeeDetailsMidName1();
+		$this->employeeMidName2  				=   $EmployeeDetailsObject->getEmployeeDetailsMidName2();
+    	$this->employeeLastName   			    =   $EmployeeDetailsObject->getEmployeeDetailsLastName();
+    	$this->employeeFullName				    =	$EmployeeDetailsObject->getEmployeeDetailsFullName();
+    	$this->employeeDisplayName			    =	$EmployeeDetailsObject->getEmployeeDetailsDisplayName();
+    	$this->employeeNameSuffix				=	$EmployeeDetailsObject->getEmployeeDetailsSuffix("text");
 
-    	$this->memberGender					=	$MemberDetailsObject->getMemberDetailsGender('text');
-    	$this->memberGenderRaw				=	$MemberDetailsObject->getMemberDetailsGender('raw');
-    	$this->memberBirthDate				=	$MemberDetailsObject->getMemberDetailsBirthDate();
+    	$this->employeeGender					=	$EmployeeDetailsObject->getEmployeeDetailsGender('text');
+    	$this->employeeGenderRaw				=	$EmployeeDetailsObject->getEmployeeDetailsGender('raw');
+    	$this->employeeBirthDate				=	$EmployeeDetailsObject->getEmployeeDetailsBirthDate();
 
-		$this->memberPersonalSummary		=	$MemberDetailsObject->getMemberDetailsPersonalSummary();
+		$this->employeePersonalSummary		    =	$EmployeeDetailsObject->getEmployeeDetailsPersonalSummary();
 
-		$this->memberLargeProfilePicUrl 	=	$MemberDetailsObject->getMemberDetailsProfilePicUrl();
-		$this->memberMediumProfilePicUrl 	=	$MemberDetailsObject->getMemberDetailsProfilePicUrl();
-		$this->memberSmallProfilePicUrl 	=	$MemberDetailsObject->getMemberDetailsProfilePicUrl();
-		$this->memberXSmallProfilePicUrl 	=	$MemberDetailsObject->getMemberDetailsProfilePicUrl();
+		$this->employeeLargeProfilePicUrl 	    =	$EmployeeDetailsObject->getEmployeeDetailsProfilePicUrl();
+		$this->employeeMediumProfilePicUrl 	    =	$EmployeeDetailsObject->getEmployeeDetailsProfilePicUrl();
+		$this->employeeSmallProfilePicUrl 	    =	$EmployeeDetailsObject->getEmployeeDetailsProfilePicUrl();
+		$this->employeeXSmallProfilePicUrl 	    =	$EmployeeDetailsObject->getEmployeeDetailsProfilePicUrl();
 
-		$this->memberPersonalWebsiteLink 	=	$MemberDetailsObject->getMemberDetailsPersonalSiteUrl();
-		$this->memberSocialLinkLinkedIn 	=	$MemberDetailsObject->getMemberDetailsLinkedInUrl();
-		$this->memberSocialLinkGooglePlus 	=	$MemberDetailsObject->getMemberDetailsGooglePlusUrl();
-		$this->memberSocialLinkTwitter 		=	$MemberDetailsObject->getMemberDetailsTwitterUrl();
-		$this->memberSocialLinkFacebook		=	$MemberDetailsObject->getMemberDetailsFacebookUrl();
+		$this->employeePersonalWebsiteLink 	    =	$EmployeeDetailsObject->getEmployeeDetailsPersonalSiteUrl();
+		$this->employeeSocialLinkLinkedIn 	    =	$EmployeeDetailsObject->getEmployeeDetailsLinkedInUrl();
+		$this->employeeSocialLinkGooglePlus 	=	$EmployeeDetailsObject->getEmployeeDetailsGooglePlusUrl();
+		$this->employeeSocialLinkTwitter 		=	$EmployeeDetailsObject->getEmployeeDetailsTwitterUrl();
+		$this->employeeSocialLinkFacebook		=	$EmployeeDetailsObject->getEmployeeDetailsFacebookUrl();
 
-    	$this->memberHomeLink				=	'/vendor/home';
-    	$this->memberProfileLink			=	'/vendor/profile';
+    	$this->employeeHomeLink				    =	'/superuser/home';
+    	$this->employeeProfileLink			    =	'/superuser/profile';
 
 		/**
 		 * ALERT Dropdown Variables
@@ -123,7 +123,7 @@ class AbstractVendorController extends AbstractMemberController
 									(
 										array
 										(
-											'alertLink' 			=>	'/vendor/alert/notice/',
+											'alertLink' 			=>	'/superuser/alert/notice/',
 											'alertLinkID'			=>	'1',
 											'alertLabelClass'		=>	'label label-success',
 											'alertIconClass'		=>	'fa fa-user',
@@ -133,7 +133,7 @@ class AbstractVendorController extends AbstractMemberController
 										),
 										array
 										(
-											'alertLink' 			=>	'/vendor/alert/notice/',
+											'alertLink' 			=>	'/superuser/alert/notice/',
 											'alertLinkID'			=>	'1',
 											'alertLabelClass'		=>	'label label-primary',
 											'alertIconClass'		=>	'fa fa-comment',
@@ -143,7 +143,7 @@ class AbstractVendorController extends AbstractMemberController
 										),
 										array
 										(
-											'alertLink' 			=>	'/vendor/alert/notice/',
+											'alertLink' 			=>	'/superuser/alert/notice/',
 											'alertLinkID'			=>	'1',
 											'alertLabelClass'		=>	'label label-warning',
 											'alertIconClass'		=>	'fa fa-lock',
@@ -161,11 +161,11 @@ class AbstractVendorController extends AbstractMemberController
 									(
 										array
 										(
-											'messageLink' 			=>	'/vendor/inbox/message/',
+											'messageLink' 			=>	'/superuser/inbox/message/',
 											'messageLinkID'			=>	'1',
-											'messageAvatar'			=>	'/app/members/vendor/img/avatars/avatar8.jpg',
+											'messageAvatar'			=>	'/app/employees/superuser/img/avatars/avatar8.jpg',
 											'messageAvatarAltText'	=>	'Jane Doe',
-											'messageFromMemberType'	=>	'Signing Agency',
+											'messageFromEmployeeType'	=>	'Signing Agency',
 											'messageFrom'			=>	'Jane Doe',
 											'messageFromShort'		=>	'Jane Doe',
 											'messageContent'		=>	'Duis autem vel eum iriure dolor in hendrerit in vulputate velit esse mole ...',
@@ -175,11 +175,11 @@ class AbstractVendorController extends AbstractMemberController
 										),
 										array
 										(
-											'messageLink' 			=>	'/vendor/inbox/message/',
+											'messageLink' 			=>	'/superuser/inbox/message/',
 											'messageLinkID'			=>	'2',
-											'messageAvatar'			=>	'/app/members/vendor/img/avatars/avatar7.jpg',
+											'messageAvatar'			=>	'/app/employees/superuser/img/avatars/avatar7.jpg',
 											'messageAvatarAltText'	=>	'Jane Doe',
-											'messageFromMemberType'	=>	'Vendor',
+											'messageFromEmployeeType'	=>	'Somebody',
 											'messageFrom'			=>	'Jane Doe',
 											'messageFromShort'		=>	'Jane Doe',
 											'messageContent'		=>	'Duis autem vel eum iriure dolor in hendrerit in vulputate velit esse mole ...',
@@ -189,11 +189,11 @@ class AbstractVendorController extends AbstractMemberController
 										),
 										array
 										(
-											'messageLink' 			=>	'/vendor/inbox/message/',
+											'messageLink' 			=>	'/superuser/inbox/message/',
 											'messageLinkID'			=>	'3',
-											'messageAvatar'			=>	'/app/members/vendor/img/avatars/avatar6.jpg',
+											'messageAvatar'			=>	'/app/employees/superuser/img/avatars/avatar6.jpg',
 											'messageAvatarAltText'	=>	'Jane Doe',
-											'messageFromMemberType'	=>	'Signing Source',
+											'messageFromEmployeeType'	=>	'Signing Source',
 											'messageFrom'			=>	'Jane Doe',
 											'messageFromShort'		=>	'Jane Doe',
 											'messageContent'		=>	'Duis autem vel eum iriure dolor in hendrerit in vulputate velit esse mole ...',
@@ -203,11 +203,11 @@ class AbstractVendorController extends AbstractMemberController
 										),
 										array
 										(
-											'messageLink' 			=>	'/vendor/inbox/message/',
+											'messageLink' 			=>	'/superuser/inbox/message/',
 											'messageLinkID'			=>	'3',
-											'messageAvatar'			=>	'/app/members/vendor/img/avatars/default-male.jpg',
+											'messageAvatar'			=>	'/app/employees/superuser/img/avatars/default-male.jpg',
 											'messageAvatarAltText'	=>	'Jane Doe',
-											'messageFromMemberType'	=>	'Client',
+											'messageFromEmployeeType'	=>	'Client',
 											'messageFrom'			=>	'Jane Doe',
 											'messageFromShort'		=>	'Jane Doe',
 											'messageContent'		=>	'Duis autem vel eum iriure dolor in hendrerit in vulputate velit esse mole ...',
@@ -217,11 +217,11 @@ class AbstractVendorController extends AbstractMemberController
 										),
 										array
 										(
-											'messageLink' 			=>	'/vendor/inbox/message/',
+											'messageLink' 			=>	'/superuser/inbox/message/',
 											'messageLinkID'			=>	'3',
-											'messageAvatar'			=>	'/app/members/vendor/img/avatars/default-male.jpg',
+											'messageAvatar'			=>	'/app/employees/superuser/img/avatars/default-male.jpg',
 											'messageAvatarAltText'	=>	'Jane Doe',
-											'messageFromMemberType'	=>	'Guest',
+											'messageFromEmployeeType'	=>	'Guest',
 											'messageFrom'			=>	'Jane Doe',
 											'messageFromShort'		=>	'Jane Doe',
 											'messageContent'		=>	'Duis autem vel eum iriure dolor in hendrerit in vulputate velit esse mole ...',
@@ -297,15 +297,15 @@ class AbstractVendorController extends AbstractMemberController
 										),
 									);
 
-		$defaultLargeProfilePicUrl  	=	isset($this->memberGender) ? '/app/members/vendor/img/avatars/default-' . strtolower($this->memberGender) . '-large.jpg'    :   '/app/members/vendor/img/avatars/default-female-large.jpg';
-		$defaultMediumProfilePicUrl  	=	isset($this->memberGender) ? '/app/members/vendor/img/avatars/default-' . strtolower($this->memberGender) . '.jpg'          :   '/app/members/vendor/img/avatars/default-female.jpg';
-		$defaultSmallProfilePicUrl  	=	isset($this->memberGender) ? '/app/members/vendor/img/avatars/default-' . strtolower($this->memberGender) . '.jpg'          :   '/app/members/vendor/img/avatars/default-female.jpg';
-		$defaultXSmallProfilePicUrl  	=	isset($this->memberGender) ? '/app/members/vendor/img/avatars/default-' . strtolower($this->memberGender) . '.jpg'          :   '/app/members/vendor/img/avatars/default-female.jpg';
+		$defaultLargeProfilePicUrl  	=	isset($this->employeeGender) ? '/app/employees/superuser/img/avatars/default-' . strtolower($this->employeeGender) . '-large.jpg'    :   '/app/employees/superuser/img/avatars/default-female-large.jpg';
+		$defaultMediumProfilePicUrl  	=	isset($this->employeeGender) ? '/app/employees/superuser/img/avatars/default-' . strtolower($this->employeeGender) . '.jpg'          :   '/app/employees/superuser/img/avatars/default-female.jpg';
+		$defaultSmallProfilePicUrl  	=	isset($this->employeeGender) ? '/app/employees/superuser/img/avatars/default-' . strtolower($this->employeeGender) . '.jpg'          :   '/app/employees/superuser/img/avatars/default-female.jpg';
+		$defaultXSmallProfilePicUrl  	=	isset($this->employeeGender) ? '/app/employees/superuser/img/avatars/default-' . strtolower($this->employeeGender) . '.jpg'          :   '/app/employees/superuser/img/avatars/default-female.jpg';
 
-		$memberPicUrlLarge				=	$MemberDetailsObject->getMemberDetailsProfilePicUrl();
-		$memberPicUrlMedium				=	$MemberDetailsObject->getMemberDetailsProfilePicUrl();
-		$memberPicUrlSmall				=	$MemberDetailsObject->getMemberDetailsProfilePicUrl();
-		$memberPicUrlXSmall				=	$MemberDetailsObject->getMemberDetailsProfilePicUrl();
+		$employeePicUrlLarge		    =	$EmployeeDetailsObject->getEmployeeDetailsProfilePicUrl();
+		$employeePicUrlMedium		    =	$EmployeeDetailsObject->getEmployeeDetailsProfilePicUrl();
+		$employeePicUrlSmall			=	$EmployeeDetailsObject->getEmployeeDetailsProfilePicUrl();
+		$employeePicUrlXSmall			=	$EmployeeDetailsObject->getEmployeeDetailsProfilePicUrl();
 
 
 		/**
@@ -318,63 +318,63 @@ class AbstractVendorController extends AbstractMemberController
 		 *
 		 * Additional sections and highlighting can be added to the array given any logic you need
 		 */
-		$memberUserMenuArray	=	array
+		$employeeUserMenuArray	=	array
 									(
 										/**
 										 * Standard Sections
 										 */
 										array
 										(
-											'link'			=>	'/vendor/profile',
+											'link'			=>	'/superuser/profile',
 											'iconClass'		=>	'fa fa-user',
 											'sectionName'	=>	'My Profile',
 											'labelClass'	=>	'',
 										),
 										array
 										(
-											'link'			=>	'/vendor/account-ettings',
+											'link'			=>	'/superuser/account-ettings',
 											'iconClass'		=>	'fa fa-cog',
 											'sectionName'	=>	'Account Settings',
 											'labelClass'	=>	'',
 										),
 										array
 										(
-											'link'			=>	'/vendor/address-book',
+											'link'			=>	'/superuser/address-book',
 											'iconClass'		=>	'fa fa-book',
 											'sectionName'	=>	'Address Book',
 											'labelClass'	=>	'',
 										),
 										array
 										(
-											'link'			=>	'/vendor/privacy-settings',
+											'link'			=>	'/superuser/privacy-settings',
 											'iconClass'		=>	'fa fa-eye',
 											'sectionName'	=>	'Privacy Settings',
 											'labelClass'	=>	'',
 										),
 										array
 										(
-											'link'			=>	'/vendor/change-password',
+											'link'			=>	'/superuser/change-password',
 											'iconClass'		=>	'fa fa-lock',
 											'sectionName'	=>	'Change Password',
 											'labelClass'	=>	'',
 										),
 										array
 										(
-											'link'			=>	'/vendor/logout',
+											'link'			=>	'/superuser/logout',
 											'iconClass'		=>	'fa fa-power-off',
 											'sectionName'	=>	'Log Out',
 											'labelClass'	=>	'',
 										),
 										array
 										(
-											'link'			=>	'/vendor/terms',
+											'link'			=>	'/superuser/terms',
 											'iconClass'		=>	'fa fa-lock',
 											'sectionName'	=>	'Terms',
 											'labelClass'	=>	'',
 										),
 										array
 										(
-											'link'			=>	'/vendor/privacy',
+											'link'			=>	'/superuser/privacy',
 											'iconClass'		=>	'fa fa-power-off',
 											'sectionName'	=>	'Privacy Policy',
 											'labelClass'	=>	'',
@@ -384,9 +384,9 @@ class AbstractVendorController extends AbstractMemberController
 
         $output =   array
                     (
-                        'memberID'      =>  $this->memberID,
-                        'displayName'  =>  $this->memberDisplayName,
-                        'profileLink'  =>  'vendor/profile',
+                        'employeeID'      =>  $this->employeeID,
+                        'displayName'  =>  $this->employeeDisplayName,
+                        'profileLink'  =>  'superuser/profile',
 
 
                         /**
@@ -427,8 +427,8 @@ class AbstractVendorController extends AbstractMemberController
                          * Custom Ekinect JSS & CSS Files
                          */
                         'turnOnFlotCharts' 						=> 	FALSE,
-                        'ModuleDirectoryReference' 				=>	'vendor/',
-                        'cloudLayoutJSPageName'					=>	'vendorHome',
+                        'ModuleDirectoryReference' 				=>	'superuser/',
+                        'cloudLayoutJSPageName'					=>	'superUserHome',
                         'actionSpecificCSSFilesArray'			=>	array(),
                         'actionSpecificJSFilesTopArray'			=>	array(),
                         'actionSpecificJSFilesBottomArray'		=>	array(),
@@ -437,7 +437,7 @@ class AbstractVendorController extends AbstractMemberController
                         /**
                          * NOTIFICATION/Alerts Dropdown Variables
                          */
-                        'ALERT_footerLink'  					=> 	'/vendor/alerts',
+                        'ALERT_footerLink'  					=> 	'/superuser/alerts',
                         'ALERT_totalMessageCount'  				=> 	(string) $ALERT_listItemsCount > 0 ? $ALERT_listItemsCount : '0',
                         'ALERT_title'  							=> 	'' . $ALERT_listItemsCount . ' Notification' . ($ALERT_listItemsCount == 1 ? '' : 's'),
                         'ALERT_listItemsArray'  				=> 	$ALERT_listItemsArray,
@@ -446,12 +446,12 @@ class AbstractVendorController extends AbstractMemberController
                         /**
                          * INBOX Dropdown Variables
                          */
-                        'INBOX_sidebarLink'  					=> 	'/vendor/inbox',
-                        'INBOX_sidebarLink_all'  				=> 	'/vendor/inbox/all',
-                        'INBOX_sidebarLink_new'  				=> 	'/vendor/inbox/new',
-                        'INBOX_sidebarLink_favorites'  			=> 	'/vendor/inbox/favorites',
-                        'INBOX_footerLink'  					=> 	'/vendor/inbox',
-                        'INBOX_composeNewLink'  				=> 	'/vendor/inbox/compose-new-message',
+                        'INBOX_sidebarLink'  					=> 	'/superuser/inbox',
+                        'INBOX_sidebarLink_all'  				=> 	'/superuser/inbox/all',
+                        'INBOX_sidebarLink_new'  				=> 	'/superuser/inbox/new',
+                        'INBOX_sidebarLink_favorites'  			=> 	'/superuser/inbox/favorites',
+                        'INBOX_footerLink'  					=> 	'/superuser/inbox',
+                        'INBOX_composeNewLink'  				=> 	'/superuser/inbox/compose-new-message',
                         'INBOX_totalMessageCount'  				=> 	(string) $INBOX_listItemsCount > 0 ? $INBOX_listItemsCount : '0',
                         'INBOX_title'  							=> 	'' . $INBOX_listItemsCount . ' Message' . ($INBOX_listItemsCount == 1 ? '' : 's'),
                         'INBOX_listItemsArray'  				=> 	$INBOX_listItemsArray,
@@ -460,7 +460,7 @@ class AbstractVendorController extends AbstractMemberController
                         /**
                          * TODO_ Dropdown Variables
                          */
-                        'TODO_footerLink'  						=> 	'/vendor/tasks',
+                        'TODO_footerLink'  						=> 	'/superuser/tasks',
                         'TODO_listTotalNumber'  				=> 	(string) count($TODO_listItemsArray) > 0 ? count($TODO_listItemsArray) : '0',
                         'TODO_listItemsArray'  					=> 	$TODO_listItemsArray,
 
@@ -468,19 +468,19 @@ class AbstractVendorController extends AbstractMemberController
                         /**
                          * User Login Dropdown Variables
                          */
-                        'memberLoginDropDownDisplayName' 		=> 	$MemberDetailsObject->getMemberDetailsFirstName(),
-                        'memberFullName' 						=> 	$MemberDetailsObject->getMemberDetailsFullName(),
-                        'memberHomeLink' 						=> 	'/vendor/home',
-                        'memberUserMenuArray' 					=> 	$memberUserMenuArray,
+                        'employeeLoginDropDownDisplayName' 		=> 	$EmployeeDetailsObject->getEmployeeDetailsFirstName(),
+                        'employeeFullName' 						=> 	$EmployeeDetailsObject->getEmployeeDetailsFullName(),
+                        'employeeHomeLink' 						=> 	'/superuser/home',
+                        'employeeUserMenuArray' 					=> 	$employeeUserMenuArray,
 
 
                         /**
                          * Picture & Icon urls
                          */
-                        'memberLargeProfilePicUrl' 				=> 	isset($memberPicUrlLarge[0])  ? $memberPicUrlLarge  : $defaultLargeProfilePicUrl,
-                        'memberMediumProfilePicUrl' 			=> 	isset($memberPicUrlMedium[0]) ? $memberPicUrlMedium : $defaultMediumProfilePicUrl,
-                        'memberSmallProfilePicUrl' 				=> 	isset($memberPicUrlSmall[0])  ? $memberPicUrlSmall  : $defaultSmallProfilePicUrl,
-                        'memberXSmallProfilePicUrl' 			=> 	isset($memberPicUrlXSmall[0]) ? $memberPicUrlXSmall : $defaultXSmallProfilePicUrl,
+                        'employeeLargeProfilePicUrl' 				=> 	isset($employeePicUrlLarge[0])  ? $employeePicUrlLarge  : $defaultLargeProfilePicUrl,
+                        'employeeMediumProfilePicUrl' 			=> 	isset($employeePicUrlMedium[0]) ? $employeePicUrlMedium : $defaultMediumProfilePicUrl,
+                        'employeeSmallProfilePicUrl' 				=> 	isset($employeePicUrlSmall[0])  ? $employeePicUrlSmall  : $defaultSmallProfilePicUrl,
+                        'employeeXSmallProfilePicUrl' 			=> 	isset($employeePicUrlXSmall[0]) ? $employeePicUrlXSmall : $defaultXSmallProfilePicUrl,
                     );
 
         return $this->changeArrayFormat($output, $outputFormat);
@@ -492,7 +492,7 @@ class AbstractVendorController extends AbstractMemberController
 
     public function showChangePasswordWithOldPassword()
     {
-        $this->addMemberSiteStatus("Member has chosen to change password.", $this->memberID);
+        $this->addEmployeeSiteStatus("Employee has chosen to change password.", $this->employeeID);
 
         $FormMessages       =   '';
         $AttemptMessages    =   '';
@@ -508,7 +508,7 @@ class AbstractVendorController extends AbstractMemberController
 
     public function postChangePasswordWithOldPassword()
     {
-        $this->addMemberSiteStatus("Member is submitting a password change.", $this->memberID);
+        $this->addEmployeeSiteStatus("Employee is submitting a password change.", $this->employeeID);
 
         $FormName           =   'ChangePasswordWithOldPasswordForm';
         $AttemptMessages    =   '';
@@ -564,30 +564,30 @@ class AbstractVendorController extends AbstractMemberController
 
                 if ($validator->passes() && $passwordCheck['status'])
                 {
-                    $salts              =   $this->getMemberSaltFromID($this->memberID);
-                    $loginCredentials   =   $this->generateMemberLoginCredentials($this->memberPrimaryEmail, $formFields['current_password'], $salts['salt1'], $salts['salt2'], $salts['salt3']);
+                    $salts              =   $this->getEmployeeSaltFromID($this->employeeID);
+                    $loginCredentials   =   $this->generateEmployeeLoginCredentials($this->employeePrimaryEmail, $formFields['current_password'], $salts['salt1'], $salts['salt2'], $salts['salt3']);
 
                     // create our user data for the authentication
                     $authData           =   array
                                             (
-                                                'id' 	    =>  $this->memberID,
+                                                'id' 	    =>  $this->employeeID,
                                                 'password'  =>  $loginCredentials,
                                             );
 
                     if (Auth::attempt($authData, true))
                     {
-                        $LoginCredentials       =   $this->generateLoginCredentials($this->memberPrimaryEmail, $formFields['password']);
-                        $memberFillableArray    =   array
+                        $LoginCredentials       =   $this->generateLoginCredentials($this->employeePrimaryEmail, $formFields['password']);
+                        $employeeFillableArray    =   array
                                                     (
                                                         'password'          =>  Hash::make($LoginCredentials[0]),
                                                         'salt1'             =>  $LoginCredentials[1],
                                                         'salt2'             =>  $LoginCredentials[2],
                                                         'salt3'             =>  $LoginCredentials[3],
                                                     );
-                        $this->updateMember($this->memberID, $memberFillableArray);
-                        $this->addMemberStatus("ChangedPassword.", $this->memberID);
-                        $this->addMemberStatus("ValidMember.", $this->memberID);
-                        $this->addMemberSiteStatus("Member has changed their password.", $this->memberID);
+                        $this->updateEmployee($this->employeeID, $employeeFillableArray);
+                        $this->addEmployeeStatus("ChangedPassword.", $this->employeeID);
+                        $this->addEmployeeStatus("ValidEmployee.", $this->employeeID);
+                        $this->addEmployeeSiteStatus("Employee has changed their password.", $this->employeeID);
 
                         $successMessage[]   =   'Congratulations. You have successfully changed your password!';
                         Session::put('successFlashMessage', $successMessage);
@@ -595,9 +595,9 @@ class AbstractVendorController extends AbstractMemberController
                     else
                     {
                         $this->addAdminAlert();
-                        Session::put('memberLogoutMessage', 'We did not recognize your login credentials. Please login and retry.');
+                        Session::put('employeeLogoutMessage', 'We did not recognize your login credentials. Please login and retry.');
                         Log::info($FormName . " - invalid login credentials.");
-                        $returnToRoute  =   $this->forceVendorLogout();
+                        $returnToRoute  =   $this->forceSuperUserEmployeeLogout();
                     }
                 }
                 else
@@ -623,17 +623,17 @@ class AbstractVendorController extends AbstractMemberController
             else
             {
                 $this->addAdminAlert();
-                Session::put('memberLogoutMessage', 'Unfortunately, there was an issue with your submission. Please login and retry.');
+                Session::put('employeeLogoutMessage', 'Unfortunately, there was an issue with your submission. Please login and retry.');
                 Log::warning($FormName . " is not clean.");
-                $returnToRoute  =   $this->forceVendorLogout();
+                $returnToRoute  =   $this->forceSuperUserEmployeeLogout();
             }
         }
         else
         {
             $this->addAdminAlert();
-            Session::put('memberLogoutMessage', 'Unfortunately, there was an issue with your submission. Please login and retry.');
+            Session::put('employeeLogoutMessage', 'Unfortunately, there was an issue with your submission. Please login and retry.');
             Log::info($FormName . " - is not being correctly posted to.");
-            $returnToRoute  =   $this->forceVendorLogout();
+            $returnToRoute  =   $this->forceSuperUserEmployeeLogout();
         }
 
 

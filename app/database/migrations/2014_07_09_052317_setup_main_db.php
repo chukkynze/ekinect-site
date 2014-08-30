@@ -89,10 +89,10 @@ class SetupMainDb extends Migration
 
         /**
          * Entity: Member
-         * Table: members
+         * Table: customer
          */
-		Schema::connection($this->connection)->dropIfExists('members');
-		Schema::connection($this->connection)->create('members', function($table)
+		Schema::connection($this->connection)->dropIfExists('customer');
+		Schema::connection($this->connection)->create('customer', function($table)
         {
             // Parameters
             $table->engine = 'InnoDB';
@@ -410,46 +410,52 @@ class SetupMainDb extends Migration
          * Table: site_hits
          */
         Schema::connection($this->connection)->dropIfExists('site_hit');
+
+
+
         /**
          * Entity: Member
-         * Table: members
+         * Table: customer
          */
-        Schema::connection($this->connection)->dropIfExists('members');
+        Schema::connection($this->connection)->dropIfExists('member');
+
+
+
         /**
-         * Entity: MemberStatus
-         * Table: member_status
+         * Entity: CustomerStatus
+         * Table: customer_status
          */
-		Schema::connection($this->connection)->dropIfExists('member_status');
+		Schema::connection($this->connection)->dropIfExists('customer_status');
         /**
-         * Entity: MemberSiteStatus
-         * Table: member_site_status
+         * Entity: CustomerSiteStatus
+         * Table: customer_site_status
          */
-		Schema::connection($this->connection)->dropIfExists('member_site_status');
+		Schema::connection($this->connection)->dropIfExists('customer_site_status');
         /**
-         * Entity: MemberEmails
-         * Table: member_emails
+         * Entity: CustomerEmails
+         * Table: customer_emails
          */
-		Schema::connection($this->connection)->dropIfExists('member_emails');
+		Schema::connection($this->connection)->dropIfExists('customer_emails');
         /**
-         * Entity: MemberDetails
-         * Table: member_details
+         * Entity: CustomerDetails
+         * Table: customer_details
          */
-		Schema::connection($this->connection)->dropIfExists('member_details');
+		Schema::connection($this->connection)->dropIfExists('customer_details');
         /**
-         * Entity: MemberDetailsAddresses
-         * Table: member_details_addresses
+         * Entity: CustomerDetailsAddresses
+         * Table: customer_details_addresses
          */
-		Schema::connection($this->connection)->dropIfExists('member_details_addresses');
+		Schema::connection($this->connection)->dropIfExists('customer_details_addresses');
         /**
-         * Entity: MemberDetailsContactInfo
-         * Table: member_details_contact_info
+         * Entity: CustomerDetailsContactInfo
+         * Table: customer_details_contact_info
          */
-		Schema::connection($this->connection)->dropIfExists('member_details_contact_info');
+		Schema::connection($this->connection)->dropIfExists('customer_details_contact_info');
         /**
          * Entity: EmailStatus
          * Table: email_status
          */
-		Schema::connection($this->connection)->dropIfExists('email_status');
+		Schema::connection($this->connection)->dropIfExists('customer_email_status');
 	}
 
 }

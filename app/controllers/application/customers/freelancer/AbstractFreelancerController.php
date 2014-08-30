@@ -16,7 +16,7 @@ class AbstractFreelancerController extends AbstractMemberController
     use MemberControls;
 
     public $layoutData;
-    public $viewRootFolder = 'application/members/freelancer/';
+    public $viewRootFolder = 'application/customer/freelancer/';
 
     /**
      * The layout that should be used for responses.
@@ -57,7 +57,7 @@ class AbstractFreelancerController extends AbstractMemberController
         $this->memberLogout();
 
         // Redirect to the logged out page
-        return $this->makeResponseView('application/members/member-logout', array());
+        return $this->makeResponseView('application/customer/member-logout', array());
     }
 
 
@@ -163,7 +163,7 @@ class AbstractFreelancerController extends AbstractMemberController
             (
                 'messageLink' 			=>	'/freelancer/inbox/message/',
                 'messageLinkID'			=>	'1',
-                'messageAvatar'			=>	'/app/members/freelancer/img/avatars/avatar8.jpg',
+                'messageAvatar'			=>	'/app/customer/freelancer/img/avatars/avatar8.jpg',
                 'messageAvatarAltText'	=>	'Jane Doe',
                 'messageFromMemberType'	=>	'Signing Agency',
                 'messageFrom'			=>	'Jane Doe',
@@ -177,7 +177,7 @@ class AbstractFreelancerController extends AbstractMemberController
             (
                 'messageLink' 			=>	'/freelancer/inbox/message/',
                 'messageLinkID'			=>	'2',
-                'messageAvatar'			=>	'/app/members/freelancer/img/avatars/avatar7.jpg',
+                'messageAvatar'			=>	'/app/customer/freelancer/img/avatars/avatar7.jpg',
                 'messageAvatarAltText'	=>	'Jane Doe',
                 'messageFromMemberType'	=>	'Freelancer',
                 'messageFrom'			=>	'Jane Doe',
@@ -191,7 +191,7 @@ class AbstractFreelancerController extends AbstractMemberController
             (
                 'messageLink' 			=>	'/freelancer/inbox/message/',
                 'messageLinkID'			=>	'3',
-                'messageAvatar'			=>	'/app/members/freelancer/img/avatars/avatar6.jpg',
+                'messageAvatar'			=>	'/app/customer/freelancer/img/avatars/avatar6.jpg',
                 'messageAvatarAltText'	=>	'Jane Doe',
                 'messageFromMemberType'	=>	'Signing Source',
                 'messageFrom'			=>	'Jane Doe',
@@ -205,7 +205,7 @@ class AbstractFreelancerController extends AbstractMemberController
             (
                 'messageLink' 			=>	'/freelancer/inbox/message/',
                 'messageLinkID'			=>	'3',
-                'messageAvatar'			=>	'/app/members/freelancer/img/avatars/default-male.jpg',
+                'messageAvatar'			=>	'/app/customer/freelancer/img/avatars/default-male.jpg',
                 'messageAvatarAltText'	=>	'Jane Doe',
                 'messageFromMemberType'	=>	'Client',
                 'messageFrom'			=>	'Jane Doe',
@@ -219,7 +219,7 @@ class AbstractFreelancerController extends AbstractMemberController
             (
                 'messageLink' 			=>	'/freelancer/inbox/message/',
                 'messageLinkID'			=>	'3',
-                'messageAvatar'			=>	'/app/members/freelancer/img/avatars/default-male.jpg',
+                'messageAvatar'			=>	'/app/customer/freelancer/img/avatars/default-male.jpg',
                 'messageAvatarAltText'	=>	'Jane Doe',
                 'messageFromMemberType'	=>	'Guest',
                 'messageFrom'			=>	'Jane Doe',
@@ -297,10 +297,10 @@ class AbstractFreelancerController extends AbstractMemberController
             ),
         );
 
-		$defaultLargeProfilePicUrl  	=	isset($this->memberGender) ? '/app/members/vendor/img/avatars/default-' . strtolower($this->memberGender) . '-large.jpg'    :   '/app/members/vendor/img/avatars/default-female-large.jpg';
-		$defaultMediumProfilePicUrl  	=	isset($this->memberGender) ? '/app/members/vendor/img/avatars/default-' . strtolower($this->memberGender) . '.jpg'          :   '/app/members/vendor/img/avatars/default-female.jpg';
-		$defaultSmallProfilePicUrl  	=	isset($this->memberGender) ? '/app/members/vendor/img/avatars/default-' . strtolower($this->memberGender) . '.jpg'          :   '/app/members/vendor/img/avatars/default-female.jpg';
-		$defaultXSmallProfilePicUrl  	=	isset($this->memberGender) ? '/app/members/vendor/img/avatars/default-' . strtolower($this->memberGender) . '.jpg'          :   '/app/members/vendor/img/avatars/default-female.jpg';
+		$defaultLargeProfilePicUrl  	=	isset($this->memberGender) ? '/app/customer/vendor/img/avatars/default-' . strtolower($this->memberGender) . '-large.jpg'    :   '/app/customer/vendor/img/avatars/default-female-large.jpg';
+		$defaultMediumProfilePicUrl  	=	isset($this->memberGender) ? '/app/customer/vendor/img/avatars/default-' . strtolower($this->memberGender) . '.jpg'          :   '/app/customer/vendor/img/avatars/default-female.jpg';
+		$defaultSmallProfilePicUrl  	=	isset($this->memberGender) ? '/app/customer/vendor/img/avatars/default-' . strtolower($this->memberGender) . '.jpg'          :   '/app/customer/vendor/img/avatars/default-female.jpg';
+		$defaultXSmallProfilePicUrl  	=	isset($this->memberGender) ? '/app/customer/vendor/img/avatars/default-' . strtolower($this->memberGender) . '.jpg'          :   '/app/customer/vendor/img/avatars/default-female.jpg';
 
 		$memberPicUrlLarge				=	$MemberDetailsObject->getMemberDetailsProfilePicUrl();
         $memberPicUrlMedium				=	$MemberDetailsObject->getMemberDetailsProfilePicUrl();

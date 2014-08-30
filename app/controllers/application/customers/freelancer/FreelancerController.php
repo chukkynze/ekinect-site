@@ -13,7 +13,7 @@
 
 class FreelancerController extends AbstractFreelancerController
 {
-    public $viewRootFolder = 'application/members/freelancer/';
+    public $viewRootFolder = 'application/customer/freelancer/';
 
     /**
      * The layout that should be used for responses.

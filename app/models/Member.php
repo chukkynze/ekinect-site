@@ -26,7 +26,7 @@ class Member extends Eloquent
 	 *
 	 * @var string
 	 */
-	protected $table        =   'members';
+	protected $table        =   'member';
     protected $primaryKey   =   'id';
     protected $connection   =   'main_db';
     protected $fillable     =   array
