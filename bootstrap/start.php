@@ -40,25 +40,25 @@ $env    =   $app->detectEnvironment(function()
 					'production',
 				];
 
-				if(!in_array(getenv('APPLICATION_ENV'), $allowedEnvironments))
+				if(in_array(getenv('APPLICATION_ENV'), $allowedEnvironments))
 				{
 					$environment    =   getenv('APPLICATION_ENV');
 				}
 				else
 				{
-					if(file_exists($_SERVER['DOCUMENT_ROOT'] . "/../.env.homestead.php"))
+					if(file_exists(__DIR__ . "/../.env.homestead.php"))
 					{
 						$environment    =   'homestead';
 					}
-					elseif(file_exists($_SERVER['DOCUMENT_ROOT'] . "/../.env.development.php"))
+					elseif(file_exists(__DIR__ . "/../.env.development.php"))
 					{
 						$environment    =   'development';
 					}
-					elseif(file_exists($_SERVER['DOCUMENT_ROOT'] . "/../.env.staging.php"))
+					elseif(file_exists(__DIR__ . "/../.env.staging.php"))
 					{
 						$environment    =   'staging';
 					}
-					elseif(file_exists($_SERVER['DOCUMENT_ROOT'] . "/../.env.production.php"))
+					elseif(file_exists(__DIR__ . "/../.env.production.php"))
 					{
 						$environment    =   'production';
 					}
@@ -67,7 +67,6 @@ $env    =   $app->detectEnvironment(function()
 						throw new \Whoops\Example\Exception("Invalid environment");
 					}
 				}
-
 			    return $environment;
 			});
 /*
