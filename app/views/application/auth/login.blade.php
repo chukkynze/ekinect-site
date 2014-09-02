@@ -102,7 +102,7 @@
 
 
 								<div class="divide-40"></div>
-                                    {{ Form::open(array('action' => 'AuthController@showAccess')) }}
+                                    {{ Form::open(array('action' => 'CustomerAuthenticationController@showAccess')) }}
 
                                     <?php echo Form::text('usr'         , null, array('class' => "siteInput Input1")); ?>
                                     <?php echo Form::text('username'    , null, array('class' => "siteInput Input2")); ?>
@@ -179,7 +179,7 @@
 
 								<div class="divide-40"></div>
 
-                                {{ Form::open(array('method' => 'POST', 'action' => 'AuthController@processSignup')) }}
+                                {{ Form::open(array('method' => 'POST', 'action' => 'CustomerAuthenticationController@postSignup')) }}
 
                                     <?php echo Form::text('usr'         , null, array('class' => "siteInput Input1")); ?>
                                     <?php echo Form::text('username'    , null, array('class' => "siteInput Input2")); ?>
@@ -260,7 +260,7 @@
 
 								<div class="divide-40"></div>
 
-                                {{ Form::open(array('action' => 'AuthController@processForgotPassword')) }}
+                                {{ Form::open(array('action' => 'CustomerAuthenticationController@processForgotPassword')) }}
 
                                     <?php echo Form::text('usr'         , null, array('class' => "siteInput Input1")); ?>
                                     <?php echo Form::text('username'    , null, array('class' => "siteInput Input2")); ?>

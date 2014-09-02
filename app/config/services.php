@@ -15,7 +15,7 @@ return array(
 	*/
 
 	'mailgun' => array(
-		'domain' => 'sandbox83e705ef2c8444fb8e4c0332b29a28d8.mailgun.org',
+		'domain' => 'ekinect.me',
         'secret' => 'key-f954ba2fcd874c86f404bc6f5b49203b',
 	),
 

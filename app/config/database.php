@@ -96,7 +96,7 @@ return array(
 	|
 	*/
 
-	'migrations' => 'freelife_migrations',
+	'migrations' => 'app_migrations',
 
 	/*
 	|--------------------------------------------------------------------------

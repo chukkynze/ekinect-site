@@ -75,25 +75,10 @@ trait MemberControls
             '2'     =>  'freelancer',
             '3'     =>  'vendor-client',
             '4'     =>  'report-viewer',
-            '900'   =>  'employee',
+            '900'   =>  'employees',
         );
 
         return $currentMemberTypes[(isset($memberTypeIdentifier) && is_numeric($memberTypeIdentifier) ? $memberTypeIdentifier : 0)];
-    }
-
-    public function getMemberDetailsFromMemberID($memberID)
-    {
-        try
-        {
-            $MemberDetails    =   new MemberDetails();
-            #return $MemberDetails->getMemberDetailsFromMemberID($memberID);
-            return MemberDetails::where('member_id', '=', $memberID)->first();
-        }
-        catch(\Whoops\Example\Exception $e)
-        {
-            Log::error("Could not get member details for Member ID [" . $memberID . "] - " . $e);
-            return FALSE;
-        }
     }
 
     public function generateLoginCredentials($newMemberEmail, $newMemberPassword)
@@ -114,20 +99,6 @@ trait MemberControls
                     $memberSalt2,
                     $memberSalt3,
                 );
-    }
-
-    public function isEmailVerified($email)
-    {
-        try
-        {
-            $MemberEmails   =   new MemberEmails();
-            return $MemberEmails->isEmailVerified($email);
-        }
-        catch(\Whoops\Example\Exception $e)
-        {
-            Log::error("Could not verify this email address [" . $email . "]. " . $e);
-            return FALSE;
-        }
     }
 
     public function updateMember($memberID, $fillableArray)
@@ -154,117 +125,6 @@ trait MemberControls
         catch(\Whoops\Example\Exception $e)
         {
             Log::error("Could not get member salts from id [" . $memberID . "]. " . $e);
-            return FALSE;
-        }
-    }
-
-    public function wasVerificationLinkSent($emailAddress)
-    {
-        try
-        {
-            $MemberEmails               =   new MemberEmails();
-            return $MemberEmails->wasVerificationLinkSent($emailAddress);
-        }
-        catch(\Whoops\Example\Exception $e)
-        {
-            Log::error("Could not determine if verification link was sent for [" . $emailAddress . "] - " . $e);
-            return FALSE;
-        }
-    }
-
-    public function makeResponseView($viewName, $viewData)
-    {
-        return  Response::make(View::make($viewName, $viewData));
-    }
-
-    public function authCheckAfterAccess()
-    {
-        if (!Auth::check())
-        {
-            return $this->makeResponseView("application/members/member-logout", array());
-        }
-    }
-
-    public function authCheckOnAccess()
-    {
-        if (Auth::check())
-        {
-            $memberID       =   Auth::id();
-            $memberType     =   Auth::user()->member_type;
-            $memberEmail    =   $this->getPrimaryEmailAddressFromMemberID($memberID);
-
-            if($memberID >= 1)
-            {
-                switch($memberType)
-                {
-                    case 'employee'         :   $returnToRoute  =   array
-                                                                (
-                                                                    'name'  =>  'employeeCheckBeforeAccess',
-                                                                );
-                                                break;
-
-                    case 'vendor'           :   $returnToRoute  =   array
-                                                                (
-                                                                    'name'  =>  'showVendorDashboard',
-                                                                );
-                                                break;
-
-                    case 'vendor-client'    :   $returnToRoute  =   array
-                                                                (
-                                                                    'name'  =>  'showVendorClientDashboard',
-                                                                );
-                                                break;
-
-                    case 'freelancer'       :   $returnToRoute  =   array
-                                                                (
-                                                                    'name'  =>  'showFreelancerDashboard',
-                                                                );
-                                                break;
-
-                    default :   $verifyEmailLink    =   $this->generateVerifyEmailLink($memberEmail, $memberID, 'verify-new-member');
-                                Session::put('memberLogoutMessage', 'We did not recognize your member type. Please ensure your verification process is complete by <a href="' . $verifyEmailLink . '">completing your verification details.</a>.');
-                                Auth::logout();
-                                $returnToRoute  =   array
-                                                    (
-                                                        'name'  =>  'memberLogout',
-                                                        'data'  =>  array
-                                                                    (
-                                                                        'memberID'  =>  $memberID
-                                                                    ),
-                                                    );
-                }
-            }
-            else
-            {
-                $returnToRoute  =   FALSE;
-            }
-        }
-        else
-        {
-            $returnToRoute  =   FALSE;
-        }
-
-        return $returnToRoute;
-    }
-
-    public function getPrimaryEmailAddressFromMemberID($memberID=0)
-    {
-        $memberID       =   (isset($this->memberID) ? $this->memberID : $memberID);
-        $MemberEmails       =   new MemberEmails();
-        return $MemberEmails->getPrimaryEmailAddressFromMemberID($memberID);
-    }
-
-
-    public function addMemberStatus($status, $memberID)
-    {
-        try
-        {
-            $NewMemberStatus    =   new MemberStatus();
-            return $NewMemberStatus->addMemberStatus($status, $memberID);
-        }
-        catch(\Whoops\Example\Exception $e)
-        {
-            Log::error("Could not add the new Member Status [" . $status . "] for Member [" . $memberID . "]. " . $e);
             return FALSE;
         }
     }

@@ -15,7 +15,7 @@ class AbstractModel extends Eloquent
 {
 
 
-    public function getPrimaryKeyUsingMemberID($memberID)
+    public function getPrimaryKeyUsingMemberID($memberID, $modelName)
     {
         try
         {

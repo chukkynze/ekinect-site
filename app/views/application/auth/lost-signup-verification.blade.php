@@ -64,7 +64,7 @@
 
 								<div class="divide-40"></div>
 
-                                {{ Form::open(array('method' => 'POST', 'action' => 'AuthController@processResendSignupConfirmation')) }}
+                                {{ Form::open(array('method' => 'POST', 'action' => 'CustomerAuthenticationController@processResendSignupConfirmation')) }}
 
                                     <?php echo Form::text('usr'         , null, array('class' => "siteInput Input1")); ?>
                                     <?php echo Form::text('username'    , null, array('class' => "siteInput Input2")); ?>

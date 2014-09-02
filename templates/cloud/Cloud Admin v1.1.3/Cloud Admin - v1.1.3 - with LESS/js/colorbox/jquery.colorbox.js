@@ -162,7 +162,7 @@
 		return window.innerHeight ? window.innerHeight : $(window).height();
 	}
 
-	// Determine the next and previous members in a group.
+	// Determine the next and previous customer in a group.
 	function getIndex(increment) {
 		var
 		max = $related.length,

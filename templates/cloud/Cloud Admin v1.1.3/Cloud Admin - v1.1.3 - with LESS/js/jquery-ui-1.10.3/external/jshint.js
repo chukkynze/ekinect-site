@@ -50,7 +50,7 @@
  If it checks out, JSHINT returns true. Otherwise, it returns false.
 
  If false, you can inspect JSHINT.errors to find out the problems.
- JSHINT.errors is an array of objects containing these members:
+ JSHINT.errors is an array of objects containing these customer:
 
  {
      line      : The line (relative to 1) at which the lint was found
@@ -146,7 +146,7 @@
  undef: true, maxlen: 100, indent: 4, quotmark: double, unused: true
 */
 
-/*members "\b", "\t", "\n", "\f", "\r", "!=", "!==", "\"", "%", "(begin)",
+/*customer "\b", "\t", "\n", "\f", "\r", "!=", "!==", "\"", "%", "(begin)",
  "(breakage)", "(character)", "(context)", "(error)", "(explicitNewcap)", "(global)",
  "(identifier)", "(last)", "(lastcharacter)", "(line)", "(loopage)", "(metrics)",
  "(name)", "(onevar)", "(params)", "(scope)", "(statement)", "(verb)", "(tokens)", "(catch)",
@@ -1530,9 +1530,9 @@ unclosedString:
                             token.comment = true;
                             break;
 
-    //      /*members /*jshint /*global
+    //      /*customer /*jshint /*global
 
-                        case "/*members":
+                        case "/*customer":
                         case "/*member":
                         case "/*jshint":
                         case "/*jslint":
@@ -1899,9 +1899,9 @@ klass:
         case "*/":
             error("Unbegun comment.");
             break;
-        case "/*members":
+        case "/*customer":
         case "/*member":
-            o = "/*members";
+            o = "/*customer";
             if (!membersOnly) {
                 membersOnly = {};
             }
@@ -1940,7 +1940,7 @@ loop:
                 t = lex.token();
             }
 
-            if (t.type !== "(string)" && t.type !== "(identifier)" && o !== "/*members") {
+            if (t.type !== "(string)" && t.type !== "(identifier)" && o !== "/*customer") {
                 error("Bad option.", t);
             }
 
@@ -2034,7 +2034,7 @@ loop:
             }
         }
 
-        if (o === "/*members") {
+        if (o === "/*customer") {
             option.quotmark = quotmarkValue;
         }
 
