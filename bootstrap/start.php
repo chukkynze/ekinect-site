@@ -31,11 +31,46 @@ $app = new Illuminate\Foundation\Application;
 
 ));
  */
-$env = $app->detectEnvironment(function() {
+$env    =   $app->detectEnvironment(function()
+			{
+				$allowedEnvironments    =   [
+					'homestead',
+					'development',
+					'staging',
+					'production',
+				];
 
-    return getenv('APPLICATION_ENV') ?: 'homestead';
+				if(!in_array(getenv('APPLICATION_ENV'), $allowedEnvironments))
+				{
+					$environment    =   getenv('APPLICATION_ENV');
+				}
+				else
+				{
+					if(file_exists($_SERVER['DOCUMENT_ROOT'] . "/../.env.homestead.php"))
+					{
+						$environment    =   'homestead';
+					}
+					elseif(file_exists($_SERVER['DOCUMENT_ROOT'] . "/../.env.development.php"))
+					{
+						$environment    =   'development';
+					}
+					elseif(file_exists($_SERVER['DOCUMENT_ROOT'] . "/../.env.staging.php"))
+					{
+						$environment    =   'staging';
+					}
+					elseif(file_exists($_SERVER['DOCUMENT_ROOT'] . "/../.env.production.php"))
+					{
+						$environment    =   'production';
+					}
+					else
+					{
+						throw new \Whoops\Example\Exception("Invalid environment");
+					}
+				}
 
-});
+
+			    return $environment;
+			});
 /*
 |--------------------------------------------------------------------------
 | Bind Paths
