@@ -56,7 +56,7 @@ return array(
                                                 'password'  => $_ENV['DB_CONNECTION_main_db_password'],
                                                 'charset'   => $_ENV['DB_CONNECTION_main_db_charset'],
                                                 'collation' => $_ENV['DB_CONNECTION_main_db_collation'],
-                                                'prefix'    => $_ENV['DB_CONNECTION_main_db_prefix'],
+                                                'prefix'    => '',
                                             ),
 
                             'utils_db'  =>  array
@@ -68,7 +68,7 @@ return array(
                                                 'password'  => $_ENV['DB_CONNECTION_utils_db_password'],
                                                 'charset'   => $_ENV['DB_CONNECTION_utils_db_charset'],
                                                 'collation' => $_ENV['DB_CONNECTION_utils_db_collation'],
-                                                'prefix'    => $_ENV['DB_CONNECTION_utils_db_prefix'],
+                                                'prefix'    => '',
                                             ),
 
                             'queue_db'  =>  array
@@ -80,7 +80,7 @@ return array(
                                                 'password'  => $_ENV['DB_CONNECTION_queue_db_password'],
                                                 'charset'   => $_ENV['DB_CONNECTION_queue_db_charset'],
                                                 'collation' => $_ENV['DB_CONNECTION_queue_db_collation'],
-                                                'prefix'    => $_ENV['DB_CONNECTION_queue_db_prefix'],
+                                                'prefix'    => '',
                                             ),
 
                         ),
