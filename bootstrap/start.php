@@ -68,7 +68,7 @@ $env    =   $app->detectEnvironment(function()
 					}
 				}
 
-
+echo $environment . "<br>";
 			    return $environment;
 			});
 /*
