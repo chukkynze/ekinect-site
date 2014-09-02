@@ -26,7 +26,7 @@ class Member extends Eloquent
 	 *
 	 * @var string
 	 */
-	protected $table        =   'member';
+	protected $table        =   'members';
     protected $primaryKey   =   'id';
     protected $connection   =   'main_db';
     protected $fillable     =   array
@@ -81,13 +81,33 @@ class Member extends Eloquent
 
 
 
-    public function addMember($LoginCredentials)
+    public function addEmployee($LoginCredentials)
     {
         $NewMember  =   Member::create
                         (
                             array
                             (
-                                'member_type'       =>  'unknown',
+                                'member_type'       =>  'employee',
+                                'password'          =>  Hash::make($LoginCredentials[0]),
+                                'salt1'             =>  $LoginCredentials[1],
+                                'salt2'             =>  $LoginCredentials[2],
+                                'salt3'             =>  $LoginCredentials[3],
+                                'paused'            =>  0,
+                                'cancelled'         =>  0,
+                                'remember_token'    =>  '',
+                            )
+                        );
+        $NewMember->save();
+        return $NewMember->id;
+    }
+
+    public function addCustomer($LoginCredentials)
+    {
+        $NewMember  =   Member::create
+                        (
+                            array
+                            (
+                                'member_type'       =>  'customer',
                                 'password'          =>  Hash::make($LoginCredentials[0]),
                                 'salt1'             =>  $LoginCredentials[1],
                                 'salt2'             =>  $LoginCredentials[2],
@@ -145,11 +165,6 @@ class Member extends Eloquent
             throw new \Whoops\Example\Exception($e);
         }
     }
-
-
-
-
-
 
 	public function getMemberType()
     {

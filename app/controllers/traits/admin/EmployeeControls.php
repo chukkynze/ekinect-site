@@ -41,24 +41,7 @@ trait EmployeeControls
         }
     }
 
-    public function wasEmployeeVerificationLinkSent($emailAddress)
-    {
-        // todo: not necessary for employees
-        // we set up there email address and give them a password
-        // remove this check
-        try
-        {
-            $MemberEmails               =   new MemberEmails();
-            return $MemberEmails->wasVerificationLinkSent($emailAddress);
-        }
-        catch(\Whoops\Example\Exception $e)
-        {
-            Log::error("Could not determine if Employee verification link was sent for [" . $emailAddress . "] - " . $e);
-            return FALSE;
-        }
-    }
-
-    public function authCheckAfterAccess()
+    public function authCheckAfterEmployeeAccess()
     {
         if (!Auth::check())
         {
@@ -70,35 +53,45 @@ trait EmployeeControls
 	/**
 	 * @return array|bool
 	 */
-	public function authCheckOnAccess()
+	public function authCheckOnEmployeeAccess()
     {
         if (Auth::check())
         {
-            $memberID       =   Auth::id();
-            $memberType     =   Auth::user()->member_type;
-            $memberEmail    =   $this->getEmployeeEmailAddressFromMemberID($memberID);
+            $memberID           =   Auth::id();
+            $memberType         =   Auth::user()->member_type;
+            $employeeDetails    =   $this->getEmployeeDetailsFromMemberID($memberID);
+
 
             if($memberID >= 1)
             {
-                switch($memberType)
-                {
-                    case 'employees'         :   $returnToRoute  =   array
-                                                                (
-                                                                    'name'  =>  'showEmployeeDashboard',
-                                                                );
-                                                break;
+	            if($employeeDetails->department != '' && $memberType == 'employee')
+	            {
+		            switch($employeeDetails->department)
+	                {
+	                    case 'SuperUser'    :   $returnToRoute  =   array('name'  =>  'showSuperUserDashboard');    break;
+	                    case 'Executive'    :   $returnToRoute  =   array('name'  =>  'showExecutiveDashboard');    break;
+	                    case 'Financial'    :   $returnToRoute  =   array('name'  =>  'showFinancialDashboard');    break;
+	                    case 'Tech'         :   $returnToRoute  =   array('name'  =>  'showTechDashboard');         break;
 
-                    default :   Session::put('memberLogoutMessage', 'We did not recognize your member type.');
-                                Auth::logout();
-                                $returnToRoute  =   array
-                                                    (
-                                                        'name'  =>  'memberLogout',
-                                                        'data'  =>  array
-                                                                    (
-                                                                        'memberID'  =>  $memberID
-                                                                    ),
-                                                    );
-                }
+	                    default :   Session::put('employeeLogoutMessage', 'We do not recognize you.');
+	                                Auth::logout();
+	                                $returnToRoute  =   array
+	                                                    (
+	                                                        'name'  =>  'employeeLogout',
+	                                                        'data'  =>  array(),
+	                                                    );
+	                }
+	            }
+	            else
+	            {
+		            Session::put('employeeLogoutMessage', 'Incorrect access point.');
+                    Auth::logout();
+                    $returnToRoute  =   array
+                                        (
+                                            'name'  =>  'employeeLogout',
+                                            'data'  =>  array(),
+                                        );
+	            }
             }
             else
             {
@@ -115,9 +108,9 @@ trait EmployeeControls
 
     public function getEmployeeEmailAddressFromMemberID($memberID=0)
     {
-        $memberID       =   (isset($this->memberID) ? $this->memberID : $memberID);
-        $EmployeeEmails       =   new EmployeeEmails();
-        return $EmployeeEmails->getEmailAddressFromMemberID($memberID);
+        $memberID           =   (isset($this->employeeID) ? $this->employeeID : $memberID);
+        $EmployeeEmails     =   new EmployeeEmails();
+        return $EmployeeEmails->getEmployeeEmailAddressFromMemberID($memberID);
     }
 
 
@@ -131,6 +124,21 @@ trait EmployeeControls
         catch(\Whoops\Example\Exception $e)
         {
             Log::error("Could not add the new Employee Status [" . $status . "] for MemberID [" . $memberID . "]. " . $e);
+            return FALSE;
+        }
+    }
+
+
+    public function addEmployeeSiteStatus($status, $memberID)
+    {
+        try
+        {
+            $NewEmployeeSiteStatus    =   new EmployeeSiteStatus();
+            return $NewEmployeeSiteStatus->addEmployeeSiteStatus($status, $memberID);
+        }
+        catch(\Whoops\Example\Exception $e)
+        {
+            Log::error("Could not add the new Employee Site Status [" . $status . "] for MemberID [" . $memberID . "]. " . $e);
             return FALSE;
         }
     }

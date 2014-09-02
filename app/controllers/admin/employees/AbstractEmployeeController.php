@@ -11,83 +11,42 @@
   */
  
 
-class AbstractEmployeeController extends BaseController
+class AbstractEmployeeController extends AbstractMemberController
 {
     use EmployeeControls;
 
     public $employeeID;
-        public $employeeType;
-
+    public $employeeType;
+    public $employeeDetails;
     public $employeeDetailsID;
-        public $employeeNamePrefix;
-        public $employeeFirstName;
-        public $employeeMidName1;
-        public $employeeMidName2;
-        public $employeeLastName;
-        public $employeeFullName;
-        public $employeeDisplayName;
-        public $employeeNameSuffix;
-
-        public $employeeGender;
-        public $employeeGenderRaw;
-        public $employeeBirthDate;
-
-        public $employeePersonalSummary;
-
-        public $employeeLargeProfilePicUrl;
-        public $employeeMediumProfilePicUrl;
-        public $employeeSmallProfilePicUrl;
-        public $employeeXSmallProfilePicUrl;
-
-        public $employeePersonalWebsiteLink;
-        public $employeeSocialLinkLinkedIn;
-        public $employeeSocialLinkGooglePlus;
-        public $employeeSocialLinkTwitter;
-        public $employeeSocialLinkFacebook;
-
-        public $employeeHomeLink;
-        public $employeeProfileLink;
-
     public $employeePrimaryEmail;
-
 
 
     public function __construct()
     {
-        $this->authCheckAfterAccess();
+        parent::__construct();
 
         $this->getSiteUser();   // Find/Create a SiteUser uid from cookie
         $this->setSiteHit();    // Register a SiteHit
 
-        $this->employeeID             =   Auth::id();
-        $this->employeeDetailsID      =   $this->getPrimaryKeyUsingEmployeeID("EmployeeDetails");
-        $this->employeePrimaryEmail   =   $this->getPrimaryEmailAddressFromEmployeeID();
+        $this->employeeID               =   Auth::id();
+        $this->employeeType             =   Auth::user()->member_type;
+        $this->employeeDetailsID        =   $this->getPrimaryKeyUsingMemberID("EmployeeDetails");
+        $this->employeeDetails          =   $this->getEmployeeDetailsObject();
+        $this->employeePrimaryEmail     =   $this->getEmployeeEmailAddressFromMemberID();
     }
 
-    public function getPrimaryKeyUsingEmployeeID($modelName)
+    public function getEmployeeDetailsObject()
     {
-        if($modelName == 'EmployeeDetails')
-        {
-            $Model      =   new $modelName();
-            $primaryKey =   $Model->getPrimaryKeyUsingEmployeeID($this->employeeID);
-        }
-        else
-        {
-            $primaryKey =   0;
-        }
-
-        return $primaryKey;
-    }
-
-    public function getEmployeeDetailsObject($primaryKey)
-    {
-        return (isset($primaryKey) && is_numeric($primaryKey) && $primaryKey >= 1 ? EmployeeDetails::find($primaryKey) : FALSE);
+        return (isset($this->employeeDetailsID) && is_numeric($this->employeeDetailsID) && $this->employeeDetailsID >= 1
+	        ?   EmployeeDetails::find($this->employeeDetailsID)
+	        :   FALSE);
     }
 
     public function employeeLogout()
     {
         // perform generic employee activities before logging out
-        $this->addEmployeeSiteStatus("Successfully logged out.", $this->employeeID);
+
 
         // Actual Logout
         Auth::logout();

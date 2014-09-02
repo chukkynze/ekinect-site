@@ -13,7 +13,7 @@
 
 class EmployeeDetails extends AbstractModel
 {
-    protected $table        =   'member_details';
+    protected $table        =   'employee_details';
     protected $primaryKey   =   'id';
     protected $connection   =   'main_db';
     protected $fillable     =   array
@@ -31,11 +31,10 @@ class EmployeeDetails extends AbstractModel
                                     'zipcode',
                                     'personal_summary',
                                     'profile_pic_url',
-                                    'personal_website_url',
-                                    'linkedin_url',
-                                    'google_plus_url',
-                                    'twitter_url',
-                                    'facebook_url',
+                                    'title',
+                                    'department',
+                                    'hire_date',
+                                    'fire_date',
                                 );
     protected $guarded      =   array
                                 (
@@ -168,29 +167,24 @@ class EmployeeDetails extends AbstractModel
         return $this->profile_pic_url;
     }
 
-    public function getEmployeeDetailsPersonalSiteUrl()
+    public function getEmployeeDetailsTitle()
     {
-        return $this->personal_website_url;
+        return $this->title;
     }
 
-    public function getEmployeeDetailsLinkedInUrl()
+    public function getEmployeeDetailsDepartment()
     {
-        return $this->linkedin_url;
+        return $this->department;
     }
 
-    public function getEmployeeDetailsGooglePlusUrl()
+    public function getEmployeeDetailsHireDate()
     {
-        return $this->google_plus_url;
+        return $this->hire_date;
     }
 
-    public function getEmployeeDetailsTwitterUrl()
+    public function getEmployeeDetailsFireDate()
     {
-        return $this->twitter_url;
-    }
-
-    public function getEmployeeDetailsFacebookUrl()
-    {
-        return $this->facebook_url;
+        return $this->fire_date;
     }
 
 

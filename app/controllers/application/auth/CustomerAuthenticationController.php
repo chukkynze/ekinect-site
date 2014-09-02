@@ -14,6 +14,7 @@ class CustomerAuthenticationController extends BaseController
 {
     use MemberControls;
     use CustomerControls;
+    use SecurityControls;
 
     /**
      * This is the maximum amount of time it can take for a customer to verify their email address.
@@ -36,6 +37,7 @@ class CustomerAuthenticationController extends BaseController
     const POLICY_AllowedChangeOldMemberPasswordAttempts 		=   3;
     const POLICY_AllowedLostSignupVerificationAttempts 			=   3;
 
+
     /**
      * How far back to compare access attempts
      */
@@ -52,12 +54,17 @@ class CustomerAuthenticationController extends BaseController
     }
 
 
-    public function showAccess()
+	/**
+	 * Show the access page: login, signup, forgot login, and links to resend verification
+	 *
+	 * @return $this|\Illuminate\Http\RedirectResponse|\Illuminate\Http\Response
+	 */
+	public function showAccess()
 	{
         /**
          * Is member already logged in and logged in correctly by type
          */
-        $authCheck  =   $this->authCheckOnAccess();
+        $authCheck  =   $this->authCheckOnCustomerAccess();
         if(FALSE != $authCheck){return Redirect::route($authCheck['name']);}
 
         $activity   =   ( isset($this->activity)    ?   $this->activity :   'login');
@@ -104,14 +111,21 @@ class CustomerAuthenticationController extends BaseController
 	}
 
 
-    public function processLogin()
+	/**
+	 * Login the customer
+	 *
+	 * @return $this|\Illuminate\Http\RedirectResponse|\Illuminate\Http\Response
+	 */
+	public function postLogin()
     {
-        $FormName       =   'LoginForm';
-        $returnToRoute  =   array
-                            (
-                                'name'  =>  FALSE,
-                                'data'  =>  FALSE,
-                            );
+        $FormName           =   'LoginForm';
+        $FormMessages       =   '';
+        $AttemptMessages    =   '';
+        $returnToRoute      =   array
+	                            (
+	                                'name'  =>  FALSE,
+	                                'data'  =>  FALSE,
+	                            );
         switch($this->reason)
         {
             case 'expired-session' 		:	$LoginHeaderMessage 	=	1; break;
@@ -120,12 +134,14 @@ class CustomerAuthenticationController extends BaseController
 
             default : $LoginHeaderMessage 	=	'';
         }
-        $FormMessages       =   '';
-        $AttemptMessages    =   '';
 
         if(Request::isMethod('post'))
         {
-            $this->authCheckOnAccess();
+            /**
+	         * Is member already logged in and logged in correctly by type
+	         */
+	        $authCheck  =   $this->authCheckOnCustomerAccess();
+	        if(FALSE != $authCheck){return Redirect::route($authCheck['name']);}
 
             // Check if Access is allowed
             if(!$this->isAccessAllowed())
@@ -136,7 +152,7 @@ class CustomerAuthenticationController extends BaseController
 
             $Attempts   =   $this->getAccessAttemptByUserIDs
                                     (
-                                        'LoginForm',
+                                        $FormName,
                                         array($this->getSiteUser()->id),
                                         self::POLICY_AllowedAttemptsLookBackDuration
                                     );
@@ -156,7 +172,7 @@ class CustomerAuthenticationController extends BaseController
                                                                             (
                                                                                 'required',
                                                                                 'email',
-                                                                                'exists:member_emails,email_address',
+                                                                                'exists:customer_emails,email_address',
                                                                                 'between:5,120',
                                                                             ),
                                             'LoginFormPasswordField'    =>  array
@@ -181,7 +197,7 @@ class CustomerAuthenticationController extends BaseController
                     if ($validator->passes())
                     {
                         // Get the member id from the submitted email
-                        $memberID               =   $this->getMemberIDFromEmailAddress($formFields['returning_member']);
+                        $memberID               =   $this->getCustomerMemberIDFromEmailAddress($formFields['returning_member']);
 	                    $isMemberTypeAllowed    =   $this->isMemberTypeAllowedHere($memberID);
 
 	                    if($isMemberTypeAllowed)
@@ -189,45 +205,45 @@ class CustomerAuthenticationController extends BaseController
 		                    $salts              =   $this->getMemberSaltFromID($memberID);
 	                        $loginCredentials   =   $this->generateMemberLoginCredentials($formFields['returning_member'], $formFields['LoginFormPasswordField'], $salts['salt1'], $salts['salt2'], $salts['salt3']);
 
-	                        $this->addMemberSiteStatus("Attempting log in.", $memberID);
+	                        $this->addCustomerSiteStatus("Attempting log in.", $memberID);
 
-	                        $wasVerificationLinkSent    =   $this->wasVerificationLinkSent($formFields['returning_member']);
+	                        $wasCustomerVerificationLinkSent    =   $this->wasCustomerVerificationLinkSent($formFields['returning_member']);
 
-	                        if($wasVerificationLinkSent)
+	                        if($wasCustomerVerificationLinkSent)
 	                        {
-	                            $memberEmailIsVerified  =   $this->isEmailVerified($formFields['returning_member']);
+	                            $customerEmailIsVerified  =   $this->isCustomerEmailVerified($formFields['returning_member']);
 
-	                            if($memberEmailIsVerified)
+	                            if($customerEmailIsVerified)
 	                            {
-	                                // Check if Member Status is valid
-	                                $isMemberStatusLocked      =   $this->isMemberStatusLocked($memberID);
+	                                // Check if Customer Status is valid
+	                                $isCustomerStatusLocked      =   $this->isCustomerStatusLocked($memberID);
 
-	                                if(!$isMemberStatusLocked)
+	                                if(!$isCustomerStatusLocked)
 	                                {
 	                                    // Ensure member is not required to perform a forced behaviour
-	                                    $memberHasNoForce         =   $this->checkMemberHasNoForce($memberID);
+	                                    $customerHasNoForce         =   $this->checkCustomerHasNoForce($memberID);
 
-	                                    if($memberHasNoForce['AttemptStatus'])
+	                                    if($customerHasNoForce['AttemptStatus'])
 	                                    {
 	                                        // Check Member Financial Status
-	                                        $memberIsInGoodFinancialStanding		=	$this->checkMemberFinancialStatus();
+	                                        $customerIsInGoodFinancialStanding		=	$this->checkMemberFinancialStatus();
 
-	                                        if($memberIsInGoodFinancialStanding['AttemptStatus'])
+	                                        if($customerIsInGoodFinancialStanding['AttemptStatus'])
 	                                        {
 	                                            // create our user data for the authentication
 	                                            $authData           =   array
 	                                                                    (
-	                                                                        'id' 	            => $memberID,
-	                                                                        'password' => $loginCredentials,
+	                                                                        'id' 	    =>  $memberID,
+	                                                                        'password'  =>  $loginCredentials,
 	                                                                    );
 
 	                                            if (Auth::attempt($authData, true))
 	                                            {
 	                                                $this->registerAccessAttempt($this->getSiteUser()->getID(),$FormName, 1);
-	                                                $authCheck  =   $this->authCheckOnAccess();
+	                                                $authCheck  =   $this->authCheckOnCustomerAccess();
 	                                                if(FALSE != $authCheck)
 	                                                {
-	                                                    $this->addMemberSiteStatus("Successfully logged in.", $memberID);
+	                                                    $this->addCustomerSiteStatus("Successfully logged in.", $memberID);
 		                                                // todo: Send email stating you have logged in
 	                                                    return Redirect::route($authCheck['name']);
 	                                                }
@@ -238,7 +254,7 @@ class CustomerAuthenticationController extends BaseController
 	                                                $FormMessages[] =   "Unfortunately, we do not recognize your login credentials. Please retry.";
 
 	                                                $this->registerAccessAttempt($this->getSiteUser()->getID(),$FormName, 0);
-	                                                Log::info($FormName . " - form values did not pass.");
+	                                                Log::info($FormName . " - incorrect login credentials.");
 	                                            }
 	                                        }
 	                                        else
@@ -409,10 +425,10 @@ class CustomerAuthenticationController extends BaseController
     {
 		$returnValue 	=	FALSE;
 
-		if($this->isUserAllowedAccess())
-		{
-			$returnValue	=	TRUE;
-		}
+		#if($this->isUserAllowedAccess())
+		#{
+		#	$returnValue	=	TRUE;
+		#}
 
 		if($this->isUserIPAddressAllowedAccess())
 		{
@@ -435,12 +451,12 @@ class CustomerAuthenticationController extends BaseController
      *
      * @return array|bool
      */
-    public function checkMemberHasNoForce($memberID)
+    public function checkCustomerHasNoForce($memberID)
 	{
 		try
         {
-            $MemberStatus    =   new MemberStatus();
-            return $MemberStatus->checkMemberHasNoForce($memberID);
+            $CustomerStatus    =   new CustomerStatus();
+            return $CustomerStatus->checkCustomerHasNoForce($memberID);
         }
         catch(\Whoops\Example\Exception $e)
         {
@@ -482,16 +498,16 @@ class CustomerAuthenticationController extends BaseController
      *
      * @return bool
      */
-    public function isMemberStatusLocked($memberID)
+    public function isCustomerStatusLocked($memberID)
 	{
 		try
         {
-            $MemberStatus    =   new MemberStatus();
-            return $MemberStatus->isMemberStatusLocked($memberID);
+            $CustomerStatus    =   new CustomerStatus();
+            return $CustomerStatus->isCustomerStatusLocked($memberID);
         }
         catch(\Whoops\Example\Exception $e)
         {
-            Log::error("Could not check if member [ " . $memberID . " ] status is locked. " . $e);
+            Log::error("Could not check if customer member id [ " . $memberID . " ] status is locked. " . $e);
             return FALSE;
         }
 	}
@@ -522,16 +538,16 @@ class CustomerAuthenticationController extends BaseController
 	 */
 	public function isUserMemberAllowedAccess()
 	{
-		$BlockedMemberStatuses 	=	array
+		$BlockedCustomerStatuses 	=	array
 									(
 										'Locked:Excessive-Login-Attempts',
 									);
 
-		return (	$this->getUser()->getUserMemberID()*1 > 0
+		return (	$this->getSiteUser()->getUserMemberID()*1 > 0
 				&& 	!in_array
 					(
-						$this->getMemberStatusTable()->getMemberStatusByMemberID($this->getUser()->getUserMemberID()),
-						$BlockedMemberStatuses
+						$this->getCustomerStatusByMemberID($this->getSiteUser()->getUserMemberID()),
+						$BlockedCustomerStatuses
 					)
 					? 	TRUE
 					: 	FALSE);
@@ -562,7 +578,7 @@ class CustomerAuthenticationController extends BaseController
         {
             $Attempts       =   $this->getAccessAttemptByUserIDs
                                         (
-                                            'LostSignupVerificationForm',
+                                            $FormName,
                                             array($this->getSiteUser()->id),
                                             self::POLICY_AllowedAttemptsLookBackDuration
                                         );
@@ -583,7 +599,7 @@ class CustomerAuthenticationController extends BaseController
                                                                             (
                                                                                 'required',
                                                                                 'email',
-                                                                                'exists:email_status,email_address',
+                                                                                'exists:customer_email_status,email_address',
                                                                                 'between:5,120',
                                                                             ),
                                             'recaptcha_response_field'  =>  array
@@ -607,11 +623,11 @@ class CustomerAuthenticationController extends BaseController
 
                     if ($validator->passes())
                     {
-                        $NewMemberID    =   $this->getMemberIDFromEmailAddress($formFields['lost_signup_email']);
+                        $NewMemberID    =   $this->getCustomerMemberIDFromEmailAddress($formFields['lost_signup_email']);
 
                         if($NewMemberID > 0)
                         {
-                            // Check to see if this email has already received an EmailStatus of 'Verified' or 'VerificationSentAgain'
+                            // Check to see if this email has already received an CustomerEmailStatus of 'Verified' or 'VerificationSentAgain'
                             $decisions  =   2;
                             ($this->checkForPreviousEmailStatus($formFields['lost_signup_email'],'Verified')                ?   $decisions : $decisions--);
                             ($this->checkForPreviousEmailStatus($formFields['lost_signup_email'],'VerificationSentAgain')   ?   $decisions : $decisions--);
@@ -644,9 +660,9 @@ class CustomerAuthenticationController extends BaseController
                                 if($sendEmailStatus)
                                 {
                                     // Update Member emails that verification was sent and at what time for this member
-                                    $this->updateMemberEmail
+                                    $this->updateCustomerEmail
                                             (
-                                                $this->getMemberEmailIDFromEmailAddress($formFields['lost_signup_email']),
+                                                $this->getCustomerEmailIDFromEmailAddress($formFields['lost_signup_email']),
                                                 array
                                                 (
                                                     'verification_sent'     =>  1,
@@ -656,7 +672,7 @@ class CustomerAuthenticationController extends BaseController
 
                                     // Redirect to Successful Signup Page that informs them of the need to validate the email before they can enjoy the free 90 day Premium membership
                                     // Update status
-                                    $this->addEmailStatus($formFields['lost_signup_email'], 'VerificationSentAgain');
+                                    $this->addCustomerEmailStatus($formFields['lost_signup_email'], 'VerificationSentAgain');
                                     $this->registerAccessAttempt($this->getSiteUser()->getID(), $FormName, 1);
                                     $viewData   =   array
                                                     (
@@ -724,7 +740,7 @@ class CustomerAuthenticationController extends BaseController
             }
             else
             {
-                $this->applyLock('Locked:Excessive-LostSignupVerification-Attempts', 'cjunze@gmail.com','excessive-lost-signup-verification', []);
+                $this->applyLock('Locked:Excessive-LostSignupVerification-Attempts', Input::get('lost_signup_email'),'excessive-lost-signup-verification', []);
                 $returnToRoute  =   array
                                     (
                                         'name'  =>  'custom-error',
@@ -810,27 +826,34 @@ class CustomerAuthenticationController extends BaseController
         return $this->showAccess();
     }
 
-    public function processSignup()
+
+	/**
+	 * Create a new customer and send a verification email
+	 *
+	 * @return $this|\Illuminate\Http\RedirectResponse|\Illuminate\Http\Response
+	 */
+	public function postSignup()
     {
-        $SubmittedFormName      =   'SignupForm';
-        $returnToRoute          =   array(
-            'name'  =>  FALSE,
-            'data'  =>  FALSE,
-        );
-        $SignupFormMessages     =   array();
+        $FormName       =   'SignupForm';
+        $returnToRoute  =   array
+                            (
+					            'name'  =>  FALSE,
+					            'data'  =>  FALSE,
+					        );
+        $FormMessages   =   array();
 
         if(Request::isMethod('post'))
         {
-            $AttemptedSignups   =   $this->getAccessAttemptByUserIDs
-                                                    (
-                                                        'SignupForm',
-                                                        array($this->getSiteUser()->id),
-                                                        self::POLICY_AllowedAttemptsLookBackDuration
-                                                    );
+            $Attempts   =   $this->getAccessAttemptByUserIDs
+                            (
+                                $FormName,
+                                array($this->getSiteUser()->id),
+                                self::POLICY_AllowedAttemptsLookBackDuration
+                            );
 
-            if($AttemptedSignups['total'] < self::POLICY_AllowedSignupAttempts)
+            if($Attempts['total'] < self::POLICY_AllowedSignupAttempts)
             {
-                if($this->isFormClean($SubmittedFormName, Input::all()))
+                if($this->isFormClean($FormName, Input::all()))
                 {
                     $formFields     =   array
                                         (
@@ -845,7 +868,7 @@ class CustomerAuthenticationController extends BaseController
                                                                             (
                                                                                 'required',
                                                                                 'email',
-                                                                                'unique:member_emails,email_address',
+                                                                                'unique:customer_emails,email_address',
                                                                                 'between:5,120',
                                                                             ),
                                             'password'                  =>  array
@@ -888,26 +911,26 @@ class CustomerAuthenticationController extends BaseController
                     if ($validator->passes() && $passwordCheck['status'])
                     {
                         // Add the emailAddress
-                        $this->addEmailStatus($formFields['new_member'], 'AddedUnverified');
+                        $this->addCustomerEmailStatus($formFields['new_member'], 'AddedUnverified');
 
                         // Get the Site User so you can associate this user behaviour with this new member
                         $this->SiteUser =   $this->getSiteUser();
 
                         // Create a Member Object
-                        $NewMemberID    =   $this->addMember($formFields['new_member'], $formFields['password']);
+                        $NewMemberID    =   $this->addCustomer($formFields['new_member'], $formFields['password']);
 
                         if($NewMemberID > 0)
                         {
                             // Update User with Member ID
                             $this->setSiteUserMemberID($this->getSiteUser()->getID(), $NewMemberID);
 
-                            // Create & Save a Member Status Object for the new Member
-                            $this->addMemberStatus('Successful-Signup', $NewMemberID);
+                            // Create & Save a Customer Status Object for the new Member
+                            $this->addCustomerStatus('Successful-Signup', $NewMemberID);
 
-                            // Create & Save a Member Emails Object
-                            $NewMemberEmailID   =   $this->addMemberEmail($formFields['new_member'], $NewMemberID);
+                            // Create & Save a Customer Emails Object
+                            $NewCustomerEmailID   =   $this->addCustomerEmail($formFields['new_member'], $NewMemberID);
 
-                            if($NewMemberEmailID > 0)
+                            if($NewCustomerEmailID > 0)
                             {
                                 // Prepare an Email for Validation
                                 $verifyEmailLink    =   $this->generateVerifyEmailLink($formFields['new_member'], $NewMemberID, 'verify-new-member');
@@ -931,30 +954,30 @@ class CustomerAuthenticationController extends BaseController
 
                                 if($sendEmailStatus)
                                 {
-                                    // Update Member emails that verification was sent and at what time for this member
-                                    $this->updateMemberEmail($NewMemberEmailID, array
+                                    // Update customer emails that verification was sent and at what time for this member
+                                    $this->updateCustomerEmail($NewCustomerEmailID, array
                                     (
                                         'verification_sent'     =>  1,
                                         'verification_sent_on'  =>  strtotime('now'),
                                     ));
 
                                     // Add the emailAddress status
-                                    $this->addEmailStatus($formFields['new_member'], 'VerificationSent');
+                                    $this->addCustomerEmailStatus($formFields['new_member'], 'VerificationSent');
 
-                                    // Redirect to Successful Signup Page that informs them of the need to validate the email before they can enjoy the free 90 day Premium membership
-                                    $this->registerAccessAttempt($this->getSiteUser()->getID(), $SubmittedFormName, 1);
+                                    // Redirect to Successful Signup Page that informs them of the need to validate the email before they can login
+                                    $this->registerAccessAttempt($this->getSiteUser()->getID(), $FormName, 1);
                                     $viewData   =   array
                                                     (
                                                         'emailAddress'        =>  $formFields['new_member'],
                                                     );
-                                    return $this->makeResponseView('application/auth/member-signup-success', $viewData);
+                                    return $this->makeResponseView('application/auth/customer-signup-success', $viewData);
                                 }
                                 else
                                 {
                                     $this->addAdminAlert();
-                                    $this->registerAccessAttempt($this->getSiteUser()->getID(), $SubmittedFormName, 0);
-                                    Log::info($SubmittedFormName . " - Could not send the new member email to [" . $formFields['new_member'] . "] for member id [" . $NewMemberID . "].");
-                                    $customerService        =   str_replace("[errorNumber]", "Could not send the new member email.", self::POLICY_LinkCustomerService );
+                                    $this->registerAccessAttempt($this->getSiteUser()->getID(), $FormName, 0);
+                                    Log::info($FormName . " - Could not send the new customer email to [" . $formFields['new_member'] . "] for member id [" . $NewMemberID . "].");
+                                    $customerService        =   str_replace("[errorNumber]", "Could not send the new customer email.", self::POLICY_LinkCustomerService );
                                     $SignupFormMessages[]   =   "Sorry, we cannot complete the signup process at this time.
                                                                 Please refresh, and if the issue continues, contact " . $customerService . ".";
                                 }
@@ -962,9 +985,9 @@ class CustomerAuthenticationController extends BaseController
                             else
                             {
                                 $this->addAdminAlert();
-                                $this->registerAccessAttempt($this->getSiteUser()->getID(), $SubmittedFormName, 0);
-                                Log::info($SubmittedFormName . " - Could not create a new member email.");
-                                $customerService        =   str_replace("[errorNumber]", "Could not create a new member email.", self::POLICY_LinkCustomerService );
+                                $this->registerAccessAttempt($this->getSiteUser()->getID(), $FormName, 0);
+                                Log::info($FormName . " - Could not create a new customer email.");
+                                $customerService        =   str_replace("[errorNumber]", "Could not create a new customer email.", self::POLICY_LinkCustomerService );
                                 $SignupFormMessages[]   =   "Sorry, we cannot complete the signup process at this time.
                                                             Please refresh, and if the issue continues, contact " . $customerService . ".";
                             }
@@ -972,39 +995,39 @@ class CustomerAuthenticationController extends BaseController
                         else
                         {
                             $this->addAdminAlert();
-                            $this->registerAccessAttempt($this->getSiteUser()->getID(), $SubmittedFormName, 0);
-                            Log::info($SubmittedFormName . " - Could not create a new member.");
-                            $customerService        =   str_replace("[errorNumber]", "Could not create a new member.", self::POLICY_LinkCustomerService );
+                            $this->registerAccessAttempt($this->getSiteUser()->getID(), $FormName, 0);
+                            Log::info($FormName . " - Could not create a new member.");
+                            $customerService        =   str_replace("[errorNumber]", "Could not create a new customer.", self::POLICY_LinkCustomerService );
                             $SignupFormMessages[]   =   "Sorry, we cannot complete the signup process at this time.
                                                         Please refresh, and if the issue continues, contact " . $customerService . ".";
                         }
                     }
                     else
                     {
-                        $SignupFormErrors   =   $validator->messages()->toArray();
-                        $SignupFormMessages =   array();
-                        foreach($SignupFormErrors as $errors)
+                        $FormErrors   =   $validator->messages()->toArray();
+                        $FormMessages =   array();
+                        foreach($FormErrors as $errors)
                         {
-                            $SignupFormMessages[]   =   $errors[0];
+                            $FormMessages[]   =   $errors[0];
                         }
 
                         if(array_key_exists('errors', $passwordCheck))
                         {
                             foreach($passwordCheck['errors'] as $errors)
                             {
-                                $SignupFormMessages[]   =   $errors;
+                                $FormMessages[]   =   $errors;
                             }
                         }
 
-                        $this->registerAccessAttempt($this->getSiteUser()->getID(),$SubmittedFormName, 0);
-                        Log::info($SubmittedFormName . " - form values did not pass.");
+                        $this->registerAccessAttempt($this->getSiteUser()->getID(),$FormName, 0);
+                        Log::info($FormName . " - form values did not pass.");
                     }
                 }
                 else
                 {
-                    $this->registerAccessAttempt($this->getSiteUser()->getID(), $SubmittedFormName, 0);
+                    $this->registerAccessAttempt($this->getSiteUser()->getID(), $FormName, 0);
                     $this->addAdminAlert();
-                    Log::warning($SubmittedFormName . " has invalid dummy variables passed.");
+                    Log::warning($FormName . " has invalid dummy variables passed.");
                     $returnToRoute  =   array
                                         (
                                             'name'  =>  'custom-error',
@@ -1024,7 +1047,7 @@ class CustomerAuthenticationController extends BaseController
         }
         else
         {
-            Log::warning($SubmittedFormName . " is not being correctly posted to.");
+            Log::warning($FormName . " is not being correctly posted to.");
             $returnToRoute  =   array
                                 (
                                     'name'  =>  'custom-error',
@@ -1044,7 +1067,7 @@ class CustomerAuthenticationController extends BaseController
                 'LoginAttemptMessages'      =>  '',
 
                 'LoginFormMessages'         =>  '',
-                'SignupFormMessages'        =>  (count($SignupFormMessages) >= 1 ? $SignupFormMessages : ''),
+                'SignupFormMessages'        =>  (count($FormMessages) >= 1 ? $FormMessages : ''),
                 'ForgotFormMessages'        =>  '',
 
                 'LoginHeaderMessage'        =>  ''
@@ -1109,7 +1132,7 @@ class CustomerAuthenticationController extends BaseController
                                                                             (
                                                                                 'required',
                                                                                 'email',
-                                                                                'exists:member_emails,email_address',
+                                                                                'exists:customer_emails,email_address',
                                                                                 'between:5,120',
                                                                             ),
                                             'recaptcha_response_field'  =>  array
@@ -1133,27 +1156,27 @@ class CustomerAuthenticationController extends BaseController
 
                     if ($validator->passes())
                     {
-                        $this->addEmailStatus($formFields['forgot_email'], 'Forgot');
+                        $this->addCustomerEmailStatus($formFields['forgot_email'], 'Forgot');
 
-                        $NewMemberID    =   $this->getMemberIDFromEmailAddress($formFields['forgot_email']);
+                        $NewMemberID    =   $this->getCustomerMemberIDFromEmailAddress($formFields['forgot_email']);
 
                         // Send an Email for Validation
                         $verifyEmailLink    =   $this->generateVerifyEmailLink($formFields['forgot_email'], $NewMemberID, 'forgot-logins-success');
-                        $MemberDetails      =   $this->getMemberDetailsFromMemberID($NewMemberID);
+                        $CustomerDetails      =   $this->getCustomerDetailsFromMemberID($NewMemberID);
                         $sendEmailStatus    =   $this->sendEmail
 					                            (
 					                                'forgot-logins-success',
 					                                array
 					                                (
 					                                    'verifyEmailLink'   => $verifyEmailLink,
-					                                    'first_name'	    =>	$MemberDetails->first_name,
-					                                    'last_name'			=>	$MemberDetails->last_name,
+					                                    'first_name'	    =>	$CustomerDetails->first_name,
+					                                    'last_name'			=>	$CustomerDetails->last_name,
 					                                ),
 					                                array
 					                                (
 					                                    'fromTag'           =>  'General',
 					                                    'sendToEmail'       =>  $formFields['forgot_email'],
-					                                    'sendToName'        =>  $MemberDetails->first_name . ' ' . $MemberDetails->last_name,
+					                                    'sendToName'        =>  $CustomerDetails->first_name . ' ' . $CustomerDetails->last_name,
 					                                    'subject'           =>  'Access Issues',
 					                                    'ccArray'           =>  FALSE,
 					                                    'attachArray'       =>  FALSE,
@@ -1326,7 +1349,7 @@ class CustomerAuthenticationController extends BaseController
 
                         if ($validator->passes())
                         {
-                            $memberDetailsExist     =   $this->doMemberDetailsExist($verifiedMemberIDArray['memberID']);
+                            $memberDetailsExist     =   $this->doCustomerDetailsExist($verifiedMemberIDArray['memberID']);
 
                             // Add Member Details
                             $detailsFillableArray   =   array
@@ -1346,11 +1369,11 @@ class CustomerAuthenticationController extends BaseController
                                                         );
                             if($memberDetailsExist)
                             {
-                                $this->updateMemberDetails($verifiedMemberIDArray['memberID'], $detailsFillableArray);
+                                $this->updateCustomerDetails($verifiedMemberIDArray['memberID'], $detailsFillableArray);
                             }
                             else
                             {
-                                $this->addMemberDetails($verifiedMemberIDArray['memberID'], $detailsFillableArray);
+                                $this->addCustomerDetails($verifiedMemberIDArray['memberID'], $detailsFillableArray);
                             }
 
                             // Update Member Object with Member Type
@@ -1359,9 +1382,9 @@ class CustomerAuthenticationController extends BaseController
                                                             'member_type'   =>  $this->getMemberTypeFromFromValue(strtolower($formFields['member_type'])),
                                                         );
                             $this->updateMember($verifiedMemberIDArray['memberID'], $memberFillableArray);
-                            $this->addMemberStatus('VerifiedStartupDetails', $verifiedMemberIDArray['memberID']);
-                            $this->addMemberStatus('ValidMember', $verifiedMemberIDArray['memberID']);
-                            $this->addMemberSiteStatus('Member startup details complete.', $verifiedMemberIDArray['memberID']);
+                            $this->addCustomerStatus('VerifiedStartupDetails', $verifiedMemberIDArray['memberID']);
+                            $this->addCustomerStatus('ValidMember', $verifiedMemberIDArray['memberID']);
+                            $this->addCustomerSiteStatus('Member startup details complete.', $verifiedMemberIDArray['memberID']);
 
                             // Successful Verification Notification Email
                             $this->sendEmail
@@ -1480,14 +1503,14 @@ class CustomerAuthenticationController extends BaseController
      */
     public function verifyEmail($vCode)
     {
-        $returnToRoute          =   array
-                                    (
-                                        'name'  =>  FALSE,
-                                        'data'  =>  FALSE,
-                                    );
+        $returnToRoute  =   array
+                            (
+                                'name'  =>  FALSE,
+                                'data'  =>  FALSE,
+                            );
 
         /**
-         * Must return both email and member id bc a member can have more than one email address
+         * Must return both email and member id because a member may have more than one email address
          */
         $verifiedMemberIDArray  =   $this->verifyEmailByLinkAndGetMemberIDArray($vCode, 'VerificationDetailsForm');
 
@@ -1506,17 +1529,17 @@ class CustomerAuthenticationController extends BaseController
                 {
                     if ($verifiedMemberIDArray['alreadyVerified'] === 0)
                     {
-                        // Create New Member Status for this member identifying as verified and starting trial
-                        $this->addMemberStatus('VerifiedEmail', $verifiedMemberIDArray['memberID']);
+                        // Create New Customer Status for this member identifying as verified
+                        $this->addCustomerStatus('VerifiedEmail', $verifiedMemberIDArray['memberID']);
 
-                        $this->updateMemberEmail($verifiedMemberIDArray['memberID'], array
+                        $this->updateCustomerEmail($verifiedMemberIDArray['memberID'], array
                         (
                             'verified'     =>  1,
                             'verified_on'  =>  strtotime('now'),
                         ));
                     }
 
-                    $this->addEmailStatus($verifiedMemberIDArray['email'], 'Verified');
+                    $this->addCustomerEmailStatus($verifiedMemberIDArray['email'], 'Verified');
                 }
 	            else
 	            {
@@ -1556,7 +1579,7 @@ class CustomerAuthenticationController extends BaseController
         }
         else
         {
-            // Create Member Details Form - also force to add name, gender, customer type and zip code and time zone in form
+            // Create Customer Details Form - also force to add name, gender, customer type and zip code and time zone in form
             $viewData   =   array
                             (
                                 'vcode'         =>  $vCode,
@@ -1637,7 +1660,7 @@ class CustomerAuthenticationController extends BaseController
                                                                                         (
                                                                                             'required',
                                                                                             'email',
-                                                                                            'exists:member_emails,email_address',
+                                                                                            'exists:customer_emails,email_address',
                                                                                             'between:5,120',
                                                                                         ),
                                                         'password'                  =>  array
@@ -1680,9 +1703,9 @@ class CustomerAuthenticationController extends BaseController
 	                                if( $vcodeDetails['email'] ==  $formFields['change_verify_member'])
 	                                {
 		                                // Current Member Email Status Should be Forgot
-		                                if($this->getEmailStatus($vcodeDetails['email']) == 'Forgot')
+		                                if($this->getCustomerEmailStatus($vcodeDetails['email']) == 'Forgot')
 		                                {
-			                                $this->addEmailStatus($vcodeDetails['email'], 'Remembered');
+			                                $this->addCustomerEmailStatus($vcodeDetails['email'], 'Remembered');
 
 			                                $LoginCredentials       =   $this->generateLoginCredentials($vcodeDetails['email'], $formFields['password']);
 					                        $memberFillableArray    =   array
@@ -1693,29 +1716,29 @@ class CustomerAuthenticationController extends BaseController
 					                                                        'salt3'             =>  $LoginCredentials[3],
 					                                                    );
                                             $this->updateMember($vcodeDetails['memberID'], $memberFillableArray);
-                                            $this->addMemberStatus("ChangedPassword", $vcodeDetails['memberID']);
-                                            $this->addMemberStatus("ValidMember", $vcodeDetails['memberID']);
-                                            $this->addMemberSiteStatus("Member has changed their password.", $vcodeDetails['memberID']);
+                                            $this->addCustomerStatus("ChangedPassword", $vcodeDetails['memberID']);
+                                            $this->addCustomerStatus("ValidMember", $vcodeDetails['memberID']);
+                                            $this->addCustomerSiteStatus("Member has changed their password.", $vcodeDetails['memberID']);
 
 			                                $this->registerAccessAttempt($this->getSiteUser()->getID(),$FormName, 1);
 
 			                                $successMessage[]       =   'Congratulations. You have successfully changed your password!';
                                             Session::put('successFlashMessage', $successMessage);
 
-			                                $MemberDetailsObject    =   $this->getMemberDetailsFromMemberID($vcodeDetails['memberID']);
+			                                $CustomerDetailsObject    =   $this->getCustomerDetailsFromMemberID($vcodeDetails['memberID']);
 			                                $sendEmailStatus        =   $this->sendEmail
 				                                                        (
 				                                                            'genericPasswordChange',
 				                                                            array
 				                                                            (
-				                                                                'first_name' 	=> 	$MemberDetailsObject->getMemberDetailsFirstName(),
-																				'last_name' 	=> 	$MemberDetailsObject->getMemberDetailsLastName(),
+				                                                                'first_name' 	=> 	$CustomerDetailsObject->getCustomerDetailsFirstName(),
+																				'last_name' 	=> 	$CustomerDetailsObject->getCustomerDetailsLastName(),
 				                                                            ),
 				                                                            array
 				                                                            (
 				                                                                'fromTag'       =>  'General',
 				                                                                'sendToEmail'   =>  $vcodeDetails['email'],
-				                                                                'sendToName'    =>  $MemberDetailsObject->getMemberDetailsFullName(),
+				                                                                'sendToName'    =>  $CustomerDetailsObject->getCustomerDetailsFullName(),
 				                                                                'subject'       =>  'Password Reset',
 				                                                                'ccArray'       =>  FALSE,
 				                                                                'attachArray'   =>  FALSE,
@@ -1733,7 +1756,7 @@ class CustomerAuthenticationController extends BaseController
 		                                {
 			                                $FormMessages[]   =   'Your new access credentials can not be updated at this time. Please retry the link or contact Customer Service';
 			                                $this->registerAccessAttempt($this->getSiteUser()->getID(),$FormName, 0);
-		                                    Log::info($FormName . " - getEmailStatusStatus != 'Forgot'");
+		                                    Log::info($FormName . " - getCustomerEmailStatusStatus != 'Forgot'");
 		                                }
 	                                }
 	                                else
@@ -1837,10 +1860,11 @@ class CustomerAuthenticationController extends BaseController
         }
         else
         {
-            $viewData   =   array(
-                'vcode'         =>  Input::get('vcode'),
-                'FormMessages'  =>  $FormMessages,
-            );
+            $viewData   =   array
+				            (
+				                'vcode'         =>  Input::get('vcode'),
+				                'FormMessages'  =>  $FormMessages,
+				            );
             return $this->makeResponseView('application/auth/change-password-with-verified-email-link', $viewData);
         }
     }
@@ -1863,7 +1887,7 @@ class CustomerAuthenticationController extends BaseController
         $ipBin->blockIPAddress($this->getSiteUser()->getID(), $lockStatus, $this->getSiteUser()->getMemberID());
 
 		// Lock the user member status by adding a more current member status of $lockStatus
-		$this->addMemberStatus($lockStatus, $this->getSiteUser()->getMemberID());
+		$this->addCustomerStatus($lockStatus, $this->getSiteUser()->getMemberID());
 
         /**
          * If an email address is passed we want to use it to inform the user/member that they were locked
@@ -1885,18 +1909,18 @@ class CustomerAuthenticationController extends BaseController
             if ($validator->passes())
             {
                 // if email is in our database
-                if($this->isEmailVerified($contactEmail))
+                if($this->isCustomerEmailVerified($contactEmail))
                 {
-                    $MemberEmails       =   new MemberEmails();
-                    $memberID           =   $MemberEmails->getMemberIDFromEmailAddress($contactEmail);
-                    $memberPriEmail     =   $MemberEmails->getPrimaryEmailAddressFromMemberID($memberID);
-                    $MemberDetailsModel =   MemberDetails::where('member_id', '=', $memberID)->first();
-                    $sendToName         =   ($MemberDetailsModel->first_name != "" && $MemberDetailsModel->last_name != ""
-                                                ?   $MemberDetailsModel->first_name . " " . $MemberDetailsModel->last_name
-                                                :   "Ekinect Member");
+                    $CustomerEmails         =   new CustomerEmails();
+                    $memberID               =   $CustomerEmails->getCustomerMemberIDFromEmailAddress($contactEmail);
+                    $memberPriEmail         =   $CustomerEmails->getCustomerPrimaryEmailAddressFromMemberID($memberID);
+                    $CustomerDetailsModel   =   CustomerDetails::where('member_id', '=', $memberID)->first();
+                    $sendToName             =   ($CustomerDetailsModel->first_name != "" && $CustomerDetailsModel->last_name != ""
+	                                                ?   $CustomerDetailsModel->first_name . " " . $CustomerDetailsModel->last_name
+	                                                :   "Ekinect Member");
 
                     // Lock the member
-                    $this->addMemberStatus($lockStatus, $memberID);
+                    $this->addCustomerStatus($lockStatus, $memberID);
 
                     // Email Options for a Member
                     $messageOptionsArray    =   $this->getLockMessageOptions($lockStatus) + ['sendToEmail'   =>  $memberPriEmail, 'sendToName' => $sendToName,];
@@ -1974,6 +1998,36 @@ class CustomerAuthenticationController extends BaseController
 
 
 
+
+
+
+    public function generateVerifyEmailLink($memberEmail, $memberID, $emailTemplateName )
+    {
+        $siteSalt           =   $_ENV['ENCRYPTION_KEY_SITE_default_salt'];
+
+        $a                  =   base64_encode($this->twoWayCrypt('e',$memberEmail,$siteSalt));      // email address
+        $b                  =   base64_encode($this->createHash($memberID,$siteSalt));              // one-way hashed mid
+        $c                  =   base64_encode($this->twoWayCrypt('e',strtotime("now"),$siteSalt));  // vCode creation time
+        $addOn              =   str_replace("/", "--::--", $a . self::POLICY_EncryptedURLDelimiter . $b . self::POLICY_EncryptedURLDelimiter . $c);
+        $addOn              =   str_replace("+", "--:::--", $addOn);
+
+		switch($emailTemplateName)
+		{
+			case 'verify-new-member'		:	$router	=	'email-verification';
+												break;
+
+			case 'forgot-logins-success'	:	$router	=	'change-password-verification';
+												break;
+
+			default : throw new \Exception('Invalid Email route passed (' . $emailTemplateName . '.');
+		}
+        #$verifyEmailLink    =   self::POLICY_CompanyURL_protocol . self::POLICY_CompanyURL_prd . $router . "/" . $addOn;
+        $verifyEmailLink    =   (isset($_SERVER['HTTPS']) ? "https" : "http") . "://" . $_SERVER['HTTP_HOST'] . "/" . $router . "/" . $addOn;
+
+        return $verifyEmailLink;
+    }
+
+
     public function getAccessAttemptByUserIDs($accessFormName, $userIDArray, $timeFrame)
     {
         try
@@ -2009,12 +2063,12 @@ class CustomerAuthenticationController extends BaseController
         }
     }
 
-    public function getEmailStatus($emailAddress)
+    public function getCustomerEmailStatus($emailAddress)
     {
         try
         {
-            $EmailStatus    =   new EmailStatus();
-            return $EmailStatus->getEmailStatus($emailAddress);
+            $EmailStatus    =   new CustomerEmailStatus();
+            return $EmailStatus->getCustomerEmailStatus($emailAddress);
         }
         catch(\Whoops\Example\Exception $e)
         {
@@ -2023,12 +2077,12 @@ class CustomerAuthenticationController extends BaseController
         }
     }
 
-    public function addEmailStatus($emailAddress, $status)
+    public function addCustomerEmailStatus($emailAddress, $status)
     {
         try
         {
-            $EmailStatus    =   new EmailStatus();
-            $EmailStatus->addEmailStatus($emailAddress, $status);
+            $CustomerEmailStatus    =   new CustomerEmailStatus();
+            $CustomerEmailStatus->addCustomerEmailStatus($emailAddress, $status);
         }
         catch(\Whoops\Example\Exception $e)
         {
@@ -2040,8 +2094,8 @@ class CustomerAuthenticationController extends BaseController
     {
         try
         {
-            $EmailStatus    =   new EmailStatus();
-            return $EmailStatus->checkForPreviousEmailStatus($emailAddress, $status);
+            $CustomerEmailStatus    =   new CustomerEmailStatus();
+            return $CustomerEmailStatus->checkForPreviousCustomerEmailStatus($emailAddress, $status);
         }
         catch(\Whoops\Example\Exception $e)
         {
@@ -2068,7 +2122,7 @@ class CustomerAuthenticationController extends BaseController
             switch($verificationFormName)
             {
                 case 'VerificationDetailsForm'				:	// Check if email from vCode has already been validated and verified (user that clicks the link twice+)
-                    $emailIsAlreadyVerified     =   ($this->isEmailVerified($emailFromVcode) ? 1 : 0);
+                    $emailIsAlreadyVerified     =   ($this->isCustomerEmailVerified($emailFromVcode) ? 1 : 0);
                     break;
 
                 case 'ChangePasswordWithVerifyLinkForm'		:	// Check ... something
@@ -2091,7 +2145,7 @@ class CustomerAuthenticationController extends BaseController
         else
         {
             // custom error
-            $errorMsg   =   "Error #1 - MemberEmailsTable->isVerifyLinkValid returned an invalid member id.";
+            $errorMsg   =   "Error #1 - CustomerEmailsTable->isVerifyLinkValid returned an invalid member id.";
             Log::info($errorMsg);
             return  array
             (
@@ -2103,12 +2157,12 @@ class CustomerAuthenticationController extends BaseController
 
 
 
-    public function getMemberIDFromEmailAddress($emailAddress)
+    public function getCustomerMemberIDFromEmailAddress($emailAddress)
     {
         try
         {
-            $MemberEmails   =   new MemberEmails();
-            return $MemberEmails->getMemberIDFromEmailAddress($emailAddress);
+            $CustomerEmails   =   new CustomerEmails();
+            return $CustomerEmails->getCustomerMemberIDFromEmailAddress($emailAddress);
         }
         catch(\Whoops\Example\Exception $e)
         {
@@ -2117,12 +2171,12 @@ class CustomerAuthenticationController extends BaseController
         }
     }
 
-    public function getMemberEmailIDFromEmailAddress($emailAddress)
+    public function getCustomerEmailIDFromEmailAddress($emailAddress)
     {
         try
         {
-            $MemberEmails   =   new MemberEmails();
-            return $MemberEmails->getMemberEmailIDFromEmailAddress($emailAddress);
+            $CustomerEmails   =   new CustomerEmails();
+            return $CustomerEmails->getCustomerEmailIDFromEmailAddress($emailAddress);
         }
         catch(\Whoops\Example\Exception $e)
         {
@@ -2133,12 +2187,12 @@ class CustomerAuthenticationController extends BaseController
 
     public function getMemberIDFromVerifyLink($emailAddress, $memberIDHash)
     {
-        $wasVerificationLinkSent    =   $this->wasVerificationLinkSent($emailAddress);
+        $wasCustomerVerificationLinkSent    =   $this->wasCustomerVerificationLinkSent($emailAddress);
 
-        if($wasVerificationLinkSent)
+        if($wasCustomerVerificationLinkSent)
         {
-            $MemberEmails               =   new MemberEmails();
-            $memberID   =   $MemberEmails->getMemberIDFromEmailAddress($emailAddress);
+            $CustomerEmails               =   new CustomerEmails();
+            $memberID   =   $CustomerEmails->getCustomerMemberIDFromEmailAddress($emailAddress);
             if($memberID >= 1)
             {
                 return ($this->isVerifyLinkValid($memberID, $memberIDHash)
@@ -2165,27 +2219,27 @@ class CustomerAuthenticationController extends BaseController
                     :   FALSE);
     }
 
-    public function addMember($newMemberEmail, $newMemberPassword)
+    public function addCustomer($newCustomerEmail, $newMemberPassword)
     {
         try
         {
-            $LoginCredentials   =   $this->generateLoginCredentials($newMemberEmail, $newMemberPassword);
+            $LoginCredentials   =   $this->generateLoginCredentials($newCustomerEmail, $newMemberPassword);
             $NewMember          =   new Member();
-            return $NewMember->addMember($LoginCredentials);
+            return $NewMember->addCustomer($LoginCredentials);
         }
         catch(\Whoops\Example\Exception $e)
         {
-            Log::error("Could not add a new Member identified by this email address [" . $newMemberEmail . "]. " . $e);
+            Log::error("Could not add a new Member identified by this email address [" . $newCustomerEmail . "]. " . $e);
             return FALSE;
         }
     }
 
-    public function doMemberDetailsExist($memberID)
+    public function doCustomerDetailsExist($memberID)
     {
         try
         {
-            $MemberDetails    =   new MemberDetails();
-            return $MemberDetails->doMemberDetailsExist($memberID);
+            $CustomerDetails    =   new CustomerDetails();
+            return $CustomerDetails->doCustomerDetailsExist($memberID);
         }
         catch(\Whoops\Example\Exception $e)
         {
@@ -2194,12 +2248,12 @@ class CustomerAuthenticationController extends BaseController
         }
     }
 
-    public function addMemberEmail($memberEmail, $memberID)
+    public function addCustomerEmail($memberEmail, $memberID)
     {
         try
         {
-            $NewMemberEmail    =   new MemberEmails();
-            return $NewMemberEmail->addMemberEmail($memberEmail, $memberID);
+            $NewCustomerEmail    =   new CustomerEmails();
+            return $NewCustomerEmail->addCustomerEmail($memberEmail, $memberID);
         }
         catch(\Whoops\Example\Exception $e)
         {
@@ -2208,26 +2262,26 @@ class CustomerAuthenticationController extends BaseController
         }
     }
 
-    public function updateMemberEmail($memberEmailsID, $fillableArray)
+    public function updateCustomerEmail($customerEmailsID, $fillableArray)
     {
         try
         {
-            $MemberEmail    =   new MemberEmails();
-            return $MemberEmail->updateMemberEmail($memberEmailsID, $fillableArray);
+            $CustomerEmail    =   new CustomerEmails();
+            return $CustomerEmail->updateCustomerEmail($customerEmailsID, $fillableArray);
         }
         catch(\Whoops\Example\Exception $e)
         {
-            Log::error("Could not update MemberEmails ID [" . $memberEmailsID . "] - " . $e);
+            Log::error("Could not update CustomerEmails ID [" . $customerEmailsID . "] - " . $e);
             return FALSE;
         }
     }
 
-    public function addMemberDetails($memberID, $fillableArray)
+    public function addCustomerDetails($memberID, $fillableArray)
     {
         try
         {
-            $NewMemberDetail    =   new MemberDetails();
-            return $NewMemberDetail->addMemberDetails($memberID, $fillableArray);
+            $NewCustomerDetail    =   new CustomerDetails();
+            return $NewCustomerDetail->addCustomerDetails($memberID, $fillableArray);
         }
         catch(\Whoops\Example\Exception $e)
         {
@@ -2236,12 +2290,12 @@ class CustomerAuthenticationController extends BaseController
         }
     }
 
-    public function updateMemberDetails($memberID, $fillableArray)
+    public function updateCustomerDetails($memberID, $fillableArray)
     {
         try
         {
-            $MemberDetails    =   new MemberDetails();
-            return $MemberDetails->updateMemberDetails($memberID, $fillableArray);
+            $CustomerDetails    =   new CustomerDetails();
+            return $CustomerDetails->updateCustomerDetails($memberID, $fillableArray);
         }
         catch(\Whoops\Example\Exception $e)
         {

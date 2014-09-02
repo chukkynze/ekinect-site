@@ -124,59 +124,11 @@ class BaseController extends Controller
 		}
 	}
 
-    protected function createHash($val,$key)
-    {
-        $hash   =   hash_hmac('sha512', $val, $key);
-        return $hash;
-    }
-
-    /**
-     *
-     * Encrypt/Decrypt function
-     * Note strings should already hashed, salted and md5ed or sha1ed before even thinking of using this
-     *
-     * @param           $mode 'e'|'d' ==> encrypt|decrypt
-     * @param           $string_to_convert
-     * @param           $key
-     *
-     * @return array|bool|string
-     */
-    public function twoWayCrypt($mode, $string_to_convert, $key)
-    {
-        $encryptionMethod   =   "AES-256-CBC";
-        $raw_output         =   FALSE;
-
-        if($mode === "e")
-        {
-            // Encrypt
-            $iv             =   mcrypt_create_iv(mcrypt_get_iv_size(MCRYPT_CAST_256, MCRYPT_MODE_CBC), MCRYPT_RAND);
-            return  $iv . self::POLICY_EncryptedURLDelimiter . openssl_encrypt($string_to_convert, $encryptionMethod, $key, $raw_output, $iv);
-        }
-        elseif($mode === "d")
-        {
-            // Decrypt
-            $expld          =   explode(self::POLICY_EncryptedURLDelimiter, $string_to_convert);
-            return  openssl_decrypt($expld[1], $encryptionMethod, $key, $raw_output, $expld[0]);
-        }
-        else
-        {
-            return FALSE;
-        }
-    }
-
     public function makeResponseView($viewName, $viewData)
     {
         return  is_int($this->SiteUserCookie) && $this->SiteUserCookie > 0
                     ?   Response::make(View::make($viewName, $viewData))
                     :   Response::make(View::make($viewName, $viewData))->withCookie($this->SiteUserCookie);
-    }
-
-
-
-
-    public function failedAuthCheck()
-    {
-
     }
 
 	/**
@@ -327,48 +279,6 @@ class BaseController extends Controller
         }
 
         return $returnValue;
-    }
-
-
-
-    public function generateVerifyEmailLink($memberEmail, $memberID, $emailTemplateName )
-    {
-        $siteSalt           =   $_ENV['ENCRYPTION_KEY_SITE_default_salt'];
-
-        $a                  =   base64_encode($this->twoWayCrypt('e',$memberEmail,$siteSalt));      // email address
-        $b                  =   base64_encode($this->createHash($memberID,$siteSalt));              // one-way hashed mid
-        $c                  =   base64_encode($this->twoWayCrypt('e',strtotime("now"),$siteSalt));  // vCode creation time
-        $addOn              =   str_replace("/", "--::--", $a . self::POLICY_EncryptedURLDelimiter . $b . self::POLICY_EncryptedURLDelimiter . $c);
-        $addOn              =   str_replace("+", "--:::--", $addOn);
-
-		switch($emailTemplateName)
-		{
-			case 'verify-new-member'		:	$router	=	'email-verification';
-												break;
-
-			case 'forgot-logins-success'	:	$router	=	'change-password-verification';
-												break;
-
-			default : throw new \Exception('Invalid Email route passed (' . $emailTemplateName . '.');
-		}
-        #$verifyEmailLink    =   self::POLICY_CompanyURL_protocol . self::POLICY_CompanyURL_prd . $router . "/" . $addOn;
-        $verifyEmailLink    =   (isset($_SERVER['HTTPS']) ? "https" : "http") . "://" . $_SERVER['HTTP_HOST'] . "/" . $router . "/" . $addOn;
-
-        return $verifyEmailLink;
-    }
-
-    public function addMemberSiteStatus($status, $memberID)
-    {
-        try
-        {
-            $NewMemberSiteStatus    =   new MemberSiteStatus();
-            return $NewMemberSiteStatus->addMemberSiteStatus($status, $memberID);
-        }
-        catch(\Whoops\Example\Exception $e)
-        {
-            Log::error("Could not add the new Member Site Status [" . $status . "] for Member [" . $memberID . "]. " . $e);
-            return FALSE;
-        }
     }
 
     public function changeArrayFormat($inputArray, $outputFormat)

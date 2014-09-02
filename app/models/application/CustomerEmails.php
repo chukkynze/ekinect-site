@@ -54,7 +54,7 @@ class CustomerEmails extends Eloquent
         }
         else
         {
-            throw new \Whoops\Example\Exception("Member ID is invalid.");
+            throw new \Whoops\Example\Exception("Member ID is invalid for CustomerEmails.");
         }
     }
 
@@ -76,11 +76,11 @@ class CustomerEmails extends Eloquent
         }
         else
         {
-            throw new \Whoops\Example\Exception("CustomerEmails ID is invalid.");
+            throw new \Whoops\Example\Exception("Member Emails ID is invalid for CustomerEmails.");
         }
     }
 
-    public function isEmailVerified($email)
+    public function isCustomerEmailVerified($email)
     {
         $count     =   DB::connection($this->connection)->table($this->table)
                         ->select('id')
@@ -93,7 +93,7 @@ class CustomerEmails extends Eloquent
         return ($count == 1 ? TRUE : FALSE);
     }
 
-    public function wasVerificationLinkSent($emailAddress)
+    public function wasCustomerVerificationLinkSent($emailAddress)
     {
         $count  =   DB::connection($this->connection)->table($this->table)
                         ->select('id')
@@ -105,7 +105,7 @@ class CustomerEmails extends Eloquent
         return ($count == 1 ? TRUE : FALSE);
     }
 
-    public function getCustomerIDFromEmailAddress($emailAddress)
+    public function getCustomerMemberIDFromEmailAddress($emailAddress)
     {
         try
         {
@@ -141,12 +141,7 @@ class CustomerEmails extends Eloquent
         }
     }
 
-    public function getEmailAddressesFromMemberID()
-    {
-
-    }
-
-    public function getPrimaryEmailAddressFromMemberID($member_id)
+    public function getCustomerPrimaryEmailAddressFromMemberID($member_id)
     {
         try
         {

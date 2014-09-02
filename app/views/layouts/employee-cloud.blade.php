@@ -20,19 +20,19 @@
     <meta name="description" content="">
     <meta name="author" content="">
 
-    <link href="/app/members/employee/employee-module.css" media="screen" rel="stylesheet" type="text/css">
-    <link href="/app/members/employee/controllers/employee/css/index.css" media="screen" rel="stylesheet" type="text/css">
-    <link href="/app/members/employee/css/cloud-admin.css" media="screen" rel="stylesheet" type="text/css">
-    <link href="/app/members/employee/css/themes/default.css" media="screen" rel="stylesheet" type="text/css">
-    <link href="/app/members/employee/css/responsive.css" media="screen" rel="stylesheet" type="text/css">
-    <link href="/app/members/employee/font-awesome/css/font-awesome.min.css" media="screen" rel="stylesheet" type="text/css">
-    <link href="/app/members/employee/css/animatecss/animate.min.css" media="screen" rel="stylesheet" type="text/css">
-    <link href="/app/members/employee/js/bootstrap-daterangepicker/daterangepicker-bs3.css" media="screen" rel="stylesheet" type="text/css">
-    <link href="/app/members/employee/js/jquery-todo/css/styles.css" media="screen" rel="stylesheet" type="text/css">
-    <link href="/app/members/employee/js/fullcalendar/fullcalendar.min.css" media="screen" rel="stylesheet" type="text/css">
-    <link href="/app/members/employee/js/gritter/css/jquery.gritter.css" media="screen" rel="stylesheet" type="text/css">
+    <link href="/admin/theme/employee-module.css" media="screen" rel="stylesheet" type="text/css">
+    <link href="/admin/theme/controllers/superuser/css/index.css" media="screen" rel="stylesheet" type="text/css">
+    <link href="/admin/theme/css/cloud-admin.css" media="screen" rel="stylesheet" type="text/css">
+    <link href="/admin/theme/css/themes/default.css" media="screen" rel="stylesheet" type="text/css">
+    <link href="/admin/theme/css/responsive.css" media="screen" rel="stylesheet" type="text/css">
+    <link href="/admin/theme/font-awesome/css/font-awesome.min.css" media="screen" rel="stylesheet" type="text/css">
+    <link href="/admin/theme/css/animatecss/animate.min.css" media="screen" rel="stylesheet" type="text/css">
+    <link href="/admin/theme/js/bootstrap-daterangepicker/daterangepicker-bs3.css" media="screen" rel="stylesheet" type="text/css">
+    <link href="/admin/theme/js/jquery-todo/css/styles.css" media="screen" rel="stylesheet" type="text/css">
+    <link href="/admin/theme/js/fullcalendar/fullcalendar.min.css" media="screen" rel="stylesheet" type="text/css">
+    <link href="/admin/theme/js/gritter/css/jquery.gritter.css" media="screen" rel="stylesheet" type="text/css">
     <link href="http://fonts.googleapis.com/css?family=Open+Sans:300,400,600,700" media="screen" rel="stylesheet" type="text/css">
-    <link href="/application/images/favicon.ico" rel="shortcut icon" type="image/vnd.microsoft.icon">
+    <link href="/app/images/favicon.ico" rel="shortcut icon" type="image/vnd.microsoft.icon">
     <!--[if lt IE 9]><script type="text/javascript" src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script><![endif]-->
     <!--[if lt IE 9]><script type="text/javascript" src="http://css3-mediaqueries-js.googlecode.com/svn/trunk/css3-mediaqueries.js"></script><![endif]-->
 
@@ -46,7 +46,7 @@
 		<div class="container">
 				<div class="navbar-brand">
 					<!-- COMPANY LOGO -->
-					<a href="<?php echo $memberHomeLink; ?>">
+					<a href="<?php echo $employeeHomeLink; ?>">
 						<img src="/app/images/site_images/logo.png" alt="Ekinect.com" class="img-responsive" height="30" width="120" style="margin-top:4px;">
 					</a>
 					<!-- /COMPANY LOGO -->
@@ -151,7 +151,7 @@
 											<a href="' . $msgDetails['messageLink'] . '' . $msgDetails['messageLinkID'] . '">
 												<img src="' . $msgDetails['messageAvatar'] . '" alt="' . $msgDetails['messageAvatarAltText'] . '" />
 												<span class="body">
-													<span class="from">' . $msgDetails['messageFromMemberType'] . ' - ' . $msgDetails['messageFromShort'] . '</span>
+													<span class="from">' . $msgDetails['messageFromEmployeeType'] . ' - ' . $msgDetails['messageFromShort'] . '</span>
 													<span class="message">' . $msgDetails['messageContentShort'] . '</span>
 													<span class="time">
 														<i class="fa fa-clock-o"></i>
@@ -221,18 +221,18 @@
 					<!-- BEGIN USER LOGIN DROPDOWN -->
 					<li class="dropdown user" id="header-user">
 						<a href="#" class="dropdown-toggle" data-toggle="dropdown">
-							<img id="ProfileBox_pic_ImageUserIcon" alt="" src="<?php echo $memberSmallProfilePicUrl; ?>" />
-							<span class="username"><?php echo $memberLoginDropDownDisplayName; ?>&nbsp;</span>
+							<img id="ProfileBox_pic_ImageUserIcon" alt="" src="<?php echo $employeeSmallProfilePicUrl; ?>" />
+							<span class="username"><?php echo $employeeLoginDropDownDisplayName; ?>&nbsp;</span>
 							<i class="fa fa-angle-down"></i>
 						</a>
 
 						<?php
 
-						if(is_array($memberUserMenuArray) && count($memberUserMenuArray) > 0)
+						if(is_array($employeeUserMenuArray) && count($employeeUserMenuArray) > 0)
 						{
 							echo '<ul class="dropdown-menu">';
 
-							foreach($memberUserMenuArray as $menuKey => $menuDetails)
+							foreach($employeeUserMenuArray as $menuKey => $menuDetails)
 							{
 								echo 	'<li>
 											<a href="' . $menuDetails['link'] . '">
@@ -265,7 +265,7 @@
 				<li class="current">
 				  <a href="javascript:void(0);">
 				  <span class="image">
-					  <img src="/app/members/employee/img/avatars/avatar3.jpg" alt="" />
+					  <img src="/admin/theme/img/avatars/avatar3.jpg" alt="" />
 				  </span>
 				  <span class="title">
 					You
@@ -300,7 +300,7 @@
 				<li>
 				  <a href="javascript:void(0);">
 				  <span class="image">
-					  <img src="/app/members/employee/img/avatars/avatar1.jpg" alt="" />
+					  <img src="/admin/theme/img/avatars/avatar1.jpg" alt="" />
 				  </span>
 				  <span class="title">
 					Max Doe
@@ -335,7 +335,7 @@
 				<li>
 				  <a href="javascript:void(0);">
 				  <span class="image">
-					  <img src="/app/members/employee/img/avatars/avatar2.jpg" alt="" />
+					  <img src="/admin/theme/img/avatars/avatar2.jpg" alt="" />
 				  </span>
 				  <span class="title">
 					Jane Doe
@@ -370,7 +370,7 @@
 				<li>
 				  <a href="javascript:void(0);">
 				  <span class="image">
-					  <img src="/app/members/employee/img/avatars/avatar4.jpg" alt="" />
+					  <img src="/admin/theme/img/avatars/avatar4.jpg" alt="" />
 				  </span>
 				  <span class="title">
 					Ellie Doe
@@ -405,7 +405,7 @@
 				<li>
 				  <a href="javascript:void(0);">
 				  <span class="image">
-					  <img src="/app/members/employee/img/avatars/avatar5.jpg" alt="" />
+					  <img src="/admin/theme/img/avatars/avatar5.jpg" alt="" />
 				  </span>
 				  <span class="title">
 					Lisa Doe
@@ -440,7 +440,7 @@
 				<li>
 				  <a href="javascript:void(0);">
 				  <span class="image">
-					  <img src="/app/members/employee/img/avatars/avatar6.jpg" alt="" />
+					  <img src="/admin/theme/img/avatars/avatar6.jpg" alt="" />
 				  </span>
 				  <span class="title">
 					Kelly Doe
@@ -475,7 +475,7 @@
 				<li>
 				  <a href="javascript:void(0);">
 				  <span class="image">
-					  <img src="/app/members/employee/img/avatars/avatar7.jpg" alt="" />
+					  <img src="/admin/theme/img/avatars/avatar7.jpg" alt="" />
 				  </span>
 				  <span class="title">
 					Jessy Doe
@@ -510,7 +510,7 @@
 				<li>
 				  <a href="javascript:void(0);">
 				  <span class="image">
-					  <img src="/app/members/employee/img/avatars/avatar8.jpg" alt="" />
+					  <img src="/admin/theme/img/avatars/avatar8.jpg" alt="" />
 				  </span>
 				  <span class="title">
 					Debby Doe
@@ -564,9 +564,9 @@
 				<div id="sidebar" class="sidebar">
 					<div class="sidebar-menu nav-collapse">
 						<div class="divide-20"></div>
-						<!-- SEARCH BAR -->
-						<div id="search-bar">
-							<input class="search" type="text" placeholder="Search"><i class="fa fa-search search-icon"></i>
+						<!-- Alert BAR -->
+						<div id="alert-bar">
+							Top Priority Alerts
 						</div>
 						<!-- /SEARCH BAR -->
 
@@ -577,7 +577,7 @@
 						<!-- SIDEBAR MENU -->
 						<ul>
 							<li class="active">
-								<a href="<?php echo $memberHomeLink; ?>">
+								<a href="<?php echo $employeeHomeLink; ?>">
 								<i class="fa fa-home fa-fw"></i> <span class="menu-text">Home</span>
 								<span class="selected"></span>
 								</a>
@@ -588,11 +588,22 @@
 								<span class="arrow"></span>
 								</a>
 								<ul class="sub">
+
+
+									<!-- START Dynamically Generated for each employee based on roles & privileges -->
+
+
 									<li><a class="" href="/employee/dashboards/overview"><span class="sub-menu-text">Overview</span></a></li>
 									<li><a class="" href="/employee/dashboards/crews"><span class="sub-menu-text">Crews</span></a></li>
 									<li><a class="" href="/employee/dashboards/jobs"><span class="sub-menu-text">Jobs</span></a></li>
 									<li><a class="" href="/employee/dashboards/analytics"><span class="sub-menu-text">Analytics</span></a></li>
 									<li><a class="" href="/employee/dashboards/reports"><span class="sub-menu-text">Reports</span></a></li>
+
+
+
+									<!-- END Dynamically Generated for each employee based on roles & privileges -->
+
+
 								</ul>
 							</li>
 							<li class="has-sub">
@@ -609,9 +620,15 @@
 
 							<li class="divider"></li>
 
+
+
+
+
+							<!-- START Dynamically Generated for each employee based on roles & privileges -->
+
 							<li class="has-sub">
 								<a href="javascript:;" class="">
-								<i class="fa fa-paperclip fa-fw"></i> <span class="menu-text">Crews</span>
+								<i class="fa fa-paperclip fa-fw"></i> <span class="menu-text">1111</span>
 								<span class="arrow"></span>
 								</a>
 								<ul class="sub">
@@ -630,16 +647,6 @@
 								<ul class="sub">
 									<li><a class="" href=""><span class="sub-menu-text">Upcoming Jobs</span></a></li>
 								</ul>
-							</li>
-
-							<li><a class="" href="employee/calendar"><i class="fa fa-calendar fa-fw"></i>
-								<span class="menu-text">
-                                    Calendar
-									<span class="tooltip-error pull-right" title="" data-original-title="3 New Events">
-										<span class="label label-success">New</span>
-									</span>
-								</span>
-								</a>
 							</li>
 
 							<li class="has-sub">
@@ -690,6 +697,26 @@
 										</ul>
 									</li>
 								</ul>
+							</li>
+
+
+
+							<!-- END Dynamically Generated for each employee based on roles & privileges -->
+
+
+
+
+
+
+
+							<li><a class="" href="calendar"><i class="fa fa-calendar fa-fw"></i>
+								<span class="menu-text">
+                                    Calendar
+									<span class="tooltip-error pull-right" title="" data-original-title="3 New Events">
+										<span class="label label-success">New</span>
+									</span>
+								</span>
+								</a>
 							</li>
 
 
@@ -785,22 +812,22 @@
 	</section>
 	<!--/PAGE -->
 
-    <script type="text/javascript" src="/app/members/employee/js/jquery/jquery-2.0.3.min.js"></script>
-    <script type="text/javascript" src="/app/members/employee/js/jquery-ui-1.10.3.custom/js/jquery-ui-1.10.3.custom.min.js"></script>
-    <script type="text/javascript" src="/app/members/employee/bootstrap-dist/js/bootstrap.min.js"></script>
-    <script type="text/javascript" src="/app/members/employee/js/bootstrap-daterangepicker/moment.min.js"></script>
-    <script type="text/javascript" src="/app/members/employee/js/bootstrap-daterangepicker/daterangepicker.min.js"></script>
-    <script type="text/javascript" src="/app/members/employee/js/jQuery-slimScroll-1.3.0/jquery.slimscroll.min.js"></script>
-    <script type="text/javascript" src="/app/members/employee/js/jQuery-slimScroll-1.3.0/slimScrollHorizontal.min.js"></script>
-    <script type="text/javascript" src="/app/members/employee/js/jQuery-BlockUI/jquery.blockUI.min.js"></script>
-    <script type="text/javascript" src="/app/members/employee/js/sparklines/jquery.sparkline.min.js"></script>
-    <script type="text/javascript" src="/app/members/employee/js/jquery-easing/jquery.easing.min.js"></script>
-    <script type="text/javascript" src="/app/members/employee/js/jquery-todo/js/paddystodolist.js"></script>
-    <script type="text/javascript" src="/app/members/employee/js/fullcalendar/fullcalendar.min.js"></script>
-    <script type="text/javascript" src="/app/members/employee/js/jQuery-Cookie/jquery.cookie.min.js"></script>
-    <script type="text/javascript" src="/app/members/employee/js/gritter/js/jquery.gritter.min.js"></script>
-    <script type="text/javascript" src="/app/members/employee/js/script.js"></script>
-    <script type="text/javascript" src="/app/members/employee/controllers/employee/js/index.js"></script>
+    <script type="text/javascript" src="/admin/theme/js/jquery/jquery-2.0.3.min.js"></script>
+    <script type="text/javascript" src="/admin/theme/js/jquery-ui-1.10.3.custom/js/jquery-ui-1.10.3.custom.min.js"></script>
+    <script type="text/javascript" src="/admin/theme/bootstrap-dist/js/bootstrap.min.js"></script>
+    <script type="text/javascript" src="/admin/theme/js/bootstrap-daterangepicker/moment.min.js"></script>
+    <script type="text/javascript" src="/admin/theme/js/bootstrap-daterangepicker/daterangepicker.min.js"></script>
+    <script type="text/javascript" src="/admin/theme/js/jQuery-slimScroll-1.3.0/jquery.slimscroll.min.js"></script>
+    <script type="text/javascript" src="/admin/theme/js/jQuery-slimScroll-1.3.0/slimScrollHorizontal.min.js"></script>
+    <script type="text/javascript" src="/admin/theme/js/jQuery-BlockUI/jquery.blockUI.min.js"></script>
+    <script type="text/javascript" src="/admin/theme/js/sparklines/jquery.sparkline.min.js"></script>
+    <script type="text/javascript" src="/admin/theme/js/jquery-easing/jquery.easing.min.js"></script>
+    <script type="text/javascript" src="/admin/theme/js/jquery-todo/js/paddystodolist.js"></script>
+    <script type="text/javascript" src="/admin/theme/js/fullcalendar/fullcalendar.min.js"></script>
+    <script type="text/javascript" src="/admin/theme/js/jQuery-Cookie/jquery.cookie.min.js"></script>
+    <script type="text/javascript" src="/admin/theme/js/gritter/js/jquery.gritter.min.js"></script>
+    <script type="text/javascript" src="/admin/theme/js/script.js"></script>
+    <script type="text/javascript" src="/admin/theme/controllers/superuser/js/index.js"></script>
 
 	<script>
 		var ModuleDirectoryReference = 'employee/';

@@ -1,8 +1,8 @@
 <?php
  /**
-  * Class MemberEmails
+  * Class EmployeeEmails
   *
-  * filename:   MemberEmails.php
+  * filename:   EmployeeEmails.php
   * 
   * @author      Chukwuma J. Nze <chukkynze@ekinect.com>
   * @since       7/8/14 5:11 AM
@@ -11,9 +11,9 @@
   */
  
 
-class MemberEmails extends Eloquent
+class EmployeeEmails extends Eloquent
 {
-    protected $table        =   'member_emails';
+    protected $table        =   'employee_emails';
     protected $primaryKey   =   'id';
     protected $connection   =   'main_db';
     protected $fillable     =   array
@@ -32,11 +32,11 @@ class MemberEmails extends Eloquent
                                 );
 
 
-    public function addMemberEmail($memberEmail, $memberID)
+    public function addEmployeeEmail($memberEmail, $memberID)
     {
         if($memberID > 0)
         {
-            $newMemberEmail =   MemberEmails::create
+            $newEmployeeEmail =   EmployeeEmails::create
                                 (
                                     array
                                     (
@@ -49,24 +49,24 @@ class MemberEmails extends Eloquent
                                         'verified_on'           =>  0,
                                     )
                                 );
-            $newMemberEmail->save();
-            return $newMemberEmail->id;
+            $newEmployeeEmail->save();
+            return $newEmployeeEmail->id;
         }
         else
         {
-            throw new \Whoops\Example\Exception("Member ID is invalid.");
+            throw new \Whoops\Example\Exception("Member ID is invalid for EmployeeEmails.");
         }
     }
 
-    public function updateMemberEmail($memberEmailsID, $fillableArray)
+    public function updateEmployeeEmail($memberEmailsID, $fillableArray)
     {
         if($memberEmailsID > 0)
         {
             try
             {
-                $MemberEmail =   MemberEmails::where("id","=", $memberEmailsID)->first();
-                $MemberEmail->fill($fillableArray);
-                $MemberEmail->save();
+                $EmployeeEmail =   EmployeeEmails::where("id","=", $memberEmailsID)->first();
+                $EmployeeEmail->fill($fillableArray);
+                $EmployeeEmail->save();
                 return TRUE;
             }
             catch(\Whoops\Example\Exception $e)
@@ -76,11 +76,11 @@ class MemberEmails extends Eloquent
         }
         else
         {
-            throw new \Whoops\Example\Exception("MemberEmails ID is invalid.");
+            throw new \Whoops\Example\Exception("Member Emails ID is invalid for EmployeeEmails.");
         }
     }
 
-    public function isEmailVerified($email)
+    public function isEmployeeEmailVerified($email)
     {
         $count     =   DB::connection($this->connection)->table($this->table)
                         ->select('id')
@@ -93,7 +93,7 @@ class MemberEmails extends Eloquent
         return ($count == 1 ? TRUE : FALSE);
     }
 
-    public function wasVerificationLinkSent($emailAddress)
+    public function wasEmployeeVerificationLinkSent($emailAddress)
     {
         $count  =   DB::connection($this->connection)->table($this->table)
                         ->select('id')
@@ -105,7 +105,7 @@ class MemberEmails extends Eloquent
         return ($count == 1 ? TRUE : FALSE);
     }
 
-    public function getMemberIDFromEmailAddress($emailAddress)
+    public function getEmployeeMemberIDFromEmailAddress($emailAddress)
     {
         try
         {
@@ -123,7 +123,7 @@ class MemberEmails extends Eloquent
         }
     }
 
-    public function getMemberEmailIDFromEmailAddress($emailAddress)
+    public function getEmployeeEmailIDFromEmailAddress($emailAddress)
     {
         try
         {
@@ -141,12 +141,7 @@ class MemberEmails extends Eloquent
         }
     }
 
-    public function getEmailAddressesFromMemberID()
-    {
-
-    }
-
-    public function getPrimaryEmailAddressFromMemberID($member_id)
+    public function getEmployeeEmailAddressFromMemberID($member_id)
     {
         try
         {

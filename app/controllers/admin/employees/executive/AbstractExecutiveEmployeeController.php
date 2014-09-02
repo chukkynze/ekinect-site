@@ -1,8 +1,8 @@
 <?php
     /**
-     * Class AbstractVendorController
+     * Class AbstractExecutiveEmployeeController
      *
-     * filename:   AbstractVendorController.php
+     * filename:   AbstractExecutiveEmployeeController.php
      *
      * @author      Chukwuma J. Nze <chukkynze@ekinect.com>
      * @since       7/8/14 5:19 AM
@@ -11,9 +11,10 @@
      */
 
 
-class AbstractVendorController extends AbstractMemberController
+class AbstractExecutiveEmployeeController extends AbstractEmployeeController
 {
     use MemberControls;
+    use EmployeeControls;
 
     public $layoutData;
     public $viewRootFolder = 'application/customer/vendor/';

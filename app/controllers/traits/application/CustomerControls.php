@@ -45,52 +45,52 @@ trait CustomerControls
     {
         try
         {
-            $MemberEmails               =   new MemberEmails();
-            return $MemberEmails->wasVerificationLinkSent($emailAddress);
+            $CustomerEmails               =   new CustomerEmails();
+            return $CustomerEmails->wasCustomerVerificationLinkSent($emailAddress);
         }
         catch(\Whoops\Example\Exception $e)
         {
-            Log::error("Could not determine if verification link was sent for [" . $emailAddress . "] - " . $e);
+            Log::error("Could not determine if customer verification link was sent for [" . $emailAddress . "] - " . $e);
             return FALSE;
         }
     }
 
-    public function authCheckAfterAccess()
+    public function authCheckAfterCustomerAccess()
     {
         if (!Auth::check())
         {
-            return $this->makeResponseView("application/customer/customer-logout", array());
+            return $this->makeResponseView("application/customers/customer-logout", array());
         }
     }
 
-    public function authCheckOnAccess()
+    public function authCheckOnCustomerAccess()
     {
         if (Auth::check())
         {
             $memberID       =   Auth::id();
             $memberType     =   Auth::user()->member_type;
-            $memberEmail    =   $this->getPrimaryEmailAddressFromMemberID($memberID);
+            $memberEmail    =   $this->getCustomerPrimaryEmailAddressFromMemberID($memberID);
 
             if($memberID >= 1)
             {
                 switch($memberType)
                 {
                     case 'vendor'           :   $returnToRoute  =   array
-                                                                (
-                                                                    'name'  =>  'showVendorDashboard',
-                                                                );
+	                                                                (
+	                                                                    'name'  =>  'showVendorDashboard',
+	                                                                );
                                                 break;
 
                     case 'vendor-client'    :   $returnToRoute  =   array
-                                                                (
-                                                                    'name'  =>  'showVendorClientDashboard',
-                                                                );
+	                                                                (
+	                                                                    'name'  =>  'showVendorClientDashboard',
+	                                                                );
                                                 break;
 
                     case 'freelancer'       :   $returnToRoute  =   array
-                                                                (
-                                                                    'name'  =>  'showFreelancerDashboard',
-                                                                );
+	                                                                (
+	                                                                    'name'  =>  'showFreelancerDashboard',
+	                                                                );
                                                 break;
 
                     default :   $verifyEmailLink    =   $this->generateVerifyEmailLink($memberEmail, $memberID, 'verify-new-member');
@@ -119,11 +119,11 @@ trait CustomerControls
         return $returnToRoute;
     }
 
-    public function getPrimaryEmailAddressFromMemberID($memberID=0)
+    public function getCustomerPrimaryEmailAddressFromMemberID($memberID=0)
     {
-        $memberID       =   (isset($this->memberID) ? $this->memberID : $memberID);
+        $memberID       =   (isset($this->customerID) ? $this->customerID : $memberID);
         $CustomerEmails =   new CustomerEmails();
-        return $CustomerEmails->getPrimaryEmailAddressFromMemberID($memberID);
+        return $CustomerEmails->getCustomerPrimaryEmailAddressFromMemberID($memberID);
     }
 
 
@@ -137,6 +137,21 @@ trait CustomerControls
         catch(\Whoops\Example\Exception $e)
         {
             Log::error("Could not add the new Customer Status [" . $status . "] for MemberID [" . $memberID . "]. " . $e);
+            return FALSE;
+        }
+    }
+
+
+    public function addCustomerSiteStatus($status, $memberID)
+    {
+        try
+        {
+            $NewCustomerSiteStatus    =   new CustomerSiteStatus();
+            return $NewCustomerSiteStatus->addCustomerSiteStatus($status, $memberID);
+        }
+        catch(\Whoops\Example\Exception $e)
+        {
+            Log::error("Could not add the new Customer Site Status [" . $status . "] for MemberID [" . $memberID . "]. " . $e);
             return FALSE;
         }
     }

@@ -1,8 +1,8 @@
 <?php
  /**
-  * Class MemberStatus
+  * Class
   *
-  * filename:   MemberStatus.php
+  * filename:   CustomerStatus.php
   * 
   * @author      Chukwuma J. Nze <chukkynze@ekinect.com>
   * @since       7/8/14 5:11 AM
@@ -11,9 +11,9 @@
   */
  
 
-class MemberStatus extends Eloquent
+class CustomerStatus extends Eloquent
 {
-    protected $table        =   'member_status';
+    protected $table        =   'customer_status';
     protected $primaryKey   =   'id';
     protected $connection   =   'main_db';
     protected $fillable     =   array
@@ -29,7 +29,7 @@ class MemberStatus extends Eloquent
 
 
 
-    public function addMemberStatus($newStatus, $memberID)
+    public function addCustomerStatus($newStatus, $memberID)
     {
 	    try
 	    {
@@ -37,7 +37,7 @@ class MemberStatus extends Eloquent
 	        {
 		        if($newStatus != "")
 		        {
-			        $newMemberStatus    =   MemberStatus::create
+			        $newCustomerStatus    =   CustomerStatus::create
 		                                    (
 		                                        array
 		                                        (
@@ -45,7 +45,7 @@ class MemberStatus extends Eloquent
 		                                            'status'    =>  $newStatus,
 		                                        )
 		                                    );
-		            $newMemberStatus->save();
+		            $newCustomerStatus->save();
 		            return TRUE;
 		        }
 		        else
@@ -55,6 +55,7 @@ class MemberStatus extends Eloquent
 	        }
 	        else
 	        {
+		        Log::info("Empty status [". $newStatus ."].");
 		        throw new Exception("Empty member id to be added.");
 	        }
 	    }
@@ -64,7 +65,7 @@ class MemberStatus extends Eloquent
 	    }
     }
 
-    public function checkMemberHasNoForce($memberID)
+    public function checkCustomerHasNoForce($memberID)
     {
         $result     =   DB::connection($this->connection)->table($this->table)
                         ->select('status')
@@ -116,7 +117,7 @@ class MemberStatus extends Eloquent
 				);
     }
 
-    public function isMemberStatusLocked($memberID)
+    public function isCustomerStatusLocked($memberID)
     {
         $result     =   DB::connection($this->connection)->table($this->table)
                         ->select('status')

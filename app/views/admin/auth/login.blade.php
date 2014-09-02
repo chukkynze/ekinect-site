@@ -79,7 +79,7 @@
 
 
 								<div class="divide-40"></div>
-                                    {{ Form::open(array('method' => 'POST', 'action' => 'AdminAuthController@postLogin')) }}
+                                    {{ Form::open(array('method' => 'POST', 'action' => 'EmployeeAuthenticationController@postLogin')) }}
 
                                     <?php echo Form::text('usr'         , null, array('class' => "siteInput Input1")); ?>
                                     <?php echo Form::text('username'    , null, array('class' => "siteInput Input2")); ?>

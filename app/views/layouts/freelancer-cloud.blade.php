@@ -20,19 +20,19 @@
     <meta name="description" content="">
     <meta name="author" content="">
 
-    <link href="/app/members/freelancer/theme/freelancer-module.css" media="screen" rel="stylesheet" type="text/css">
-    <link href="/app/members/freelancer/theme/controllers/freelancer/css/index.css" media="screen" rel="stylesheet" type="text/css">
-    <link href="/app/members/freelancer/theme/css/cloud-admin.css" media="screen" rel="stylesheet" type="text/css">
-    <link href="/app/members/freelancer/theme/css/themes/default.css" media="screen" rel="stylesheet" type="text/css">
-    <link href="/app/members/freelancer/theme/css/responsive.css" media="screen" rel="stylesheet" type="text/css">
-    <link href="/app/members/freelancer/theme/font-awesome/css/font-awesome.min.css" media="screen" rel="stylesheet" type="text/css">
-    <link href="/app/members/freelancer/theme/css/animatecss/animate.min.css" media="screen" rel="stylesheet" type="text/css">
-    <link href="/app/members/freelancer/theme/js/bootstrap-daterangepicker/daterangepicker-bs3.css" media="screen" rel="stylesheet" type="text/css">
-    <link href="/app/members/freelancer/theme/js/jquery-todo/css/styles.css" media="screen" rel="stylesheet" type="text/css">
-    <link href="/app/members/freelancer/theme/js/fullcalendar/fullcalendar.min.css" media="screen" rel="stylesheet" type="text/css">
-    <link href="/app/members/freelancer/theme/js/gritter/css/jquery.gritter.css" media="screen" rel="stylesheet" type="text/css">
+    <link href="/app/customers/freelancer/theme/freelancer-module.css" media="screen" rel="stylesheet" type="text/css">
+    <link href="/app/customers/freelancer/theme/controllers/freelancer/css/index.css" media="screen" rel="stylesheet" type="text/css">
+    <link href="/app/customers/freelancer/theme/css/cloud-admin.css" media="screen" rel="stylesheet" type="text/css">
+    <link href="/app/customers/freelancer/theme/css/themes/default.css" media="screen" rel="stylesheet" type="text/css">
+    <link href="/app/customers/freelancer/theme/css/responsive.css" media="screen" rel="stylesheet" type="text/css">
+    <link href="/app/customers/freelancer/theme/font-awesome/css/font-awesome.min.css" media="screen" rel="stylesheet" type="text/css">
+    <link href="/app/customers/freelancer/theme/css/animatecss/animate.min.css" media="screen" rel="stylesheet" type="text/css">
+    <link href="/app/customers/freelancer/theme/js/bootstrap-daterangepicker/daterangepicker-bs3.css" media="screen" rel="stylesheet" type="text/css">
+    <link href="/app/customers/freelancer/theme/js/jquery-todo/css/styles.css" media="screen" rel="stylesheet" type="text/css">
+    <link href="/app/customers/freelancer/theme/js/fullcalendar/fullcalendar.min.css" media="screen" rel="stylesheet" type="text/css">
+    <link href="/app/customers/freelancer/theme/js/gritter/css/jquery.gritter.css" media="screen" rel="stylesheet" type="text/css">
     <link href="http://fonts.googleapis.com/css?family=Open+Sans:300,400,600,700" media="screen" rel="stylesheet" type="text/css">
-    <link href="/application/images/favicon.ico" rel="shortcut icon" type="image/vnd.microsoft.icon">
+    <link href="/app/images/favicon.ico" rel="shortcut icon" type="image/vnd.microsoft.icon">
     <!--[if lt IE 9]><script type="text/javascript" src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script><![endif]-->
     <!--[if lt IE 9]><script type="text/javascript" src="http://css3-mediaqueries-js.googlecode.com/svn/trunk/css3-mediaqueries.js"></script><![endif]-->
 
@@ -454,22 +454,22 @@
 </section>
 <!--/PAGE -->
 
-<script type="text/javascript" src="/app/members/freelancer/theme/js/jquery/jquery-2.0.3.min.js"></script>
-<script type="text/javascript" src="/app/members/freelancer/theme/js/jquery-ui-1.10.3.custom/js/jquery-ui-1.10.3.custom.min.js"></script>
-<script type="text/javascript" src="/app/members/freelancer/theme/bootstrap-dist/js/bootstrap.min.js"></script>
-<script type="text/javascript" src="/app/members/freelancer/theme/js/bootstrap-daterangepicker/moment.min.js"></script>
-<script type="text/javascript" src="/app/members/freelancer/theme/js/bootstrap-daterangepicker/daterangepicker.min.js"></script>
-<script type="text/javascript" src="/app/members/freelancer/theme/js/jQuery-slimScroll-1.3.0/jquery.slimscroll.min.js"></script>
-<script type="text/javascript" src="/app/members/freelancer/theme/js/jQuery-slimScroll-1.3.0/slimScrollHorizontal.min.js"></script>
-<script type="text/javascript" src="/app/members/freelancer/theme/js/jQuery-BlockUI/jquery.blockUI.min.js"></script>
-<script type="text/javascript" src="/app/members/freelancer/theme/js/sparklines/jquery.sparkline.min.js"></script>
-<script type="text/javascript" src="/app/members/freelancer/theme/js/jquery-easing/jquery.easing.min.js"></script>
-<script type="text/javascript" src="/app/members/freelancer/theme/js/jquery-todo/js/paddystodolist.js"></script>
-<script type="text/javascript" src="/app/members/freelancer/theme/js/fullcalendar/fullcalendar.min.js"></script>
-<script type="text/javascript" src="/app/members/freelancer/theme/js/jQuery-Cookie/jquery.cookie.min.js"></script>
-<script type="text/javascript" src="/app/members/freelancer/theme/js/gritter/js/jquery.gritter.min.js"></script>
-<script type="text/javascript" src="/app/members/freelancer/theme/js/script.js"></script>
-<script type="text/javascript" src="/app/members/freelancer/theme/controllers/freelancer/js/index.js"></script>
+<script type="text/javascript" src="/app/customers/freelancer/theme/js/jquery/jquery-2.0.3.min.js"></script>
+<script type="text/javascript" src="/app/customers/freelancer/theme/js/jquery-ui-1.10.3.custom/js/jquery-ui-1.10.3.custom.min.js"></script>
+<script type="text/javascript" src="/app/customers/freelancer/theme/bootstrap-dist/js/bootstrap.min.js"></script>
+<script type="text/javascript" src="/app/customers/freelancer/theme/js/bootstrap-daterangepicker/moment.min.js"></script>
+<script type="text/javascript" src="/app/customers/freelancer/theme/js/bootstrap-daterangepicker/daterangepicker.min.js"></script>
+<script type="text/javascript" src="/app/customers/freelancer/theme/js/jQuery-slimScroll-1.3.0/jquery.slimscroll.min.js"></script>
+<script type="text/javascript" src="/app/customers/freelancer/theme/js/jQuery-slimScroll-1.3.0/slimScrollHorizontal.min.js"></script>
+<script type="text/javascript" src="/app/customers/freelancer/theme/js/jQuery-BlockUI/jquery.blockUI.min.js"></script>
+<script type="text/javascript" src="/app/customers/freelancer/theme/js/sparklines/jquery.sparkline.min.js"></script>
+<script type="text/javascript" src="/app/customers/freelancer/theme/js/jquery-easing/jquery.easing.min.js"></script>
+<script type="text/javascript" src="/app/customers/freelancer/theme/js/jquery-todo/js/paddystodolist.js"></script>
+<script type="text/javascript" src="/app/customers/freelancer/theme/js/fullcalendar/fullcalendar.min.js"></script>
+<script type="text/javascript" src="/app/customers/freelancer/theme/js/jQuery-Cookie/jquery.cookie.min.js"></script>
+<script type="text/javascript" src="/app/customers/freelancer/theme/js/gritter/js/jquery.gritter.min.js"></script>
+<script type="text/javascript" src="/app/customers/freelancer/theme/js/script.js"></script>
+<script type="text/javascript" src="/app/customers/freelancer/theme/controllers/freelancer/js/index.js"></script>
 
 <script>
     var ModuleDirectoryReference = 'freelancer/';

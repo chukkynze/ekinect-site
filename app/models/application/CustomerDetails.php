@@ -1,8 +1,8 @@
 <?php
  /**
-  * Class MemberDetails
+  * Class CustomerDetails
   *
-  * filename:   MemberDetails.php
+  * filename:   CustomerDetails.php
   * 
   * @author      Chukwuma J. Nze <chukkynze@ekinect.com>
   * @since       7/28/14 8:20 PM
@@ -11,9 +11,9 @@
   */
  
 
-class MemberDetails extends AbstractModel
+class CustomerDetails extends AbstractModel
 {
-    protected $table        =   'member_details';
+    protected $table        =   'customer_details';
     protected $primaryKey   =   'id';
     protected $connection   =   'main_db';
     protected $fillable     =   array
@@ -42,7 +42,7 @@ class MemberDetails extends AbstractModel
                                     'id',
                                 );
 
-    public function getMemberDetailsPrefix($format)
+    public function getCustomerDetailsPrefix($format)
     {
        	$outputValues	=	array
 							(
@@ -53,9 +53,6 @@ class MemberDetails extends AbstractModel
 								3 	=> 'Mrs',
 								4 	=> 'Mr',
 								5 	=> 'Dr',
-								6 	=> 'Atty',
-								7 	=> 'Ofc',
-								8 	=> 'Ntry',
 							);
 		switch(trim(strtolower($format)))
 		{
@@ -67,39 +64,39 @@ class MemberDetails extends AbstractModel
 		return $output;
     }
 
-    public function getMemberDetailsFirstName()
+    public function getCustomerDetailsFirstName()
     {
         return (isset($this->first_name) ? $this->first_name : "Valued");
     }
 
-    public function getMemberDetailsMidName1()
+    public function getCustomerDetailsMidName1()
     {
         return $this->mid_name1;
     }
 
-    public function getMemberDetailsMidName2()
+    public function getCustomerDetailsMidName2()
     {
         return $this->mid_name2;
     }
 
-    public function getMemberDetailsLastName()
+    public function getCustomerDetailsLastName()
     {
-        return  (isset($this->last_name) ? $this->last_name : "Member");
+        return  (isset($this->last_name) ? $this->last_name : "Customer");
     }
 
-    public function getMemberDetailsDisplayName()
+    public function getCustomerDetailsDisplayName()
     {
         return 	(isset($this->display_name) && $this->display_name != ''
 					? 	$this->display_name
 					:	$this->first_name);
     }
 
-    public function getMemberDetailsFullName()
+    public function getCustomerDetailsFullName()
     {
         return $this->first_name . " " . $this->last_name;
     }
 
-    public function getMemberDetailsSuffix($format)
+    public function getCustomerDetailsSuffix($format)
     {
         $outputValues	=	array
 							(
@@ -111,8 +108,6 @@ class MemberDetails extends AbstractModel
 								4 	=> 'Jr',
 								5 	=> 'Sr',
 								6 	=> 'PhD',
-								7 	=> 'PC',
-								8 	=> 'Ntry',
 							);
 		switch(trim(strtolower($format)))
 		{
@@ -124,7 +119,7 @@ class MemberDetails extends AbstractModel
 		return $output;
     }
 
-    public function getMemberDetailsGender($format)
+    public function getCustomerDetailsGender($format)
     {
 		$outputValues	=	array
 							(
@@ -143,7 +138,7 @@ class MemberDetails extends AbstractModel
 		return $output;
     }
 
-    public function getMemberDetailsBirthDate()
+    public function getCustomerDetailsBirthDate()
     {
 		// Database format is YYYY-MM-DD. Change to MM-DD-YYYY
 		$birthDate 		=	$this->birth_date;
@@ -153,42 +148,42 @@ class MemberDetails extends AbstractModel
         return $birthDateMonth . "-". $birthDateDay . "-" . $birthDateYear;
     }
 
-    public function getMemberDetailsZipCode()
+    public function getCustomerDetailsZipCode()
     {
         return $this->zipcode;
     }
 
-    public function getMemberDetailsPersonalSummary()
+    public function getCustomerDetailsPersonalSummary()
     {
         return $this->personal_summary;
     }
 
-    public function getMemberDetailsProfilePicUrl()
+    public function getCustomerDetailsProfilePicUrl()
     {
         return $this->profile_pic_url;
     }
 
-    public function getMemberDetailsPersonalSiteUrl()
+    public function getCustomerDetailsPersonalSiteUrl()
     {
         return $this->personal_website_url;
     }
 
-    public function getMemberDetailsLinkedInUrl()
+    public function getCustomerDetailsLinkedInUrl()
     {
         return $this->linkedin_url;
     }
 
-    public function getMemberDetailsGooglePlusUrl()
+    public function getCustomerDetailsGooglePlusUrl()
     {
         return $this->google_plus_url;
     }
 
-    public function getMemberDetailsTwitterUrl()
+    public function getCustomerDetailsTwitterUrl()
     {
         return $this->twitter_url;
     }
 
-    public function getMemberDetailsFacebookUrl()
+    public function getCustomerDetailsFacebookUrl()
     {
         return $this->facebook_url;
     }
@@ -200,7 +195,7 @@ class MemberDetails extends AbstractModel
 
 
 
-    public function doMemberDetailsExist($memberID)
+    public function doCustomerDetailsExist($memberID)
     {
         $count  =   DB::connection($this->connection)->table($this->table)
                         ->select('id')
@@ -210,11 +205,11 @@ class MemberDetails extends AbstractModel
         return ($count == 1 ? TRUE : FALSE);
     }
 
-    public function addMemberDetails($memberID, $fillableArray)
+    public function addCustomerDetails($memberID, $fillableArray)
     {
         if($memberID > 0)
         {
-            $newMemberDetail =   MemberDetails::create
+            $newMemberDetail =   CustomerDetails::create
                                 (
                                     $fillableArray
                                 );
@@ -227,13 +222,13 @@ class MemberDetails extends AbstractModel
         }
     }
 
-    public function updateMemberDetails($memberID, $fillableArray)
+    public function updateCustomerDetails($memberID, $fillableArray)
     {
         if($memberID > 0)
         {
             try
             {
-                $MemberDetail =   MemberDetails::where("member_id","=", $memberID)->first();
+                $MemberDetail =   CustomerDetails::where("member_id","=", $memberID)->first();
                 $MemberDetail->fill($fillableArray);
                 $MemberDetail->save();
                 return TRUE;
@@ -245,11 +240,11 @@ class MemberDetails extends AbstractModel
         }
         else
         {
-            throw new \Whoops\Example\Exception("MemberDetails ID is invalid.");
+            throw new \Whoops\Example\Exception("Member ID is invalid for Customer Details.");
         }
     }
 
-    public function getMemberDetailsFromMemberID($memberID)
+    public function getCustomerDetailsFromMemberID($memberID)
     {
         try
         {

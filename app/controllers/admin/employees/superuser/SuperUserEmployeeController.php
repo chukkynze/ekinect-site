@@ -1,8 +1,8 @@
 <?php
  /**
-  * Class VendorController
+  * Class SuperUserEmployeeController
   *
-  * filename:   VendorController.php
+  * filename:   SuperUserEmployeeController.php
   * 
   * @author      Chukwuma J. Nze <chukkynze@ekinect.com>
   * @since       8/15/14 11:30 PM
@@ -11,7 +11,7 @@
   */
  
 
-class VendorController extends AbstractVendorController
+class SuperUserEmployeeController extends AbstractSuperUserEmployeeController
 {
 
     public function __construct()

@@ -37,11 +37,13 @@ Route::group(array('prefix' => '/'), function()
 // Entering Paywall Routes - Access Authorization
 Route::group(array('prefix' => '/'), function()
 {
-	Route::get('/admin/login',                                              array('as' =>  'showAdminLogin',                        'uses'  =>  'AdminAuthController@showLogin',                            ));
-	Route::post('/admin/login',                                             array('as' =>  'postAdminLogin',                        'uses'  =>  'AdminAuthController@postLogin',                            ));
+	Route::get('/admin/login',                                              array('as' =>  'showAdminLogin',                        'uses'  =>  'EmployeeAuthenticationController@showLogin',                            ));
+	Route::post('/admin/login',                                             array('as' =>  'postAdminLogin',                        'uses'  =>  'EmployeeAuthenticationController@postLogin',                             'before' => 'csrf',));
+    Route::get('/employee-logout',                                          array('as' =>  'employeeLogout',                        'uses'  =>  'EmployeeAuthenticationController@employeeLogout',                              ));
+
 
     Route::get('/login',                                                    array('as' =>  'login',                                 'uses'  =>  'CustomerAuthenticationController@showAccess',                                ));
-    Route::post('/login',                                                   array('as' =>  'processLogin',                          'uses'  =>  'CustomerAuthenticationController@processLogin',                              ));
+    Route::post('/login',                                                   array('as' =>  'postLogin',                             'uses'  =>  'CustomerAuthenticationController@postLogin',                             'before' => 'csrf',));
     Route::get('/login-again',                                              array('as' =>  'loginAgain',                            'uses'  =>  'CustomerAuthenticationController@loginAgain',                                ));
     Route::get('/you-have-successfully-logged-out',                         array('as' =>  'successfulLogout',                      'uses'  =>  'CustomerAuthenticationController@successfulLogout',                          ));
     Route::get('/you-have-successfully-changed-your-access-credentials',    array('as' =>  'successfulAccessCredentialChange',      'uses'  =>  'CustomerAuthenticationController@successfulAccessCredentialChange',          ));
@@ -49,7 +51,7 @@ Route::group(array('prefix' => '/'), function()
     Route::get('/customer-logout',                                          array('as' =>  'customerLogout',                        'uses'  =>  'CustomerAuthenticationController@customerLogout',                              ));
     Route::get('/member-logout-expired-session',                            array('as' =>  'memberLogoutExpiredSession',            'uses'  =>  'CustomerAuthenticationController@memberLogoutExpiredSession',                ));
     Route::get('/signup',                                                   array('as' =>  'signup',                                'uses'  =>  'CustomerAuthenticationController@signup',                                    ));
-    Route::post('/signup',                                                  array('as' =>  'processSignup',                         'uses'  =>  'CustomerAuthenticationController@processSignup',                             'before' => 'csrf',));
+    Route::post('/signup',                                                  array('as' =>  'postSignup',                            'uses'  =>  'CustomerAuthenticationController@postSignup',                             'before' => 'csrf',));
     Route::get('/vendor-signup',                                            array('as' =>  'vendorSignup',                          'uses'  =>  'CustomerAuthenticationController@vendorSignup',                              ));
     Route::get('/freelancer-signup',                                        array('as' =>  'freelancerSignup',                      'uses'  =>  'CustomerAuthenticationController@freelancerSignup',                          ));
     Route::get('/forgot',                                                   array('as' =>  'forgot',                                'uses'  =>  'CustomerAuthenticationController@forgot',                                    ));
@@ -70,10 +72,34 @@ Route::group(array('prefix' => '/'), function()
 // Admin
 Route::group(array('prefix' => 'admin', 'before' => 'auth'), function()
 {
+	// SuperUser
+	Route::group(array('prefix' => 'superuser', 'before' => 'auth'), function()
+	{
+		Route::get('home',                  array('as' =>  'showSuperUserDashboard',                'uses'  =>  'SuperUserEmployeeController@showDashboard',        ));
+	    Route::get('dashboard',             array('as' =>  'showSuperUserDashboard',                'uses'  =>  'SuperUserEmployeeController@showDashboard',        ));
+	    Route::get('logout',                array('as' =>  'superUserLogout',                       'uses'  =>  'SuperUserEmployeeController@superUserLogout',      ));
+	});
 
-    Route::get('home',                  array('as' =>  'showEmployeeDashboard',                 'uses'  =>  'AdminController@showDashboard',        ));
-    Route::get('dashboard',             array('as' =>  'showEmployeeDashboard',                 'uses'  =>  'AdminController@showDashboard',        ));
+	// Executive
+	Route::group(array('prefix' => 'executive', 'before' => 'auth'), function()
+	{
+		Route::get('home',                  array('as' =>  'showExecutiveDashboard',                'uses'  =>  'ExecutiveEmployeeController@showDashboard',        ));
+	    Route::get('dashboard',             array('as' =>  'showExecutiveDashboard',                'uses'  =>  'ExecutiveEmployeeController@showDashboard',        ));
+	});
 
+	// Financial
+	Route::group(array('prefix' => 'finance', 'before' => 'auth'), function()
+	{
+		Route::get('home',                  array('as' =>  'showFinancialDashboard',                'uses'  =>  'FinanceEmployeeController@showDashboard',        ));
+	    Route::get('dashboard',             array('as' =>  'showFinancialDashboard',                'uses'  =>  'FinanceEmployeeController@showDashboard',        ));
+	});
+
+	// Tech
+	Route::group(array('prefix' => 'tech', 'before' => 'auth'), function()
+	{
+		Route::get('home',                  array('as' =>  'showTechDashboard',                     'uses'  =>  'TechEmployeeController@showDashboard',        ));
+	    Route::get('dashboard',             array('as' =>  'showTechDashboard',                     'uses'  =>  'TechEmployeeController@showDashboard',        ));
+	});
 });
 
 // Vendor

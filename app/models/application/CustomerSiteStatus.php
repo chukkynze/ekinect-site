@@ -1,8 +1,8 @@
 <?php
  /**
-  * Class MemberSiteStatus
+  * Class CustomerSiteStatus
   *
-  * filename:   MemberSiteStatus.php
+  * filename:   CustomerSiteStatus.php
   * 
   * @author      Chukwuma J. Nze <chukkynze@ekinect.com>
   * @since       7/8/14 5:11 AM
@@ -11,9 +11,9 @@
   */
  
 
-class MemberSiteStatus extends Eloquent
+class CustomerSiteStatus extends Eloquent
 {
-    protected $table        =   'member_site_status';
+    protected $table        =   'customer_site_status';
     protected $primaryKey   =   'id';
     protected $connection   =   'main_db';
     protected $fillable     =   array
@@ -29,11 +29,11 @@ class MemberSiteStatus extends Eloquent
 
 
 
-    public function addMemberSiteStatus($newStatus, $memberID)
+    public function addCustomerSiteStatus($newStatus, $memberID)
     {
         if($memberID > 0)
         {
-            $newMemberSiteStatus    =   MemberSiteStatus::create
+            $newCustomerSiteStatus    =   CustomerSiteStatus::create
                                     (
                                         array
                                         (
@@ -41,20 +41,20 @@ class MemberSiteStatus extends Eloquent
                                             'status'    =>  $newStatus,
                                         )
                                     );
-            $newMemberSiteStatus->save();
+            $newCustomerSiteStatus->save();
             return TRUE;
         }
     }
 
-    public function updateMemberSiteStatus($memberID, $fillableArray)
+    public function updateCustomerSiteStatus($memberID, $fillableArray)
     {
         if($memberID > 0)
         {
             try
             {
-                $MemberSiteStatus =   MemberSiteStatus::where("member_id","=", $memberID)->first();
-                $MemberSiteStatus->fill($fillableArray);
-                $MemberSiteStatus->save();
+                $CustomerSiteStatus =   CustomerSiteStatus::where("member_id","=", $memberID)->first();
+                $CustomerSiteStatus->fill($fillableArray);
+                $CustomerSiteStatus->save();
                 return TRUE;
             }
             catch(\Whoops\Example\Exception $e)
@@ -64,11 +64,11 @@ class MemberSiteStatus extends Eloquent
         }
         else
         {
-            throw new \Whoops\Example\Exception("MemberSiteStatus ID is invalid.");
+            throw new \Whoops\Example\Exception("CustomerSiteStatus member ID is invalid.");
         }
     }
 
-    public function isMemberSiteStatusLocked($memberID)
+    public function isCustomerSiteStatusLocked($memberID)
     {
         $result     =   DB::connection($this->connection)->table($this->table)
                         ->select('status')
@@ -77,13 +77,13 @@ class MemberSiteStatus extends Eloquent
                         ->first()
         ;
 
-        $MemberSiteStatus   =   $result->status;
+        $CustomerSiteStatus   =   $result->status;
 
         if(is_null($result))
         {
             $bool = FALSE;
         }
-        elseif(substr($MemberSiteStatus, 0, 6) == 'Locked')
+        elseif(substr($CustomerSiteStatus, 0, 6) == 'Locked')
 		{
 			$bool = TRUE;
 		}

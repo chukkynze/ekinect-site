@@ -1,8 +1,8 @@
 <?php
  /**
-  * Class MemberDetailsAddresses
+  * Class EmployeeDetailsAddresses
   *
-  * filename:   MemberDetailsAddresses.php
+  * filename:   EmployeeDetailsAddresses.php
   * 
   * @author      Chukwuma J. Nze <chukkynze@ekinect.com>
   * @since       7/28/14 9:38 PM
@@ -11,9 +11,9 @@
   */
  
 
-class MemberDetailsAddresses extends Eloquent
+class EmployeeDetailsAddresses extends Eloquent
 {
-    protected $table        =   'member_details_addresses';
+    protected $table        =   'employee_details_addresses';
     protected $primaryKey   =   'id';
     protected $connection   =   'main_db';
     protected $fillable     =   array

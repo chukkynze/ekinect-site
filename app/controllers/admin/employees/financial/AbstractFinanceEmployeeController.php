@@ -1,8 +1,8 @@
 <?php
     /**
-     * Class AbstractVendorController
+     * Class AbstractFinanceEmployeeController
      *
-     * filename:   AbstractVendorController.php
+     * filename:   AbstractFinanceEmployeeController.php
      *
      * @author      Chukwuma J. Nze <chukkynze@ekinect.com>
      * @since       7/8/14 5:19 AM
@@ -11,7 +11,7 @@
      */
 
 
-class AbstractVendorController extends AbstractMemberController
+class AbstractFinanceEmployeeController extends AbstractEmployeeController
 {
     use MemberControls;
 

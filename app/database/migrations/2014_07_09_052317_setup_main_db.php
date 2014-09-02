@@ -87,12 +87,14 @@ class SetupMainDb extends Migration
             
         });
 
+
+
         /**
          * Entity: Member
-         * Table: customer
+         * Table: members
          */
-		Schema::connection($this->connection)->dropIfExists('customer');
-		Schema::connection($this->connection)->create('customer', function($table)
+		Schema::connection($this->connection)->dropIfExists('members');
+		Schema::connection($this->connection)->create('members', function($table)
         {
             // Parameters
             $table->engine = 'InnoDB';
@@ -102,10 +104,11 @@ class SetupMainDb extends Migration
             $table->enum('member_type', array
                                         (
                                             'unknown',
+                                            'customer',
                                             'vendor',
                                             'vendor-client',
                                             'freelancer',
-                                            'employees',
+                                            'employee',
                                             'report-viewer',
                                         ));
             $table->string('password', 256);
@@ -123,12 +126,14 @@ class SetupMainDb extends Migration
             $table->index(array('salt1', 'salt2', 'salt3')  , 'ndx1');
         });
 
+
+
         /**
-         * Entity: MemberStatus
-         * Table: member_status
+         * Entity: CustomerStatus
+         * Table: customer_status
          */
-		Schema::connection($this->connection)->dropIfExists('member_status');
-		Schema::connection($this->connection)->create('member_status', function($table)
+		Schema::connection($this->connection)->dropIfExists('customer_status');
+		Schema::connection($this->connection)->create('customer_status', function($table)
         {
             // Parameters
             $table->engine = 'InnoDB';
@@ -172,11 +177,11 @@ class SetupMainDb extends Migration
         });
 
         /**
-         * Entity: MemberSiteStatus
-         * Table: member_site_status
+         * Entity: CustomerSiteStatus
+         * Table: customer_site_status
          */
-		Schema::connection($this->connection)->dropIfExists('member_site_status');
-		Schema::connection($this->connection)->create('member_site_status', function($table)
+		Schema::connection($this->connection)->dropIfExists('customer_site_status');
+		Schema::connection($this->connection)->create('customer_site_status', function($table)
         {
             // Parameters
             $table->engine = 'InnoDB';
@@ -197,11 +202,11 @@ class SetupMainDb extends Migration
         });
 
         /**
-         * Entity: MemberEmails
-         * Table: member_emails
+         * Entity: CustomerEmails
+         * Table: customer_emails
          */
-		Schema::connection($this->connection)->dropIfExists('member_emails');
-		Schema::connection($this->connection)->create('member_emails', function($table)
+		Schema::connection($this->connection)->dropIfExists('customer_emails');
+		Schema::connection($this->connection)->create('customer_emails', function($table)
         {
             // Parameters
             $table->engine = 'InnoDB';
@@ -232,11 +237,11 @@ class SetupMainDb extends Migration
         });
 
         /**
-         * Entity: MemberDetails
-         * Table: member_details
+         * Entity: CustomerDetails
+         * Table: customer_details
          */
-		Schema::connection($this->connection)->dropIfExists('member_details');
-		Schema::connection($this->connection)->create('member_details', function($table)
+		Schema::connection($this->connection)->dropIfExists('customer_details');
+		Schema::connection($this->connection)->create('customer_details', function($table)
         {
             // Parameters
             $table->engine = 'InnoDB';
@@ -273,11 +278,11 @@ class SetupMainDb extends Migration
         });
 
         /**
-         * Entity: MemberDetailsAddresses
-         * Table: member_details_addresses
+         * Entity: CustomerDetailsAddresses
+         * Table: customer_details_addresses
          */
-		Schema::connection($this->connection)->dropIfExists('member_details_addresses');
-		Schema::connection($this->connection)->create('member_details_addresses', function($table)
+		Schema::connection($this->connection)->dropIfExists('customer_details_addresses');
+		Schema::connection($this->connection)->create('customer_details_addresses', function($table)
         {
             // Parameters
             $table->engine = 'InnoDB';
@@ -323,11 +328,11 @@ class SetupMainDb extends Migration
         });
 
         /**
-         * Entity: MemberDetailsContactInfo
-         * Table: member_details_contact_info
+         * Entity: CustomerDetailsContactInfo
+         * Table: customer_details_contact_info
          */
-		Schema::connection($this->connection)->dropIfExists('member_details_contact_info');
-		Schema::connection($this->connection)->create('member_details_contact_info', function($table)
+		Schema::connection($this->connection)->dropIfExists('customer_details_contact_info');
+		Schema::connection($this->connection)->create('customer_details_contact_info', function($table)
         {
             // Parameters
             $table->engine = 'InnoDB';
@@ -350,11 +355,282 @@ class SetupMainDb extends Migration
         });
 
         /**
-         * Entity: EmailStatus
-         * Table: email_status
+         * Entity: CustomerEmailStatus
+         * Table: customer_email_status
          */
-		Schema::connection($this->connection)->dropIfExists('email_status');
-		Schema::connection($this->connection)->create('email_status', function($table)
+		Schema::connection($this->connection)->dropIfExists('customer_email_status');
+		Schema::connection($this->connection)->create('customer_email_status', function($table)
+        {
+            // Parameters
+            $table->engine = 'InnoDB';
+
+            // Columns
+            $table->increments('id');
+            $table->string('email_address', 120);
+            $table->enum('email_address_status', array
+                                                (
+                                                    'AddedUnverified',
+                                                    'VerificationSent',
+                                                    'VerificationSentAgain',
+                                                    'Verified',
+                                                    'Forgot',
+                                                    'LostSignupVerification',
+                                                    'Remembered',
+                                                    'Paused',
+                                                    'MadeDefault',
+                                                    'Deleted',
+                                                    'ChangedPassword',
+                                                    'Locked:Excessive-Login-Attempts',
+                                                    'Locked:Excessive-EmployeeLogin-Attempts',
+                                                    'Locked:Excessive-Signup-Attempts',
+                                                    'Locked:Excessive-ForgotLogin-Attempts',
+                                                    'Locked:Excessive-ChangeVerifiedLinkPassword-Attempts',
+                                                    'Locked:Excessive-ChangeOldPassword-Attempts',
+                                                    'Locked:Excessive-LostSignupVerification-Attempts',
+                                                ));
+            $table->timestamps();
+
+            // Indexes
+            $table->index(array('email_address')                                        , 'ndx1');
+            $table->index(array('email_address','email_address_status')                 , 'ndx2');
+            $table->index(array('email_address','email_address_status' ,'created_at')   , 'ndx3');
+        });
+
+
+
+        /**
+         * Entity: EmployeeStatus
+         * Table: employee_status
+         */
+		Schema::connection($this->connection)->dropIfExists('employee_status');
+		Schema::connection($this->connection)->create('employee_status', function($table)
+        {
+            // Parameters
+            $table->engine = 'InnoDB';
+
+            // Columns
+            $table->increments('id');
+            $table->integer('member_id');
+            $table->enum('status',  array
+                                    (
+                                        'ValidEmployee',
+                                        'Successful-Signup',
+                                        'VerifiedEmail',
+                                        'VerifiedStartupDetails',
+                                        'BeginFirst90Days',
+                                        'First90DaysPlus30',
+                                        'ProbationPeriodExpired',
+                                        'ChangedPassword',
+                                        'Paused-Employee',
+                                        'Cancelled-Employee',
+                                        'Locked:Excessive-Login-Attempts',
+                                        'Locked:Excessive-EmployeeLogin-Attempts',
+                                        'Locked:Excessive-Signup-Attempts',
+                                        'Locked:Excessive-ForgotLogin-Attempts',
+                                        'Locked:Excessive-ChangeVerifiedLinkPassword-Attempts',
+                                        'Locked:Excessive-ChangeOldPassword-Attempts',
+                                        'Locked:Excessive-LostSignupVerification-Attempts',
+                                    ));
+
+            $table->timestamps();
+
+            // Indexes
+            $table->index(array('member_id')                        , 'ndx1');
+            $table->index(array('created_at')                       , 'ndx2');
+            $table->index(array('member_id', 'status')              , 'ndx1_s');
+            $table->index(array('member_id', 'created_at')          , 'ndx1_2');
+            $table->index(array('member_id', 'status', 'created_at'), 'ndx1_s_2');
+        });
+
+        /**
+         * Entity: EmployeeSiteStatus
+         * Table: employee_site_status
+         */
+		Schema::connection($this->connection)->dropIfExists('employee_site_status');
+		Schema::connection($this->connection)->create('employee_site_status', function($table)
+        {
+            // Parameters
+            $table->engine = 'InnoDB';
+
+            // Columns
+            $table->increments('id');
+            $table->integer('member_id');
+            $table->string('status', 250);
+
+            $table->timestamps();
+
+            // Indexes
+            $table->index(array('member_id')                        , 'ndx1');
+            $table->index(array('created_at')                       , 'ndx2');
+            $table->index(array('member_id', 'status')              , 'ndx1_s');
+            $table->index(array('member_id', 'created_at')          , 'ndx1_2');
+            $table->index(array('member_id', 'status', 'created_at'), 'ndx1_s_2');
+        });
+
+        /**
+         * Entity: EmployeeEmails
+         * Table: employee_emails
+         */
+		Schema::connection($this->connection)->dropIfExists('employee_emails');
+		Schema::connection($this->connection)->create('employee_emails', function($table)
+        {
+            // Parameters
+            $table->engine = 'InnoDB';
+
+            // Columns
+            $table->increments('id');
+            $table->integer('member_id');
+            $table->tinyInteger('is_primary')->default(1);
+            $table->string('email_address', 120);
+            $table->tinyInteger('verification_sent');
+            $table->integer('verification_sent_on');
+            $table->tinyInteger('verified');
+            $table->integer('verified_on');
+
+            $table->timestamps();
+
+            // Indexes
+            $table->unique(array('member_id', 'email_address')                                              , 'ndx1');
+            $table->unique(array('email_address')                                                           , 'ndx2');
+
+            $table->index(array('verification_sent')                                                        , 'ndx3');
+            $table->index(array('verification_sent_on')                                                     , 'ndx4');
+            $table->index(array('verified')                                                                 , 'ndx5');
+            $table->index(array('verified_on')                                                              , 'ndx6');
+            $table->index(array('created_at', 'email_address')                                              , 'ndx7');
+            $table->index(array('updated_at', 'email_address')                                              , 'ndx8');
+            $table->index(array('email_address', 'verified', 'verification_sent', 'verification_sent_on')   , 'ndx9');
+        });
+
+        /**
+         * Entity: EmployeeDetails
+         * Table: employee_details
+         */
+		Schema::connection($this->connection)->dropIfExists('employee_details');
+		Schema::connection($this->connection)->create('employee_details', function($table)
+        {
+            // Parameters
+            $table->engine = 'InnoDB';
+
+            // Columns
+            $table->increments('id');
+            $table->integer('member_id');
+            $table->string('prefix', 60)->default("");
+            $table->string('first_name', 60);
+            $table->string('mid_name1', 60)->default("");
+            $table->string('mid_name2', 60)->default("");
+            $table->string('last_name', 60);
+            $table->string('display_name', 60)->default("");
+            $table->string('suffix', 60)->default("");
+            $table->integer('gender');
+            $table->date('birth_date')->default("0000-00-00");
+            $table->string('zipcode', 8);
+            $table->text('personal_summary');
+            $table->text('profile_pic_url');
+            $table->text('title');
+            $table->enum('department',  array
+	                                    (
+	                                        'SuperUser',
+	                                        'Executive',
+	                                        'Financial',
+	                                        'Tech',
+	                                    ));
+            $table->date('hire_date')->default("0000-00-00");
+            $table->date('fire_date')->default("0000-00-00");
+
+            $table->timestamps();
+
+            // Indexes
+            $table->unique(array('member_id')               , 'ndx1');
+
+            $table->index(array('member_id','id')           , 'ndx2');
+            $table->index(array('member_id','birth_date')   , 'ndx3');
+            $table->index(array('member_id','gender')       , 'ndx4');
+        });
+
+        /**
+         * Entity: EmployeeDetailsAddresses
+         * Table: employee_details_addresses
+         */
+		Schema::connection($this->connection)->dropIfExists('employee_details_addresses');
+		Schema::connection($this->connection)->create('employee_details_addresses', function($table)
+        {
+            // Parameters
+            $table->engine = 'InnoDB';
+
+            // Columns
+            $table->increments('id');
+            $table->integer('member_id');
+            $table->integer('address_type')->default(1);
+            $table->string('name', 160);
+            $table->string('address_line_1', 160);
+            $table->string('address_line_2', 160);
+            $table->string('address_line_3', 160);
+            $table->string('county', 160);
+            $table->string('city', 160);
+            $table->string('state', 8);
+            $table->string('zipcode', 8);
+            $table->string('zipcode_ext', 8);
+
+            $table->timestamps();
+
+            // Indexes
+            $table->unique(array('member_id','address_type')            , 'ndx1');
+
+            $table->index(array('member_id','county')                   , 'ndx2');
+            $table->index(array('member_id','state')                    , 'ndx3');
+            $table->index(array('member_id', 'state', 'county')         , 'ndx4');
+            $table->index(array('member_id','zipcode')                  , 'ndx5');
+            $table->index(array('member_id','zipcode', 'zipcode_ext')   , 'ndx6');
+            $table->index(array('address_type','name')         , 'ndx7');
+            $table->index(array
+                            (
+                                'address_type',
+                                'name',
+                                'address_line_1',
+                                'address_line_2',
+                                'address_line_3',
+                                'county',
+                                'city',
+                                'state',
+                                'zipcode',
+                                'zipcode_ext'
+                            )                                       , 'ndx8');
+        });
+
+        /**
+         * Entity: EmployeeDetailsContactInfo
+         * Table: employee_details_contact_info
+         */
+		Schema::connection($this->connection)->dropIfExists('employee_details_contact_info');
+		Schema::connection($this->connection)->create('employee_details_contact_info', function($table)
+        {
+            // Parameters
+            $table->engine = 'InnoDB';
+
+            // Columns
+            $table->increments('id');
+            $table->integer('member_id');
+            $table->string('personal_email', 120);
+            $table->string('phone_number', 24);
+            $table->string('fax_number', 24);
+            $table->string('cell_number', 24);
+
+            $table->timestamps();
+
+            // Indexes
+            $table->index(array('member_id','personal_email')   , 'ndx1');
+            $table->index(array('member_id','phone_number')     , 'ndx2');
+            $table->index(array('member_id','fax_number')       , 'ndx3');
+            $table->index(array('member_id','cell_number')      , 'ndx4');
+        });
+
+        /**
+         * Entity: EmployeeEmailStatus
+         * Table: employee_email_status
+         */
+		Schema::connection($this->connection)->dropIfExists('employee_email_status');
+		Schema::connection($this->connection)->create('employee_email_status', function($table)
         {
             // Parameters
             $table->engine = 'InnoDB';
@@ -415,9 +691,9 @@ class SetupMainDb extends Migration
 
         /**
          * Entity: Member
-         * Table: customer
+         * Table: members
          */
-        Schema::connection($this->connection)->dropIfExists('member');
+        Schema::connection($this->connection)->dropIfExists('members');
 
 
 
@@ -426,34 +702,40 @@ class SetupMainDb extends Migration
          * Table: customer_status
          */
 		Schema::connection($this->connection)->dropIfExists('customer_status');
+
         /**
          * Entity: CustomerSiteStatus
          * Table: customer_site_status
          */
 		Schema::connection($this->connection)->dropIfExists('customer_site_status');
+
         /**
          * Entity: CustomerEmails
          * Table: customer_emails
          */
 		Schema::connection($this->connection)->dropIfExists('customer_emails');
+
         /**
          * Entity: CustomerDetails
          * Table: customer_details
          */
 		Schema::connection($this->connection)->dropIfExists('customer_details');
+
         /**
          * Entity: CustomerDetailsAddresses
          * Table: customer_details_addresses
          */
 		Schema::connection($this->connection)->dropIfExists('customer_details_addresses');
+
         /**
          * Entity: CustomerDetailsContactInfo
          * Table: customer_details_contact_info
          */
 		Schema::connection($this->connection)->dropIfExists('customer_details_contact_info');
+
         /**
-         * Entity: EmailStatus
-         * Table: email_status
+         * Entity: CustomerEmailStatus
+         * Table: customer_email_status
          */
 		Schema::connection($this->connection)->dropIfExists('customer_email_status');
 	}

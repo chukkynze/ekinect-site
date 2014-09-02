@@ -20,17 +20,17 @@
     <meta name="description" content="">
     <meta name="author" content="">
 
-    <link href="/app/members/vendor/vendor-module.css" media="screen" rel="stylesheet" type="text/css">
-    <link href="/app/members/vendor/controllers/vendor/css/index.css" media="screen" rel="stylesheet" type="text/css">
-    <link href="/app/members/vendor/css/cloud-admin.css" media="screen" rel="stylesheet" type="text/css">
-    <link href="/app/members/vendor/css/themes/default.css" media="screen" rel="stylesheet" type="text/css">
-    <link href="/app/members/vendor/css/responsive.css" media="screen" rel="stylesheet" type="text/css">
-    <link href="/app/members/vendor/font-awesome/css/font-awesome.min.css" media="screen" rel="stylesheet" type="text/css">
-    <link href="/app/members/vendor/css/animatecss/animate.min.css" media="screen" rel="stylesheet" type="text/css">
-    <link href="/app/members/vendor/js/bootstrap-daterangepicker/daterangepicker-bs3.css" media="screen" rel="stylesheet" type="text/css">
-    <link href="/app/members/vendor/js/jquery-todo/css/styles.css" media="screen" rel="stylesheet" type="text/css">
-    <link href="/app/members/vendor/js/fullcalendar/fullcalendar.min.css" media="screen" rel="stylesheet" type="text/css">
-    <link href="/app/members/vendor/js/gritter/css/jquery.gritter.css" media="screen" rel="stylesheet" type="text/css">
+    <link href="/app/customers/vendor/theme/vendor-module.css" media="screen" rel="stylesheet" type="text/css">
+    <link href="/app/customers/vendor/theme/controllers/vendor/css/index.css" media="screen" rel="stylesheet" type="text/css">
+    <link href="/app/customers/vendor/theme/css/cloud-admin.css" media="screen" rel="stylesheet" type="text/css">
+    <link href="/app/customers/vendor/theme/css/themes/default.css" media="screen" rel="stylesheet" type="text/css">
+    <link href="/app/customers/vendor/theme/css/responsive.css" media="screen" rel="stylesheet" type="text/css">
+    <link href="/app/customers/vendor/theme/font-awesome/css/font-awesome.min.css" media="screen" rel="stylesheet" type="text/css">
+    <link href="/app/customers/vendor/theme/css/animatecss/animate.min.css" media="screen" rel="stylesheet" type="text/css">
+    <link href="/app/customers/vendor/theme/js/bootstrap-daterangepicker/daterangepicker-bs3.css" media="screen" rel="stylesheet" type="text/css">
+    <link href="/app/customers/vendor/theme/js/jquery-todo/css/styles.css" media="screen" rel="stylesheet" type="text/css">
+    <link href="/app/customers/vendor/theme/js/fullcalendar/fullcalendar.min.css" media="screen" rel="stylesheet" type="text/css">
+    <link href="/app/customers/vendor/theme/js/gritter/css/jquery.gritter.css" media="screen" rel="stylesheet" type="text/css">
     <link href="http://fonts.googleapis.com/css?family=Open+Sans:300,400,600,700" media="screen" rel="stylesheet" type="text/css">
     <link href="/application/images/favicon.ico" rel="shortcut icon" type="image/vnd.microsoft.icon">
     <!--[if lt IE 9]><script type="text/javascript" src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script><![endif]-->
@@ -265,7 +265,7 @@
 				<li class="current">
 				  <a href="javascript:void(0);">
 				  <span class="image">
-					  <img src="/app/members/vendor/img/avatars/avatar3.jpg" alt="" />
+					  <img src="/app/customers/vendor/theme/img/avatars/avatar3.jpg" alt="" />
 				  </span>
 				  <span class="title">
 					You
@@ -300,7 +300,7 @@
 				<li>
 				  <a href="javascript:void(0);">
 				  <span class="image">
-					  <img src="/app/members/vendor/img/avatars/avatar1.jpg" alt="" />
+					  <img src="/app/customers/vendor/theme/img/avatars/avatar1.jpg" alt="" />
 				  </span>
 				  <span class="title">
 					Max Doe
@@ -335,7 +335,7 @@
 				<li>
 				  <a href="javascript:void(0);">
 				  <span class="image">
-					  <img src="/app/members/vendor/img/avatars/avatar2.jpg" alt="" />
+					  <img src="/app/customers/vendor/theme/img/avatars/avatar2.jpg" alt="" />
 				  </span>
 				  <span class="title">
 					Jane Doe
@@ -370,7 +370,7 @@
 				<li>
 				  <a href="javascript:void(0);">
 				  <span class="image">
-					  <img src="/app/members/vendor/img/avatars/avatar4.jpg" alt="" />
+					  <img src="/app/customers/vendor/theme/img/avatars/avatar4.jpg" alt="" />
 				  </span>
 				  <span class="title">
 					Ellie Doe
@@ -405,7 +405,7 @@
 				<li>
 				  <a href="javascript:void(0);">
 				  <span class="image">
-					  <img src="/app/members/vendor/img/avatars/avatar5.jpg" alt="" />
+					  <img src="/app/customers/vendor/theme/img/avatars/avatar5.jpg" alt="" />
 				  </span>
 				  <span class="title">
 					Lisa Doe
@@ -440,7 +440,7 @@
 				<li>
 				  <a href="javascript:void(0);">
 				  <span class="image">
-					  <img src="/app/members/vendor/img/avatars/avatar6.jpg" alt="" />
+					  <img src="/app/customers/vendor/theme/img/avatars/avatar6.jpg" alt="" />
 				  </span>
 				  <span class="title">
 					Kelly Doe
@@ -475,7 +475,7 @@
 				<li>
 				  <a href="javascript:void(0);">
 				  <span class="image">
-					  <img src="/app/members/vendor/img/avatars/avatar7.jpg" alt="" />
+					  <img src="/app/customers/vendor/theme/img/avatars/avatar7.jpg" alt="" />
 				  </span>
 				  <span class="title">
 					Jessy Doe
@@ -510,7 +510,7 @@
 				<li>
 				  <a href="javascript:void(0);">
 				  <span class="image">
-					  <img src="/app/members/vendor/img/avatars/avatar8.jpg" alt="" />
+					  <img src="/app/customers/vendor/theme/img/avatars/avatar8.jpg" alt="" />
 				  </span>
 				  <span class="title">
 					Debby Doe
@@ -785,22 +785,22 @@
 	</section>
 	<!--/PAGE -->
 
-    <script type="text/javascript" src="/app/members/vendor/js/jquery/jquery-2.0.3.min.js"></script>
-    <script type="text/javascript" src="/app/members/vendor/js/jquery-ui-1.10.3.custom/js/jquery-ui-1.10.3.custom.min.js"></script>
-    <script type="text/javascript" src="/app/members/vendor/bootstrap-dist/js/bootstrap.min.js"></script>
-    <script type="text/javascript" src="/app/members/vendor/js/bootstrap-daterangepicker/moment.min.js"></script>
-    <script type="text/javascript" src="/app/members/vendor/js/bootstrap-daterangepicker/daterangepicker.min.js"></script>
-    <script type="text/javascript" src="/app/members/vendor/js/jQuery-slimScroll-1.3.0/jquery.slimscroll.min.js"></script>
-    <script type="text/javascript" src="/app/members/vendor/js/jQuery-slimScroll-1.3.0/slimScrollHorizontal.min.js"></script>
-    <script type="text/javascript" src="/app/members/vendor/js/jQuery-BlockUI/jquery.blockUI.min.js"></script>
-    <script type="text/javascript" src="/app/members/vendor/js/sparklines/jquery.sparkline.min.js"></script>
-    <script type="text/javascript" src="/app/members/vendor/js/jquery-easing/jquery.easing.min.js"></script>
-    <script type="text/javascript" src="/app/members/vendor/js/jquery-todo/js/paddystodolist.js"></script>
-    <script type="text/javascript" src="/app/members/vendor/js/fullcalendar/fullcalendar.min.js"></script>
-    <script type="text/javascript" src="/app/members/vendor/js/jQuery-Cookie/jquery.cookie.min.js"></script>
-    <script type="text/javascript" src="/app/members/vendor/js/gritter/js/jquery.gritter.min.js"></script>
-    <script type="text/javascript" src="/app/members/vendor/js/script.js"></script>
-    <script type="text/javascript" src="/app/members/vendor/controllers/vendor/js/index.js"></script>
+    <script type="text/javascript" src="/app/customers/vendor/theme/js/jquery/jquery-2.0.3.min.js"></script>
+    <script type="text/javascript" src="/app/customers/vendor/theme/js/jquery-ui-1.10.3.custom/js/jquery-ui-1.10.3.custom.min.js"></script>
+    <script type="text/javascript" src="/app/customers/vendor/theme/bootstrap-dist/js/bootstrap.min.js"></script>
+    <script type="text/javascript" src="/app/customers/vendor/theme/js/bootstrap-daterangepicker/moment.min.js"></script>
+    <script type="text/javascript" src="/app/customers/vendor/theme/js/bootstrap-daterangepicker/daterangepicker.min.js"></script>
+    <script type="text/javascript" src="/app/customers/vendor/theme/js/jQuery-slimScroll-1.3.0/jquery.slimscroll.min.js"></script>
+    <script type="text/javascript" src="/app/customers/vendor/theme/js/jQuery-slimScroll-1.3.0/slimScrollHorizontal.min.js"></script>
+    <script type="text/javascript" src="/app/customers/vendor/theme/js/jQuery-BlockUI/jquery.blockUI.min.js"></script>
+    <script type="text/javascript" src="/app/customers/vendor/theme/js/sparklines/jquery.sparkline.min.js"></script>
+    <script type="text/javascript" src="/app/customers/vendor/theme/js/jquery-easing/jquery.easing.min.js"></script>
+    <script type="text/javascript" src="/app/customers/vendor/theme/js/jquery-todo/js/paddystodolist.js"></script>
+    <script type="text/javascript" src="/app/customers/vendor/theme/js/fullcalendar/fullcalendar.min.js"></script>
+    <script type="text/javascript" src="/app/customers/vendor/theme/js/jQuery-Cookie/jquery.cookie.min.js"></script>
+    <script type="text/javascript" src="/app/customers/vendor/theme/js/gritter/js/jquery.gritter.min.js"></script>
+    <script type="text/javascript" src="/app/customers/vendor/theme/js/script.js"></script>
+    <script type="text/javascript" src="/app/customers/vendor/theme/controllers/vendor/js/index.js"></script>
 
 	<script>
 		var ModuleDirectoryReference = 'vendor/';

@@ -15,6 +15,7 @@ class LocationDataTableSeeder extends BaseSeeder
 {
     public function __construct()
     {
+	    echo "------------------------------------------------------------------------------------";
         echo "Seeding Location Data.\n";
         $this->table        = 'location_data';
         $this->connection   = 'utils_db';
@@ -58,6 +59,7 @@ class LocationDataTableSeeder extends BaseSeeder
         $endTime    =   strtotime("now");
         $duration   =   $endTime-$startTime;
         echo "Seeded " . $totalRowsToInsert . " rows in " . $duration . " seconds.\n";
+	    echo "------------------------------------------------------------------------------------";
     }
 
     /**

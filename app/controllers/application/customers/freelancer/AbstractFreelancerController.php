@@ -11,12 +11,43 @@
  */
 
 
-class AbstractFreelancerController extends AbstractMemberController
+class AbstractFreelancerController extends AbstractCustomerController
 {
     use MemberControls;
+    use CustomerControls;
+    use SecurityControls;
 
     public $layoutData;
-    public $viewRootFolder = 'application/customer/freelancer/';
+    public $viewRootFolder = 'application/customers/freelancer/';
+
+	public $freelancerNamePrefix;
+    public $freelancerFirstName;
+    public $freelancerMidName1;
+    public $freelancerMidName2;
+    public $freelancerLastName;
+    public $freelancerFullName;
+    public $freelancerDisplayName;
+    public $freelancerNameSuffix;
+
+    public $freelancerGender;
+    public $freelancerGenderRaw;
+    public $freelancerBirthDate;
+
+    public $freelancerPersonalSummary;
+
+    public $freelancerLargeProfilePicUrl;
+    public $freelancerMediumProfilePicUrl;
+    public $freelancerSmallProfilePicUrl;
+    public $freelancerXSmallProfilePicUrl;
+
+    public $freelancerPersonalWebsiteLink;
+    public $freelancerSocialLinkLinkedIn;
+    public $freelancerSocialLinkGooglePlus;
+    public $freelancerSocialLinkTwitter;
+    public $freelancerSocialLinkFacebook;
+
+    public $freelancerHomeLink;
+    public $freelancerProfileLink;
 
     /**
      * The layout that should be used for responses.
@@ -53,11 +84,13 @@ class AbstractFreelancerController extends AbstractMemberController
     public function freelancerLogout()
     {
         // Perform freelancer specific action before logging out
+		$this->addCustomerSiteStatus("Freelancer successfully logged out.", $this->customerID);
 
-        $this->memberLogout();
+	    // Generic Customer logout Activities
+	    $this->customerLogout();
 
         // Redirect to the logged out page
-        return $this->makeResponseView('application/customer/member-logout', array());
+        return $this->makeResponseView('application/customers/customer-logout', array());
     }
 
 
@@ -82,39 +115,37 @@ class AbstractFreelancerController extends AbstractMemberController
      */
     public function getCloudLayoutVariables($outputFormat="array")
     {
-        $MemberDetailsObject	            =	$this->getMemberDetailsObject($this->memberDetailsID);
-
         /**
          * Update Class Properties
          */
-        $this->memberNamePrefix   			=   $MemberDetailsObject->getMemberDetailsPrefix("text");
-        $this->memberFirstName   			=   $MemberDetailsObject->getMemberDetailsFirstName();
-        $this->memberMidName1   			=   $MemberDetailsObject->getMemberDetailsMidName1();
-        $this->memberMidName2  				=   $MemberDetailsObject->getMemberDetailsMidName2();
-        $this->memberLastName   			=   $MemberDetailsObject->getMemberDetailsLastName();
-        $this->memberFullName				=	$MemberDetailsObject->getMemberDetailsFullName();
-        $this->memberDisplayName			=	$MemberDetailsObject->getMemberDetailsDisplayName();
-        $this->memberNameSuffix				=	$MemberDetailsObject->getMemberDetailsSuffix("text");
+        $this->freelancerNamePrefix   			=   $this->customerDetails->getCustomerDetailsPrefix("text");
+        $this->freelancerFirstName   			=   $this->customerDetails->getCustomerDetailsFirstName();
+        $this->freelancerMidName1   			=   $this->customerDetails->getCustomerDetailsMidName1();
+        $this->freelancerMidName2  				=   $this->customerDetails->getCustomerDetailsMidName2();
+        $this->freelancerLastName   			=   $this->customerDetails->getCustomerDetailsLastName();
+        $this->freelancerFullName				=	$this->customerDetails->getCustomerDetailsFullName();
+        $this->freelancerDisplayName			=	$this->customerDetails->getCustomerDetailsDisplayName();
+        $this->freelancerNameSuffix				=	$this->customerDetails->getCustomerDetailsSuffix("text");
 
-        $this->memberGender					=	$MemberDetailsObject->getMemberDetailsGender('text');
-        $this->memberGenderRaw				=	$MemberDetailsObject->getMemberDetailsGender('raw');
-        $this->memberBirthDate				=	$MemberDetailsObject->getMemberDetailsBirthDate();
+        $this->freelancerGender					=	$this->customerDetails->getCustomerDetailsGender('text');
+        $this->freelancerGenderRaw				=	$this->customerDetails->getCustomerDetailsGender('raw');
+        $this->freelancerBirthDate				=	$this->customerDetails->getCustomerDetailsBirthDate();
 
-        $this->memberPersonalSummary		=	$MemberDetailsObject->getMemberDetailsPersonalSummary();
+        $this->freelancerPersonalSummary		=	$this->customerDetails->getCustomerDetailsPersonalSummary();
 
-        $this->memberLargeProfilePicUrl 	=	$MemberDetailsObject->getMemberDetailsProfilePicUrl();
-        $this->memberMediumProfilePicUrl 	=	$MemberDetailsObject->getMemberDetailsProfilePicUrl();
-        $this->memberSmallProfilePicUrl 	=	$MemberDetailsObject->getMemberDetailsProfilePicUrl();
-        $this->memberXSmallProfilePicUrl 	=	$MemberDetailsObject->getMemberDetailsProfilePicUrl();
+        $this->freelancerLargeProfilePicUrl 	=	$this->customerDetails->getCustomerDetailsProfilePicUrl();
+        $this->freelancerMediumProfilePicUrl 	=	$this->customerDetails->getCustomerDetailsProfilePicUrl();
+        $this->freelancerSmallProfilePicUrl 	=	$this->customerDetails->getCustomerDetailsProfilePicUrl();
+        $this->freelancerXSmallProfilePicUrl 	=	$this->customerDetails->getCustomerDetailsProfilePicUrl();
 
-        $this->memberPersonalWebsiteLink 	=	$MemberDetailsObject->getMemberDetailsPersonalSiteUrl();
-        $this->memberSocialLinkLinkedIn 	=	$MemberDetailsObject->getMemberDetailsLinkedInUrl();
-        $this->memberSocialLinkGooglePlus 	=	$MemberDetailsObject->getMemberDetailsGooglePlusUrl();
-        $this->memberSocialLinkTwitter 		=	$MemberDetailsObject->getMemberDetailsTwitterUrl();
-        $this->memberSocialLinkFacebook		=	$MemberDetailsObject->getMemberDetailsFacebookUrl();
+        $this->freelancerPersonalWebsiteLink 	=	$this->customerDetails->getCustomerDetailsPersonalSiteUrl();
+        $this->freelancerSocialLinkLinkedIn 	=	$this->customerDetails->getCustomerDetailsLinkedInUrl();
+        $this->freelancerSocialLinkGooglePlus 	=	$this->customerDetails->getCustomerDetailsGooglePlusUrl();
+        $this->freelancerSocialLinkTwitter 		=	$this->customerDetails->getCustomerDetailsTwitterUrl();
+        $this->freelancerSocialLinkFacebook		=	$this->customerDetails->getCustomerDetailsFacebookUrl();
 
-        $this->memberHomeLink				=	'/freelancer/home';
-        $this->memberProfileLink			=	'/freelancer/profile';
+        $this->freelancerHomeLink				=	'/freelancer/home';
+        $this->freelancerProfileLink			=	'/freelancer/profile';
 
         /**
          * ALERT Dropdown Variables
@@ -163,7 +194,7 @@ class AbstractFreelancerController extends AbstractMemberController
             (
                 'messageLink' 			=>	'/freelancer/inbox/message/',
                 'messageLinkID'			=>	'1',
-                'messageAvatar'			=>	'/app/customer/freelancer/img/avatars/avatar8.jpg',
+                'messageAvatar'			=>	'/app/customers/freelancer/theme/img/avatars/avatar8.jpg',
                 'messageAvatarAltText'	=>	'Jane Doe',
                 'messageFromMemberType'	=>	'Signing Agency',
                 'messageFrom'			=>	'Jane Doe',
@@ -177,7 +208,7 @@ class AbstractFreelancerController extends AbstractMemberController
             (
                 'messageLink' 			=>	'/freelancer/inbox/message/',
                 'messageLinkID'			=>	'2',
-                'messageAvatar'			=>	'/app/customer/freelancer/img/avatars/avatar7.jpg',
+                'messageAvatar'			=>	'/app/customers/freelancer/theme/img/avatars/avatar7.jpg',
                 'messageAvatarAltText'	=>	'Jane Doe',
                 'messageFromMemberType'	=>	'Freelancer',
                 'messageFrom'			=>	'Jane Doe',
@@ -191,7 +222,7 @@ class AbstractFreelancerController extends AbstractMemberController
             (
                 'messageLink' 			=>	'/freelancer/inbox/message/',
                 'messageLinkID'			=>	'3',
-                'messageAvatar'			=>	'/app/customer/freelancer/img/avatars/avatar6.jpg',
+                'messageAvatar'			=>	'/app/customers/freelancer/theme/img/avatars/avatar6.jpg',
                 'messageAvatarAltText'	=>	'Jane Doe',
                 'messageFromMemberType'	=>	'Signing Source',
                 'messageFrom'			=>	'Jane Doe',
@@ -205,7 +236,7 @@ class AbstractFreelancerController extends AbstractMemberController
             (
                 'messageLink' 			=>	'/freelancer/inbox/message/',
                 'messageLinkID'			=>	'3',
-                'messageAvatar'			=>	'/app/customer/freelancer/img/avatars/default-male.jpg',
+                'messageAvatar'			=>	'/app/customers/freelancer/theme/img/avatars/default-male.jpg',
                 'messageAvatarAltText'	=>	'Jane Doe',
                 'messageFromMemberType'	=>	'Client',
                 'messageFrom'			=>	'Jane Doe',
@@ -219,7 +250,7 @@ class AbstractFreelancerController extends AbstractMemberController
             (
                 'messageLink' 			=>	'/freelancer/inbox/message/',
                 'messageLinkID'			=>	'3',
-                'messageAvatar'			=>	'/app/customer/freelancer/img/avatars/default-male.jpg',
+                'messageAvatar'			=>	'/app/customers/freelancer/theme/img/avatars/default-male.jpg',
                 'messageAvatarAltText'	=>	'Jane Doe',
                 'messageFromMemberType'	=>	'Guest',
                 'messageFrom'			=>	'Jane Doe',
@@ -297,15 +328,15 @@ class AbstractFreelancerController extends AbstractMemberController
             ),
         );
 
-		$defaultLargeProfilePicUrl  	=	isset($this->memberGender) ? '/app/customer/vendor/img/avatars/default-' . strtolower($this->memberGender) . '-large.jpg'    :   '/app/customer/vendor/img/avatars/default-female-large.jpg';
-		$defaultMediumProfilePicUrl  	=	isset($this->memberGender) ? '/app/customer/vendor/img/avatars/default-' . strtolower($this->memberGender) . '.jpg'          :   '/app/customer/vendor/img/avatars/default-female.jpg';
-		$defaultSmallProfilePicUrl  	=	isset($this->memberGender) ? '/app/customer/vendor/img/avatars/default-' . strtolower($this->memberGender) . '.jpg'          :   '/app/customer/vendor/img/avatars/default-female.jpg';
-		$defaultXSmallProfilePicUrl  	=	isset($this->memberGender) ? '/app/customer/vendor/img/avatars/default-' . strtolower($this->memberGender) . '.jpg'          :   '/app/customer/vendor/img/avatars/default-female.jpg';
+		$defaultLargeProfilePicUrl  	=	isset($this->freelancerGender) ? '/app/customers/freelancer/theme/img/avatars/default-' . strtolower($this->freelancerGender) . '-large.jpg'    :   '/app/customers/freelancer/theme/img/avatars/default-female-large.jpg';
+		$defaultMediumProfilePicUrl  	=	isset($this->freelancerGender) ? '/app/customers/freelancer/theme/img/avatars/default-' . strtolower($this->freelancerGender) . '.jpg'          :   '/app/customers/freelancer/theme/img/avatars/default-female.jpg';
+		$defaultSmallProfilePicUrl  	=	isset($this->freelancerGender) ? '/app/customers/freelancer/theme/img/avatars/default-' . strtolower($this->freelancerGender) . '.jpg'          :   '/app/customers/freelancer/theme/img/avatars/default-female.jpg';
+		$defaultXSmallProfilePicUrl  	=	isset($this->freelancerGender) ? '/app/customers/freelancer/theme/img/avatars/default-' . strtolower($this->freelancerGender) . '.jpg'          :   '/app/customers/freelancer/theme/img/avatars/default-female.jpg';
 
-		$memberPicUrlLarge				=	$MemberDetailsObject->getMemberDetailsProfilePicUrl();
-        $memberPicUrlMedium				=	$MemberDetailsObject->getMemberDetailsProfilePicUrl();
-        $memberPicUrlSmall				=	$MemberDetailsObject->getMemberDetailsProfilePicUrl();
-        $memberPicUrlXSmall				=	$MemberDetailsObject->getMemberDetailsProfilePicUrl();
+		$memberPicUrlLarge				=	$this->customerDetails->getCustomerDetailsProfilePicUrl();
+        $memberPicUrlMedium				=	$this->customerDetails->getCustomerDetailsProfilePicUrl();
+        $memberPicUrlSmall				=	$this->customerDetails->getCustomerDetailsProfilePicUrl();
+        $memberPicUrlXSmall				=	$this->customerDetails->getCustomerDetailsProfilePicUrl();
 
 
         /**
@@ -385,8 +416,8 @@ class AbstractFreelancerController extends AbstractMemberController
         $output =   array
         (
             'memberID'      =>  $this->memberID,
-            'displayName'  =>  $this->memberDisplayName,
-            'profileLink'  =>  'freelancer/profile',
+            'displayName'  =>  $this->freelancerDisplayName,
+            'profileLink'  =>  '/freelancer/profile',
 
 
             /**
@@ -427,7 +458,7 @@ class AbstractFreelancerController extends AbstractMemberController
              * Custom Ekinect JSS & CSS Files
              */
             'turnOnFlotCharts' 						=> 	FALSE,
-            'ModuleDirectoryReference' 				=>	'freelancer/',
+            'ModuleDirectoryReference' 				=>	'/freelancer/',
             'cloudLayoutJSPageName'					=>	'freelancerHome',
             'actionSpecificCSSFilesArray'			=>	array(),
             'actionSpecificJSFilesTopArray'			=>	array(),
@@ -468,8 +499,8 @@ class AbstractFreelancerController extends AbstractMemberController
             /**
              * User Login Dropdown Variables
              */
-            'memberLoginDropDownDisplayName' 		=> 	$MemberDetailsObject->getMemberDetailsFirstName(),
-            'memberFullName' 						=> 	$MemberDetailsObject->getMemberDetailsFullName(),
+            'memberLoginDropDownDisplayName' 		=> 	$this->customerDetails->getCustomerDetailsFirstName(),
+            'memberFullName' 						=> 	$this->customerDetails->getCustomerDetailsFullName(),
             'memberHomeLink' 						=> 	'/freelancer/home',
             'memberUserMenuArray' 					=> 	$memberUserMenuArray,
 
@@ -492,7 +523,7 @@ class AbstractFreelancerController extends AbstractMemberController
 
     public function showChangePasswordWithOldPassword()
     {
-        $this->addMemberSiteStatus("Member has chosen to change password.", $this->memberID);
+        $this->addCustomerSiteStatus("Freelancer has chosen to change password.", $this->memberID);
 
         $FormMessages       =   '';
         $AttemptMessages    =   '';
@@ -508,7 +539,7 @@ class AbstractFreelancerController extends AbstractMemberController
 
     public function postChangePasswordWithOldPassword()
     {
-        $this->addMemberSiteStatus("Member is submitting a password change.", $this->memberID);
+        $this->addCustomerSiteStatus("Freelancer is submitting a password change.", $this->memberID);
 
         $FormName           =   'ChangePasswordWithOldPasswordForm';
         $AttemptMessages    =   '';
@@ -524,40 +555,40 @@ class AbstractFreelancerController extends AbstractMemberController
             if($this->isFormClean($FormName, Input::all()))
             {
                 $formFields     =   array
-                (
-                    'current_password'          =>  Input::get('current_password'),
-                    'password'                  =>  Input::get('password'),
-                    'password_confirmation '    =>  Input::get('password_confirmation'),
-                );
+					                (
+					                    'current_password'          =>  Input::get('current_password'),
+					                    'password'                  =>  Input::get('password'),
+					                    'password_confirmation '    =>  Input::get('password_confirmation'),
+					                );
                 $formRules      =   array
-                (
-                    'current_password'          =>  array
-                    (
-                        'required',
-                        'between:10,256',
-                    ),
-                    'password'                  =>  array
-                    (
-                        'required',
-                        'between:10,256',
-                        'different:current_password'
-                    ),
-                    'password_confirmation '    =>  array
-                    (
-                        'same:password',
-                    ),
-                );
+					                (
+					                    'current_password'          =>  array
+													                    (
+													                        'required',
+													                        'between:10,256',
+													                    ),
+					                    'password'                  =>  array
+													                    (
+													                        'required',
+													                        'between:10,256',
+													                        'different:current_password'
+													                    ),
+					                    'password_confirmation '    =>  array
+													                    (
+													                        'same:password',
+													                    ),
+					                );
                 $formMessages   =   array
-                (
-                    'current_password.required'     =>  "Please enter your current password.",
-                    'current_password.between'      =>  "Valid passwords are more than 10 digits.",
+					                (
+					                    'current_password.required'     =>  "Please enter your current password.",
+					                    'current_password.between'      =>  "Valid passwords are more than 10 digits.",
 
-                    'password.required'             =>  "Please enter your new password.",
-                    'password.between'              =>  "Passwords must be more than 10 digits.",
-                    'password.different'            =>  "Your New Password must be different from your Current Password.",
+					                    'password.required'             =>  "Please enter your new password.",
+					                    'password.between'              =>  "Passwords must be more than 10 digits.",
+					                    'password.different'            =>  "Your New Password must be different from your Current Password.",
 
-                    'password_confirmation.same'    =>  "A password confirmation is required.",
-                );
+					                    'password_confirmation.same'    =>  "A password confirmation is required.",
+					                );
 
                 $validator      =   Validator::make($formFields, $formRules, $formMessages);
                 $passwordCheck  =   $this->checkPasswordStrength($formFields['password']);
@@ -565,7 +596,7 @@ class AbstractFreelancerController extends AbstractMemberController
                 if ($validator->passes() && $passwordCheck['status'])
                 {
                     $salts              =   $this->getMemberSaltFromID($this->memberID);
-                    $loginCredentials   =   $this->generateMemberLoginCredentials($this->memberPrimaryEmail, $formFields['current_password'], $salts['salt1'], $salts['salt2'], $salts['salt3']);
+                    $loginCredentials   =   $this->generateMemberLoginCredentials($this->customerPrimaryEmail, $formFields['current_password'], $salts['salt1'], $salts['salt2'], $salts['salt3']);
 
                     // create our user data for the authentication
                     $authData           =   array
@@ -576,7 +607,7 @@ class AbstractFreelancerController extends AbstractMemberController
 
                     if (Auth::attempt($authData, true))
                     {
-                        $LoginCredentials       =   $this->generateLoginCredentials($this->memberPrimaryEmail, $formFields['password']);
+                        $LoginCredentials       =   $this->generateLoginCredentials($this->customerPrimaryEmail, $formFields['password']);
                         $memberFillableArray    =   array
                         (
                             'password'          =>  Hash::make($LoginCredentials[0]),
@@ -585,17 +616,22 @@ class AbstractFreelancerController extends AbstractMemberController
                             'salt3'             =>  $LoginCredentials[3],
                         );
                         $this->updateMember($this->memberID, $memberFillableArray);
-                        $this->addMemberStatus("ChangedPassword.", $this->memberID);
-                        $this->addMemberStatus("ValidMember.", $this->memberID);
-                        $this->addMemberSiteStatus("Member has changed their password.", $this->memberID);
+                        $this->addCustomerStatus("ChangedPassword", $this->memberID);
+                        $this->addCustomerStatus("ValidMember", $this->memberID);
+                        $this->addCustomerSiteStatus("Freelancer has changed their password.", $this->memberID);
 
                         $successMessage[]   =   'Congratulations. You have successfully changed your password!';
                         Session::put('successFlashMessage', $successMessage);
+                        $returnToRoute      =   array
+                                                (
+                                                    'name'  =>  'showFreelancerDashboard',
+                                                    'data'  =>  array(),
+                                                );
                     }
                     else
                     {
                         $this->addAdminAlert();
-                        Session::put('memberLogoutMessage', 'We did not recognize your login credentials. Please login and retry.');
+                        Session::put('customerLogoutMessage', 'We did not recognize your login credentials. Please login and retry.');
                         Log::info($FormName . " - invalid login credentials.");
                         $returnToRoute  =   $this->forceFreelancerLogout();
                     }
@@ -623,7 +659,7 @@ class AbstractFreelancerController extends AbstractMemberController
             else
             {
                 $this->addAdminAlert();
-                Session::put('memberLogoutMessage', 'Unfortunately, there was an issue with your submission. Please login and retry.');
+                Session::put('customerLogoutMessage', 'Unfortunately, there was an issue with your submission. Please login and retry.');
                 Log::warning($FormName . " is not clean.");
                 $returnToRoute  =   $this->forceFreelancerLogout();
             }
@@ -631,7 +667,7 @@ class AbstractFreelancerController extends AbstractMemberController
         else
         {
             $this->addAdminAlert();
-            Session::put('memberLogoutMessage', 'Unfortunately, there was an issue with your submission. Please login and retry.');
+            Session::put('customerLogoutMessage', 'Unfortunately, there was an issue with your submission. Please login and retry.');
             Log::info($FormName . " - is not being correctly posted to.");
             $returnToRoute  =   $this->forceFreelancerLogout();
         }

@@ -1,8 +1,8 @@
 <?php
  /**
-  * Class EmailStatus
+  * Class EmployeeEmailStatus
   *
-  * filename:   EmailStatus.php
+  * filename:   EmployeeEmailStatus.php
   * 
   * @author      Chukwuma J. Nze <chukkynze@ekinect.com>
   * @since       7/31/14 8:46 PM
@@ -11,9 +11,9 @@
   */
  
 
-class EmailStatus extends Eloquent
+class EmployeeEmailStatus extends Eloquent
 {
-    protected $table        =   'email_status';
+    protected $table        =   'employee_email_status';
     protected $primaryKey   =   'id';
     protected $connection   =   'main_db';
     protected $fillable     =   array
@@ -27,20 +27,20 @@ class EmailStatus extends Eloquent
                                 );
 
 
-    public function addEmailStatus($emailAddress, $status)
+    public function addEmployeeEmailStatus($emailAddress, $status)
     {
-        $newEmailStatus =   EmailStatus::create
-                            (
-                                array
-                                (
-                                    'email_address'         =>  $emailAddress,
-                                    'email_address_status'  =>  $status,
-                                )
-                            );
-        $newEmailStatus->save();
+        $newEmployeeEmailStatus     =   EmployeeEmailStatus::create
+			                            (
+			                                array
+			                                (
+			                                    'email_address'         =>  $emailAddress,
+			                                    'email_address_status'  =>  $status,
+			                                )
+			                            );
+        $newEmployeeEmailStatus->save();
     }
 
-    public function checkForPreviousEmailStatus($emailAddress, $status)
+    public function checkForPreviousEmployeeEmailStatus($emailAddress, $status)
     {
         $count  =   DB::connection($this->connection)->table($this->table)
                         ->select('id')
@@ -52,7 +52,7 @@ class EmailStatus extends Eloquent
         return ($count == 1 ? TRUE : FALSE);
     }
 
-	public function getEmailStatus($emailAddress)
+	public function getEmployeeEmailStatus($emailAddress)
 	{
         $result     =   DB::connection($this->connection)->table($this->table)
                         ->select('email_address_status')

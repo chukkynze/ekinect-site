@@ -13,13 +13,6 @@
 
 class FreelancerController extends AbstractFreelancerController
 {
-    public $viewRootFolder = 'application/customer/freelancer/';
-
-    /**
-     * The layout that should be used for responses.
-     */
-    protected $layout = 'layouts.employees-cloud';
-
     public function __construct()
     {
         parent::__construct();

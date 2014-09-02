@@ -1,8 +1,8 @@
 <?php
  /**
-  * Class AdminAuthController
+  * Class EmployeeAuthenticationController
   *
-  * filename:   AdminAuthController.php
+  * filename:   EmployeeAuthenticationController.php
   * 
   * @author      Chukwuma J. Nze <chukkynze@ekinect.com>
   * @since       7/9/14 8:58 PM
@@ -10,21 +10,38 @@
   * @copyright   Copyright (c) 2014 www.eKinect.com
   */
 
-class AdminAuthController extends BaseController
+class EmployeeAuthenticationController extends BaseController
 {
+    use MemberControls;
     use EmployeeControls;
+    use SecurityControls;
 
+    /**
+     * This is the maximum amount of time it can take for a employee to verify their email address.
+     */
     const POLICY_AllowedVerificationSeconds_Signup				=   43200;
-	const POLICY_AllowedVerificationSeconds_ChangePassword		=   10800;
+    /**
+     * This is the maximum amount of time it can take for a employee to verify & completely change their password.
+     */
+    const POLICY_AllowedVerificationSeconds_ChangePassword		=   10800;
 
-	const POLICY_AllowedLoginAttempts       					=   300;
-	const POLICY_AllowedEmployeeLoginAttempts       		    =   300;
+
+    /**
+     * How many attempts are allowed per access activity
+     */
+    const POLICY_AllowedEmployeeLoginAttempts       		    =   300;
+    const POLICY_AllowedLoginAttempts       					=   300;
     const POLICY_AllowedLoginCaptchaAttempts    				=   3;
     const POLICY_AllowedSignupAttempts       					=   3;
     const POLICY_AllowedForgotAttempts       					=   3;
     const POLICY_AllowedChangeVerifiedMemberPasswordAttempts 	=   300;
     const POLICY_AllowedChangeOldMemberPasswordAttempts 		=   3;
     const POLICY_AllowedLostSignupVerificationAttempts 			=   3;
+
+
+    /**
+     * How far back to compare access attempts
+     */
     const POLICY_AllowedAttemptsLookBackDuration  				=   'Last1Hour';
 
 
@@ -38,9 +55,14 @@ class AdminAuthController extends BaseController
     }
 
 
-    public function showLogin()
+	/**
+	 * Show the access page: login
+	 * 
+	 * @return $this|\Illuminate\Http\RedirectResponse|\Illuminate\Http\Response
+	 */
+	public function showLogin()
 	{
-        $authCheck  =   $this->authCheckOnAccess();
+        $authCheck  =   $this->authCheckOnEmployeeAccess();
         if(FALSE != $authCheck){return Redirect::route($authCheck['name']);}
 
         $FormMessages          =   '';
@@ -55,19 +77,19 @@ class AdminAuthController extends BaseController
 
     public function postLogin()
     {
-        $FormName       =   'EmployeeLoginForm';
-        $returnToRoute  =   array
-                            (
-                                'name'  =>  FALSE,
-                                'data'  =>  FALSE,
-                            );
-
+        $FormName           =   'EmployeeLoginForm';
         $FormMessages       =   '';
         $AttemptMessages    =   '';
+        $returnToRoute      =   array
+	                            (
+	                                'name'  =>  FALSE,
+	                                'data'  =>  FALSE,
+	                            );
+
 
         if(Request::isMethod('post'))
         {
-            $authCheck  =   $this->authCheckOnAccess();
+            $authCheck  =   $this->authCheckOnEmployeeAccess();
             if(FALSE != $authCheck){return Redirect::route($authCheck['name']);}
 
             // Check if Access is allowed
@@ -79,7 +101,7 @@ class AdminAuthController extends BaseController
 
             $Attempts   =   $this->getAccessAttemptByUserIDs
                                     (
-                                        'EmployeeLoginForm',
+                                        $FormName,
                                         array($this->getSiteUser()->id),
                                         self::POLICY_AllowedAttemptsLookBackDuration
                                     );
@@ -99,7 +121,7 @@ class AdminAuthController extends BaseController
                                                                                 (
                                                                                     'required',
                                                                                     'email',
-                                                                                    'exists:member_emails,email_address',
+                                                                                    'exists:employee_emails,email_address',
                                                                                     'between:5,120',
                                                                                 ),
                                             'employee_password'             =>  array
@@ -124,7 +146,7 @@ class AdminAuthController extends BaseController
                     if ($validator->passes())
                     {
                         // Get the member id from the submitted email
-                        $memberID               =   $this->getMemberIDFromEmailAddress($formFields['returning_employee']);
+                        $memberID               =   $this->getEmployeeMemberIDFromEmailAddress($formFields['returning_employee']);
 	                    $isMemberTypeAllowed    =   $this->isMemberTypeAllowedHere($memberID);
 
 	                    if($isMemberTypeAllowed)
@@ -132,107 +154,85 @@ class AdminAuthController extends BaseController
 		                    $salts              =   $this->getMemberSaltFromID($memberID);
 	                        $loginCredentials   =   $this->generateMemberLoginCredentials($formFields['returning_employee'], $formFields['employee_password'], $salts['salt1'], $salts['salt2'], $salts['salt3']);
 
-	                        $this->addMemberSiteStatus("Attempting log in.", $memberID);
+	                        $this->addEmployeeSiteStatus("Attempting log in.", $memberID);
 
-	                        $wasVerificationLinkSent    =   $this->wasVerificationLinkSent($formFields['returning_employee']);
+	                        // Check if Employee Status is valid
+                            $isEmployeeStatusLocked      =   $this->isEmployeeStatusLocked($memberID);
 
-	                        if($wasVerificationLinkSent)
-	                        {
-	                            $memberEmailIsVerified  =   $this->isEmailVerified($formFields['returning_employee']);
+                            if(!$isEmployeeStatusLocked)
+                            {
+                                // Ensure member is not required to perform a forced behaviour
+                                $employeeHasNoForce         =   $this->checkEmployeeHasNoForce($memberID);
 
-	                            if($memberEmailIsVerified)
-	                            {
-	                                // Check if Member Status is valid
-	                                $isMemberStatusLocked      =   $this->isMemberStatusLocked($memberID);
+                                if($employeeHasNoForce['AttemptStatus'])
+                                {
+                                    // Check Employment Status
+                                    $employeeCanWork		=	$this->checkEmploymentStatus();
 
-	                                if(!$isMemberStatusLocked)
-	                                {
-	                                    // Ensure member is not required to perform a forced behaviour
-	                                    $memberHasNoForce         =   $this->checkMemberHasNoForce($memberID);
+                                    if($employeeCanWork['AttemptStatus'])
+                                    {
+                                        // create our user data for the authentication
+                                        $authData           =   array
+                                                                (
+                                                                    'id' 	   => $memberID,
+                                                                    'password' => $loginCredentials,
+                                                                );
 
-	                                    if($memberHasNoForce['AttemptStatus'])
-	                                    {
-	                                        // Check Member Financial Status
-	                                        $memberIsInGoodFinancialStanding		=	$this->checkMemberEmploymentStatus();
+                                        if (Auth::attempt($authData, true))
+                                        {
+                                            $this->registerAccessAttempt($this->getSiteUser()->getID(),$FormName, 1);
+                                            $authCheck  =   $this->authCheckOnEmployeeAccess();
+                                            if(FALSE != $authCheck)
+                                            {
+                                                $this->addEmployeeSiteStatus("Successfully logged in.", $memberID);
+                                                // todo: Send email stating you have logged in
+                                                return Redirect::route($authCheck['name']);
+                                            }
+                                        }
+                                        else
+                                        {
+                                            $FormMessages   =   array();
+                                            $FormMessages[] =   "Unfortunately, we do not recognize your login credentials. Please retry.";
 
-	                                        if($memberIsInGoodFinancialStanding['AttemptStatus'])
-	                                        {
-	                                            // create our user data for the authentication
-	                                            $authData           =   array
-	                                                                    (
-	                                                                        'id' 	   => $memberID,
-	                                                                        'password' => $loginCredentials,
-	                                                                    );
-
-	                                            if (Auth::attempt($authData, true))
-	                                            {
-	                                                $this->registerAccessAttempt($this->getSiteUser()->getID(),$FormName, 1);
-	                                                $authCheck  =   $this->authCheckOnAccess();
-	                                                if(FALSE != $authCheck)
-	                                                {
-	                                                    $this->addMemberSiteStatus("Successfully logged in.", $memberID);
-		                                                // todo: Send email stating you have logged in
-	                                                    return Redirect::route($authCheck['name']);
-	                                                }
-	                                            }
-	                                            else
-	                                            {
-	                                                $FormMessages   =   array();
-	                                                $FormMessages[] =   "Unfortunately, we do not recognize your login credentials. Please retry.";
-
-	                                                $this->registerAccessAttempt($this->getSiteUser()->getID(),$FormName, 0);
-	                                                Log::info($FormName . " - form values did not pass.");
-	                                            }
-	                                        }
-	                                        else
-	                                        {
-	                                            $this->registerAccessAttempt($this->getSiteUser()->getID(), $FormName, 0);
-	                                            $this->addAdminAlert();
-	                                            Log::warning($FormName . " member financials are not in order.");
-	                                            $returnToRoute  =   array
-	                                                                (
-	                                                                    'name'  =>  'custom-error',
-	                                                                    'data'  =>  array('errorNumber' => 26),
-	                                                                );
-	                                        }
-	                                    }
-	                                    else
-	                                    {
-	                                        $this->registerAccessAttempt($this->getSiteUser()->getID(), $FormName, 0);
-	                                        $this->addAdminAlert();
-	                                        Log::warning($FormName . " member is under force.");
-	                                        $returnToRoute  =   array
-	                                                            (
-	                                                                'name'  =>  'custom-error',
-	                                                                'data'  =>  array('errorNumber' => 25),
-	                                                            );
-	                                    }
-	                                }
-	                                else
-	                                {
-	                                    $this->registerAccessAttempt($this->getSiteUser()->getID(), $FormName, 0);
-	                                    $this->addAdminAlert();
-	                                    Log::warning($FormName . " member status is under lock.");
-	                                    $returnToRoute  =   array
-	                                                        (
-	                                                            'name'  =>  'custom-error',
-	                                                            'data'  =>  array('errorNumber' => 24),
-	                                                        );
-	                                }
-	                            }
-	                            else
-	                            {
-	                                $FormMessages   =   array();
-	                                $FormMessages[] =   "You must validate your email address before you can log in. Please, check your inbox.";
-	                                Log::info($FormName . " - email address is not valid.");
-	                            }
-	                        }
-	                        else
-	                        {
-	                            $FormMessages   =   array();
-	                            $FormMessages[] =   "Your email address isn't recognized as valid. Signup first or, login with a previous email and validate this one.";
-	                            Log::info($FormName . " - email address verification not sent.");
-	                        }
+                                            $this->registerAccessAttempt($this->getSiteUser()->getID(),$FormName, 0);
+                                            Log::info($FormName . " - incorrect login credentials.");
+                                        }
+                                    }
+                                    else
+                                    {
+                                        $this->registerAccessAttempt($this->getSiteUser()->getID(), $FormName, 0);
+                                        $this->addAdminAlert();
+                                        Log::warning($FormName . " member employment is not in order.");
+                                        $returnToRoute  =   array
+                                                            (
+                                                                'name'  =>  'custom-error',
+                                                                'data'  =>  array('errorNumber' => 28),
+                                                            );
+                                    }
+                                }
+                                else
+                                {
+                                    $this->registerAccessAttempt($this->getSiteUser()->getID(), $FormName, 0);
+                                    $this->addAdminAlert();
+                                    Log::warning($FormName . " member is under force.");
+                                    $returnToRoute  =   array
+                                                        (
+                                                            'name'  =>  'custom-error',
+                                                            'data'  =>  array('errorNumber' => 25),
+                                                        );
+                                }
+                            }
+                            else
+                            {
+                                $this->registerAccessAttempt($this->getSiteUser()->getID(), $FormName, 0);
+                                $this->addAdminAlert();
+                                Log::warning($FormName . " member status is under lock.");
+                                $returnToRoute  =   array
+                                                    (
+                                                        'name'  =>  'custom-error',
+                                                        'data'  =>  array('errorNumber' => 24),
+                                                    );
+                            }
 	                    }
 	                    else
 	                    {
@@ -308,7 +308,7 @@ class AdminAuthController extends BaseController
             $Member     =   Member::where("id", "=", $memberID)->first();
             switch($Member->getMemberType())
             {
-	            case 'employees'       :
+	            case 'employee'       :
 	                return TRUE;
 	                break;
 
@@ -323,8 +323,8 @@ class AdminAuthController extends BaseController
 	}
 
 	/**
-	 * This is the catch all method for the policies affecting whether a employees is allowed access.
-	 * It also takes into consideration reasons to lock the site that may go beyond just a single employees/user
+	 * This is the catch all method for the policies affecting whether a user/member is allowed access.
+	 * It also takes into consideration reasons to lock the site that may go beyond just a single user
 	 *
 	 * @return bool
 	 */
@@ -345,10 +345,10 @@ class AdminAuthController extends BaseController
     {
 		$returnValue 	=	FALSE;
 
-		if($this->isUserAllowedAccess())
-		{
-			$returnValue	=	TRUE;
-		}
+		#if($this->isUserAllowedAccess())
+		#{
+		#	$returnValue	=	TRUE;
+		#}
 
 		if($this->isUserIPAddressAllowedAccess())
 		{
@@ -371,12 +371,12 @@ class AdminAuthController extends BaseController
      *
      * @return array|bool
      */
-    public function checkMemberHasNoForce($memberID)
+    public function checkEmployeeHasNoForce($memberID)
 	{
 		try
         {
-            $MemberStatus    =   new MemberStatus();
-            return $MemberStatus->checkMemberHasNoForce($memberID);
+            $EmployeeStatus    =   new EmployeeStatus();
+            return $EmployeeStatus->checkEmployeeHasNoForce($memberID);
         }
         catch(\Whoops\Example\Exception $e)
         {
@@ -391,7 +391,7 @@ class AdminAuthController extends BaseController
 	}
 
 
-	public function checkMemberEmploymentStatus()
+	public function checkEmploymentStatus()
 	{
 		$AttemptStatus 			=	TRUE;
 		$AttemptStatusRoute 	=	'';
@@ -404,6 +404,13 @@ class AdminAuthController extends BaseController
 	}
 
 	/**
+	 * This method determines if the employee id is allowed access
+     * and is only checked upon validating that the login creds are valid and correct
+	 *
+	 * @return bool
+	 */
+
+    /**
 	 * This method determines if the member id is allowed access
      * and is only checked upon validating that the login creds are valid and correct
 	 *
@@ -411,16 +418,16 @@ class AdminAuthController extends BaseController
      *
      * @return bool
      */
-    public function isMemberStatusLocked($memberID)
+    public function isEmployeeStatusLocked($memberID)
 	{
 		try
         {
-            $MemberStatus    =   new MemberStatus();
-            return $MemberStatus->isMemberStatusLocked($memberID);
+            $EmployeeStatus    =   new EmployeeStatus();
+            return $EmployeeStatus->isEmployeeStatusLocked($memberID);
         }
         catch(\Whoops\Example\Exception $e)
         {
-            Log::error("Could not check if member [ " . $memberID . " ] status is locked. " . $e);
+            Log::error("Could not check if employee member id [ " . $memberID . " ] status is locked. " . $e);
             return FALSE;
         }
 	}
@@ -451,60 +458,278 @@ class AdminAuthController extends BaseController
 	 */
 	public function isUserMemberAllowedAccess()
 	{
-		$BlockedMemberStatuses 	=	array
+		$BlockedEmployeeStatuses 	=	array
 									(
-										'Locked:Excessive-EmployeeLogin-Attempts',
+										'Locked:Excessive-Login-Attempts',
 									);
 
-		return (	$this->getUser()->getUserMemberID()*1 > 0
+		return (	$this->getSiteUser()->getUserMemberID()*1 > 0
 				&& 	!in_array
 					(
-						$this->getMemberStatusTable()->getMemberStatusByMemberID($this->getUser()->getUserMemberID()),
-						$BlockedMemberStatuses
+						$this->getEmployeeStatusByMemberID($this->getSiteUser()->getUserMemberID()),
+						$BlockedEmployeeStatuses
 					)
 					? 	TRUE
 					: 	FALSE);
 	}
 
 
+    public function resendSignupConfirmation()
+	{
+		$FormMessages       =   "";
+        $viewData           =   array
+                                (
+                                    'FormMessages'         		=>  $FormMessages,
+                                );
+        return $this->makeResponseView('application/auth/lost-signup-verification', $viewData);
+	}
+
+    public function processResendSignupConfirmation()
+	{
+		$FormName			=	"LostSignupVerificationForm";
+        $returnToRoute      =   array
+                                (
+                                    'name'  =>  FALSE,
+                                    'data'  =>  FALSE,
+                                );
+        $FormMessages       =   "";
+
+        if(Request::isMethod('post'))
+        {
+            $Attempts       =   $this->getAccessAttemptByUserIDs
+                                        (
+                                            $FormName,
+                                            array($this->getSiteUser()->id),
+                                            self::POLICY_AllowedAttemptsLookBackDuration
+                                        );
+
+            if($Attempts['total'] < self::POLICY_AllowedLostSignupVerificationAttempts)
+            {
+                if($this->isFormClean($FormName, Input::all()))
+                {
+
+                    $formFields     =   array
+                                        (
+                                            'lost_signup_email'         =>  Input::get('lost_signup_email'),
+                                            'recaptcha_response_field'  =>  Input::get('recaptcha_response_field'),
+                                        );
+                    $formRules      =   array
+                                        (
+                                            'lost_signup_email'         =>  array
+                                                                            (
+                                                                                'required',
+                                                                                'email',
+                                                                                'exists:employee_email_status,email_address',
+                                                                                'between:5,120',
+                                                                            ),
+                                            'recaptcha_response_field'  =>  array
+                                                                            (
+                                                                                'required',
+                                                                                'recaptcha',
+                                                                            ),
+                                        );
+                    $formMessages   =   array
+                                        (
+                                            'lost_signup_email.required'            =>  "An email address is required and can not be empty.",
+                                            'lost_signup_email.email'               =>  "Your email address format is invalid.",
+                                            'lost_signup_email.exists'              =>  "Are you sure you've already <a href='/signup'>signed up</a>?",
+                                            'lost_signup_email.between'             =>  "Please, re-check your email address' size.",
+
+                                            'recaptcha_response_field.required'     =>  "Please enter the reCaptcha value.",
+                                            'recaptcha_response_field.recaptcha'    =>  "Your reCaptcha entry is incorrect.",
+                                        );
+
+                    $validator      =   Validator::make($formFields, $formRules, $formMessages);
+
+                    if ($validator->passes())
+                    {
+                        $NewMemberID    =   $this->getEmployeeMemberIDFromEmailAddress($formFields['lost_signup_email']);
+
+                        if($NewMemberID > 0)
+                        {
+                            // Check to see if this email has already received an EmployeeEmailStatus of 'Verified' or 'VerificationSentAgain'
+                            $decisions  =   2;
+                            ($this->checkForPreviousEmailStatus($formFields['lost_signup_email'],'Verified')                ?   $decisions : $decisions--);
+                            ($this->checkForPreviousEmailStatus($formFields['lost_signup_email'],'VerificationSentAgain')   ?   $decisions : $decisions--);
+
+                            // todo: Check how far back email validation was sent (and if member email exists)
+
+                            $isAlreadyVerified  =   ($decisions == 0 ? TRUE : FALSE);
+                            if($isAlreadyVerified)
+                            {
+                                // ReSend an Email for Validation
+                                $verifyEmailLink    =   $this->generateVerifyEmailLink($formFields['lost_signup_email'], $NewMemberID, 'verify-new-member');
+                                $sendEmailStatus    =   $this->sendEmail
+                                                        (
+                                                            'verify-new-member-again',
+                                                            array
+                                                            (
+                                                                'verifyEmailLink' => $verifyEmailLink
+                                                            ),
+                                                            array
+                                                            (
+                                                                'fromTag'       =>  'General',
+                                                                'sendToEmail'   =>  $formFields['lost_signup_email'],
+                                                                'sendToName'    =>  'Welcome to Ekinect',
+                                                                'subject'       =>  'Welcome to Ekinect',
+                                                                'ccArray'       =>  FALSE,
+                                                                'attachArray'   =>  FALSE,
+                                                            )
+                                                        );
+
+                                if($sendEmailStatus)
+                                {
+                                    // Update Member emails that verification was sent and at what time for this member
+                                    $this->updateEmployeeEmail
+                                            (
+                                                $this->getEmployeeEmailIDFromEmailAddress($formFields['lost_signup_email']),
+                                                array
+                                                (
+                                                    'verification_sent'     =>  1,
+                                                    'verification_sent_on'  =>  strtotime('now'),
+                                                )
+                                            );
+
+                                    // Redirect to Successful Signup Page that informs them of the need to validate the email before they can enjoy the free 90 day Premium membership
+                                    // Update status
+                                    $this->addEmployeeEmailStatus($formFields['lost_signup_email'], 'VerificationSentAgain');
+                                    $this->registerAccessAttempt($this->getSiteUser()->getID(), $FormName, 1);
+                                    $viewData   =   array
+                                                    (
+                                                        'emailAddress' => $formFields['lost_signup_email'],
+                                                    );
+                                    return $this->makeResponseView('application/auth/member-signup-success', $viewData);
+                                }
+                                else
+                                {
+                                    $this->addAdminAlert();
+                                    $this->registerAccessAttempt($this->getSiteUser()->getID(), $FormName, 0);
+                                    Log::info($FormName . " - Could not resend the new member email to [" . $formFields['lost_signup_email'] . "] for member id [" . $NewMemberID . "].");
+                                    $employeeService    =   str_replace("[errorNumber]", "Could not resend the new member email.", self::POLICY_LinkEmployeeService );
+                                    $FormMessages       =   array();
+                                    $FormMessages[]     =   "Sorry, we cannot complete the signup process at this time.
+                                                             Please refresh, and if the issue continues, contact " . $employeeService . ".";
+                                }
+                            }
+                            else
+                            {
+                                $this->addAdminAlert();
+                                $this->registerAccessAttempt($this->getSiteUser()->getID(), $FormName, 0);
+                                Log::info($FormName . " - Could not resend verification email to [" . $formFields['lost_signup_email'] . "] for member id [" . $NewMemberID . "]. Member is already verified.");
+                                $employeeService    =   str_replace("[errorNumber]", "Could not resend verification email.", self::POLICY_LinkEmployeeService );
+                                $FormMessages       =   array();
+                                $FormMessages[]     =   "It appears that you have already verified your email address. There is no need to resend a verification.
+                                                         Check your inbox for instructions and, if you still require assistance, contact " . $employeeService . ".";
+                            }
+                        }
+                        else
+                        {
+                            $this->addAdminAlert();
+                            $this->registerAccessAttempt($this->getSiteUser()->getID(), $FormName, 0);
+                            Log::info($FormName . " - Could not get new member id from email provided [" . $formFields['lost_signup_email'] . "].");
+                            $employeeService    =   str_replace("[errorNumber]", "Could not resend verification for new member.", self::POLICY_LinkEmployeeService );
+                            $FormMessages       =   array();
+                            $FormMessages[]     =   "Sorry, we cannot complete the signup and verification process at this time.
+                                                    Please refresh, and if the issue continues, contact " . $employeeService . ".";
+                        }
+                    }
+                    else
+                    {
+                        $FormErrors   =   $validator->messages()->toArray();
+                        $FormMessages =   array();
+                        foreach($FormErrors as $errors)
+                        {
+                            $FormMessages[]   =   $errors[0];
+                        }
+
+                        $this->registerAccessAttempt($this->getSiteUser()->getID(),$FormName, 0);
+                        Log::info($FormName . " - form values did not pass.");
+                    }
+                }
+                else
+                {
+                    $this->registerAccessAttempt($this->getSiteUser()->getID(), $FormName, 0);
+                    $this->addAdminAlert();
+                    Log::warning($FormName . " has invalid dummy variables passed.");
+                    $returnToRoute  =   array
+                                        (
+                                            'name'  =>  'custom-error',
+                                            'data'  =>  array('errorNumber' => 23),
+                                        );
+                }
+            }
+            else
+            {
+                $this->applyLock('Locked:Excessive-LostSignupVerification-Attempts', Input::get('lost_signup_email'),'excessive-lost-signup-verification', []);
+                $returnToRoute  =   array
+                                    (
+                                        'name'  =>  'custom-error',
+                                        'data'  =>  array('errorNumber' => 18),
+                                    );
+            }
+        }
+        else
+        {
+            Log::warning($FormName . " is not being correctly posted to.");
+            $returnToRoute  =   array
+                                (
+                                    'name'  =>  'custom-error',
+                                    'data'  =>  array('errorNumber' => 23),
+                                );
+        }
+
+        if(FALSE != $returnToRoute['name'])
+        {
+            return Redirect::route($returnToRoute['name'],$returnToRoute['data']);
+        }
+        else
+        {
+            $viewData           =   array
+                                (
+                                    'FormMessages'  =>  $FormMessages,
+                                );
+            return $this->makeResponseView('application/auth/lost-signup-verification', $viewData);
+        }
+	}
+
+
     public function logout()
     {
 		Auth::logout();
-        #return Redirect::route('memberLogout',array());
     }
 
     public function loginAgain()
     {
         $this->activity     =   "login";
         $this->reason       =   "expired-session";
-        return $this->showLogin();
+        return $this->showAccess();
     }
 
     public function successfulLogout()
     {
         $this->activity     =   "login";
         $this->reason       =   "intentional-logout";
-        return $this->showLogin();
+        return $this->showAccess();
     }
 
     public function successfulAccessCredentialChange()
     {
         $this->activity     =   "login";
         $this->reason       =   "changed-password";
-        return $this->showLogin();
+        return $this->showAccess();
     }
 
     public function loginCaptcha()
     {
         $this->activity     =   "login-captcha";
         $this->reason       =   "";
-        return $this->showLogin();
+        return $this->showAccess();
     }
 
-    public function memberLogout()
+    public function employeeLogout()
     {
         $this->logout();
-        return $this->makeResponseView('admin/customer/member-logout', array());
+        return $this->makeResponseView('admin/employees/employee-logout', array());
     }
 
     public function memberLogoutExpiredSession()
@@ -512,6 +737,435 @@ class AdminAuthController extends BaseController
         $this->logout();
 
 		// return $this->redirect()->toRoute('member-login-after-expired-session');
+    }
+
+    public function signup()
+    {
+        $this->activity     =   "signup";
+        $this->reason       =   "";
+        return $this->showAccess();
+    }
+
+
+	/**
+	 * Create a new employee and send a verification email
+	 *
+	 * @return $this|\Illuminate\Http\RedirectResponse|\Illuminate\Http\Response
+	 */
+	public function postSignup()
+    {
+        $FormName       =   'SignupForm';
+        $returnToRoute  =   array
+                            (
+					            'name'  =>  FALSE,
+					            'data'  =>  FALSE,
+					        );
+        $FormMessages   =   array();
+
+        if(Request::isMethod('post'))
+        {
+            $Attempts   =   $this->getAccessAttemptByUserIDs
+                            (
+                                $FormName,
+                                array($this->getSiteUser()->id),
+                                self::POLICY_AllowedAttemptsLookBackDuration
+                            );
+
+            if($Attempts['total'] < self::POLICY_AllowedSignupAttempts)
+            {
+                if($this->isFormClean($FormName, Input::all()))
+                {
+                    $formFields     =   array
+                                        (
+                                            'new_member'                =>  Input::get('new_member'),
+                                            'password'                  =>  Input::get('password'),
+                                            'password_confirmation '    =>  Input::get('password_confirmation'),
+                                            'acceptTerms'               =>  Input::get('acceptTerms'),
+                                        );
+                    $formRules      =   array
+                                        (
+                                            'new_member'                =>  array
+                                                                            (
+                                                                                'required',
+                                                                                'email',
+                                                                                'unique:employee_emails,email_address',
+                                                                                'between:5,120',
+                                                                            ),
+                                            'password'                  =>  array
+                                                                            (
+                                                                                'required',
+                                                                                'between:10,256',
+                                                                            ),
+                                            'password_confirmation '    =>  array
+                                                                            (
+                                                                                'same:password',
+                                                                            ),
+                                            'acceptTerms'               =>  array
+                                                                            (
+                                                                                'required',
+                                                                                'boolean',
+                                                                                'accepted',
+                                                                            ),
+                                        );
+                    $formMessages   =   array
+                                        (
+                                            'new_member.required'   =>  "An email address is required and can not be empty.",
+                                            'new_member.email'      =>  "Your email address format is invalid.",
+                                            'new_member.unique'     =>  "Please, check your inbox for previous sign up instructions.",
+                                            'new_member.between'    =>  "Please, re-check your email address' size.",
+
+                                            'password.required'     =>  "Please enter your password.",
+                                            'password.confirmed'    =>  "A password confirmation is required.",
+                                            'password.between'      =>  "Passwords must be more than 10 digits.",
+
+                                            'password_confirmation.same'    =>  "A password confirmation is required.",
+
+                                            'acceptTerms.required'  =>  "Please indicate that you read our Terms & Privacy Policy.",
+                                            'acceptTerms.boolean'   =>  "Please, indicate that you read our Terms & Privacy Policy.",
+                                            'acceptTerms.accepted'  =>  "Please indicate that you read our Terms & Privacy Policy",
+                                        );
+
+                    $validator      =   Validator::make($formFields, $formRules, $formMessages);
+                    $passwordCheck  =   $this->checkPasswordStrength($formFields['password']);
+
+                    if ($validator->passes() && $passwordCheck['status'])
+                    {
+                        // Add the emailAddress
+                        $this->addEmployeeEmailStatus($formFields['new_member'], 'AddedUnverified');
+
+                        // Get the Site User so you can associate this user behaviour with this new member
+                        $this->SiteUser =   $this->getSiteUser();
+
+                        // Create a Member Object
+                        $NewMemberID    =   $this->addEmployee($formFields['new_member'], $formFields['password']);
+
+                        if($NewMemberID > 0)
+                        {
+                            // Update User with Member ID
+                            $this->setSiteUserMemberID($this->getSiteUser()->getID(), $NewMemberID);
+
+                            // Create & Save a Employee Status Object for the new Member
+                            $this->addEmployeeStatus('Successful-Signup', $NewMemberID);
+
+                            // Create & Save a Employee Emails Object
+                            $NewEmployeeEmailID   =   $this->addEmployeeEmail($formFields['new_member'], $NewMemberID);
+
+                            if($NewEmployeeEmailID > 0)
+                            {
+                                // Prepare an Email for Validation
+                                $verifyEmailLink    =   $this->generateVerifyEmailLink($formFields['new_member'], $NewMemberID, 'verify-new-member');
+                                $sendEmailStatus    =   $this->sendEmail
+                                                        (
+                                                            'verify-new-member',
+                                                            array
+                                                            (
+                                                                'verifyEmailLink' => $verifyEmailLink
+                                                            ),
+                                                            array
+                                                            (
+                                                                'fromTag'       =>  'General',
+                                                                'sendToEmail'   =>  $formFields['new_member'],
+                                                                'sendToName'    =>  'Welcome to Ekinect',
+                                                                'subject'       =>  'Welcome to Ekinect',
+                                                                'ccArray'       =>  FALSE,
+                                                                'attachArray'   =>  FALSE,
+                                                            )
+                                                        );
+
+                                if($sendEmailStatus)
+                                {
+                                    // Update employee emails that verification was sent and at what time for this member
+                                    $this->updateEmployeeEmail($NewEmployeeEmailID, array
+                                    (
+                                        'verification_sent'     =>  1,
+                                        'verification_sent_on'  =>  strtotime('now'),
+                                    ));
+
+                                    // Add the emailAddress status
+                                    $this->addEmployeeEmailStatus($formFields['new_member'], 'VerificationSent');
+
+                                    // Redirect to Successful Signup Page that informs them of the need to validate the email before they can login
+                                    $this->registerAccessAttempt($this->getSiteUser()->getID(), $FormName, 1);
+                                    $viewData   =   array
+                                                    (
+                                                        'emailAddress'        =>  $formFields['new_member'],
+                                                    );
+                                    return $this->makeResponseView('application/auth/employee-signup-success', $viewData);
+                                }
+                                else
+                                {
+                                    $this->addAdminAlert();
+                                    $this->registerAccessAttempt($this->getSiteUser()->getID(), $FormName, 0);
+                                    Log::info($FormName . " - Could not send the new employee email to [" . $formFields['new_member'] . "] for member id [" . $NewMemberID . "].");
+                                    $employeeService        =   str_replace("[errorNumber]", "Could not send the new employee email.", self::POLICY_LinkEmployeeService );
+                                    $SignupFormMessages[]   =   "Sorry, we cannot complete the signup process at this time.
+                                                                Please refresh, and if the issue continues, contact " . $employeeService . ".";
+                                }
+                            }
+                            else
+                            {
+                                $this->addAdminAlert();
+                                $this->registerAccessAttempt($this->getSiteUser()->getID(), $FormName, 0);
+                                Log::info($FormName . " - Could not create a new employee email.");
+                                $employeeService        =   str_replace("[errorNumber]", "Could not create a new employee email.", self::POLICY_LinkEmployeeService );
+                                $SignupFormMessages[]   =   "Sorry, we cannot complete the signup process at this time.
+                                                            Please refresh, and if the issue continues, contact " . $employeeService . ".";
+                            }
+                        }
+                        else
+                        {
+                            $this->addAdminAlert();
+                            $this->registerAccessAttempt($this->getSiteUser()->getID(), $FormName, 0);
+                            Log::info($FormName . " - Could not create a new member.");
+                            $employeeService        =   str_replace("[errorNumber]", "Could not create a new employee.", self::POLICY_LinkEmployeeService );
+                            $SignupFormMessages[]   =   "Sorry, we cannot complete the signup process at this time.
+                                                        Please refresh, and if the issue continues, contact " . $employeeService . ".";
+                        }
+                    }
+                    else
+                    {
+                        $FormErrors   =   $validator->messages()->toArray();
+                        $FormMessages =   array();
+                        foreach($FormErrors as $errors)
+                        {
+                            $FormMessages[]   =   $errors[0];
+                        }
+
+                        if(array_key_exists('errors', $passwordCheck))
+                        {
+                            foreach($passwordCheck['errors'] as $errors)
+                            {
+                                $FormMessages[]   =   $errors;
+                            }
+                        }
+
+                        $this->registerAccessAttempt($this->getSiteUser()->getID(),$FormName, 0);
+                        Log::info($FormName . " - form values did not pass.");
+                    }
+                }
+                else
+                {
+                    $this->registerAccessAttempt($this->getSiteUser()->getID(), $FormName, 0);
+                    $this->addAdminAlert();
+                    Log::warning($FormName . " has invalid dummy variables passed.");
+                    $returnToRoute  =   array
+                                        (
+                                            'name'  =>  'custom-error',
+                                            'data'  =>  array('errorNumber' => 23),
+                                        );
+                }
+            }
+            else
+            {
+                $this->applyLock('Locked:Excessive-Signup-Attempts', '','excessive-signups', []);
+                $returnToRoute  =   array
+                                    (
+                                        'name'  =>  'custom-error',
+                                        'data'  =>  array('errorNumber' => 18),
+                                    );
+            }
+        }
+        else
+        {
+            Log::warning($FormName . " is not being correctly posted to.");
+            $returnToRoute  =   array
+                                (
+                                    'name'  =>  'custom-error',
+                                    'data'  =>  array('errorNumber' => 23),
+                                );
+        }
+
+        if(FALSE != $returnToRoute['name'])
+        {
+            return Redirect::route($returnToRoute['name'],$returnToRoute['data']);
+        }
+        else
+        {
+            $viewData   =   array(
+                'activity'                  =>  "signup",
+
+                'LoginAttemptMessages'      =>  '',
+
+                'LoginFormMessages'         =>  '',
+                'SignupFormMessages'        =>  (count($FormMessages) >= 1 ? $FormMessages : ''),
+                'ForgotFormMessages'        =>  '',
+
+                'LoginHeaderMessage'        =>  ''
+            );
+            return $this->makeResponseView('application/auth/login', $viewData);
+        }
+    }
+
+    public function vendorSignup()
+    {
+        $this->activity     =   "signup";
+        $this->reason       =   "";
+        return $this->showAccess();
+    }
+
+    public function freelancerSignup()
+    {
+        $this->activity     =   "signup";
+        $this->reason       =   "";
+        return $this->showAccess();
+    }
+
+    public function forgot()
+    {
+        $this->activity     =   "forgot";
+        $this->reason       =   "";
+        return $this->showAccess();
+    }
+
+    public function processForgotPassword()
+    {
+        $FormName			=	"ForgotForm";
+        $returnToRoute      =   array
+                                (
+                                    'name'  =>  FALSE,
+                                    'data'  =>  FALSE,
+                                );
+        $FormMessages       =   "";
+
+        if(Request::isMethod('post'))
+        {
+            $Attempts       =   $this->getAccessAttemptByUserIDs
+				                (
+				                    'ForgotForm',
+				                    array($this->getSiteUser()->id),
+				                    self::POLICY_AllowedAttemptsLookBackDuration
+				                );
+
+            if($Attempts['total'] < self::POLICY_AllowedForgotAttempts)
+            {
+                if($this->isFormClean($FormName, Input::all()))
+                {
+
+                    $formFields     =   array
+                                        (
+                                            'forgot_email'              =>  Input::get('forgot_email'),
+                                            'recaptcha_response_field'  =>  Input::get('recaptcha_response_field'),
+                                        );
+                    $formRules      =   array
+                                        (
+                                            'forgot_email'              =>  array
+                                                                            (
+                                                                                'required',
+                                                                                'email',
+                                                                                'exists:employee_emails,email_address',
+                                                                                'between:5,120',
+                                                                            ),
+                                            'recaptcha_response_field'  =>  array
+                                                                            (
+                                                                                'required',
+                                                                                'recaptcha',
+                                                                            ),
+                                        );
+                    $formMessages   =   array
+                                        (
+                                            'forgot_email.required'            =>  "Your email address is required and can not be empty.",
+                                            'forgot_email.email'               =>  "Your email address format is invalid.",
+                                            'forgot_email.exists'              =>  "Are you sure you've <a href='/signup'>signed up</a>?",
+                                            'forgot_email.between'             =>  "Please, re-check your email address' size.",
+
+                                            'recaptcha_response_field.required'     =>  "Please enter the reCaptcha value.",
+                                            'recaptcha_response_field.recaptcha'    =>  "Your reCaptcha entry is incorrect.",
+                                        );
+
+                    $validator      =   Validator::make($formFields, $formRules, $formMessages);
+
+                    if ($validator->passes())
+                    {
+                        $this->addEmployeeEmailStatus($formFields['forgot_email'], 'Forgot');
+
+                        $NewMemberID    =   $this->getEmployeeMemberIDFromEmailAddress($formFields['forgot_email']);
+
+                        // Send an Email for Validation
+                        $verifyEmailLink    =   $this->generateVerifyEmailLink($formFields['forgot_email'], $NewMemberID, 'forgot-logins-success');
+                        $EmployeeDetails      =   $this->getEmployeeDetailsFromMemberID($NewMemberID);
+                        $sendEmailStatus    =   $this->sendEmail
+					                            (
+					                                'forgot-logins-success',
+					                                array
+					                                (
+					                                    'verifyEmailLink'   => $verifyEmailLink,
+					                                    'first_name'	    =>	$EmployeeDetails->first_name,
+					                                    'last_name'			=>	$EmployeeDetails->last_name,
+					                                ),
+					                                array
+					                                (
+					                                    'fromTag'           =>  'General',
+					                                    'sendToEmail'       =>  $formFields['forgot_email'],
+					                                    'sendToName'        =>  $EmployeeDetails->first_name . ' ' . $EmployeeDetails->last_name,
+					                                    'subject'           =>  'Access Issues',
+					                                    'ccArray'           =>  FALSE,
+					                                    'attachArray'       =>  FALSE,
+					                                )
+					                            );
+                        $this->registerAccessAttempt($FormName, $FormName, 1);
+                        $viewData   =   array
+                        (
+                            'emailAddress' => $formFields['forgot_email'],
+                        );
+                        return $this->makeResponseView('application/auth/forgot-success', $viewData);
+                    }
+                    else
+                    {
+                        $FormErrors   =   $validator->messages()->toArray();
+                        $FormMessages =   array();
+                        foreach($FormErrors as $errors)
+                        {
+                            $FormMessages[]   =   $errors[0];
+                        }
+
+                        $this->registerAccessAttempt($this->getSiteUser()->getID(),$FormName, 0);
+                        Log::info($FormName . " - form values did not pass.");
+                    }
+                }
+                else
+                {
+                    $this->registerAccessAttempt($this->getSiteUser()->getID(), $FormName, 0);
+                    $this->addAdminAlert();
+                    Log::warning($FormName . " has invalid dummy variables passed.");
+                    $returnToRoute  =   array
+                    (
+                        'name'  =>  'custom-error',
+                        'data'  =>  array('errorNumber' => 23),
+                    );
+                }
+            }
+            else
+            {
+                $this->applyLock('Locked:Excessive-ForgotLogin-Attempts', Input::get('forgot_email'),'excessive-forgot-logins', []);
+                $returnToRoute  =   array
+                (
+                    'name'  =>  'custom-error',
+                    'data'  =>  array('errorNumber' => 20),
+                );
+            }
+        }
+        else
+        {
+            Log::warning($FormName . " is not being correctly posted to.");
+            $returnToRoute  =   array
+            (
+                'name'  =>  'custom-error',
+                'data'  =>  array('errorNumber' => 23),
+            );
+        }
+
+        if(FALSE != $returnToRoute['name'])
+        {
+            return Redirect::route($returnToRoute['name'],$returnToRoute['data']);
+        }
+        else
+        {
+            $viewData           =   array
+                                    (
+                                        'FormMessages'  =>  $FormMessages,
+                                    );
+            return $this->makeResponseView('application/auth/forgot-success', $viewData);
+        }
     }
 
     public function processVerificationDetails()
@@ -615,7 +1269,7 @@ class AdminAuthController extends BaseController
 
                         if ($validator->passes())
                         {
-                            $memberDetailsExist     =   $this->doMemberDetailsExist($verifiedMemberIDArray['memberID']);
+                            $memberDetailsExist     =   $this->doEmployeeDetailsExist($verifiedMemberIDArray['memberID']);
 
                             // Add Member Details
                             $detailsFillableArray   =   array
@@ -635,11 +1289,11 @@ class AdminAuthController extends BaseController
                                                         );
                             if($memberDetailsExist)
                             {
-                                $this->updateMemberDetails($verifiedMemberIDArray['memberID'], $detailsFillableArray);
+                                $this->updateEmployeeDetails($verifiedMemberIDArray['memberID'], $detailsFillableArray);
                             }
                             else
                             {
-                                $this->addMemberDetails($verifiedMemberIDArray['memberID'], $detailsFillableArray);
+                                $this->addEmployeeDetails($verifiedMemberIDArray['memberID'], $detailsFillableArray);
                             }
 
                             // Update Member Object with Member Type
@@ -648,9 +1302,9 @@ class AdminAuthController extends BaseController
                                                             'member_type'   =>  $this->getMemberTypeFromFromValue(strtolower($formFields['member_type'])),
                                                         );
                             $this->updateMember($verifiedMemberIDArray['memberID'], $memberFillableArray);
-                            $this->addMemberStatus('VerifiedStartupDetails', $verifiedMemberIDArray['memberID']);
-                            $this->addMemberStatus('ValidMember', $verifiedMemberIDArray['memberID']);
-                            $this->addMemberSiteStatus('Member startup details complete.', $verifiedMemberIDArray['memberID']);
+                            $this->addEmployeeStatus('VerifiedStartupDetails', $verifiedMemberIDArray['memberID']);
+                            $this->addEmployeeStatus('ValidMember', $verifiedMemberIDArray['memberID']);
+                            $this->addEmployeeSiteStatus('Member startup details complete.', $verifiedMemberIDArray['memberID']);
 
                             // Successful Verification Notification Email
                             $this->sendEmail
@@ -680,7 +1334,7 @@ class AdminAuthController extends BaseController
                                                 'emailAddress'  =>  $verifiedMemberIDArray['email'],
                                             );
 
-                            return  $this->makeResponseView('admin/auth/verification-details-success', $viewData);
+                            return  $this->makeResponseView('application/auth/verification-details-success', $viewData);
                         }
                         else
                         {
@@ -756,7 +1410,7 @@ class AdminAuthController extends BaseController
                                 'zipCode'       =>  Input::get('zipcode'),
                                 'VerificationDetailsFormMessages'   => $VerificationDetailsFormMessages,
                             );
-            return  $this->makeResponseView('admin/auth/verified_email_success', $viewData);
+            return  $this->makeResponseView('application/auth/verified_email_success', $viewData);
         }
     }
 
@@ -769,14 +1423,14 @@ class AdminAuthController extends BaseController
      */
     public function verifyEmail($vCode)
     {
-        $returnToRoute          =   array
-                                    (
-                                        'name'  =>  FALSE,
-                                        'data'  =>  FALSE,
-                                    );
+        $returnToRoute  =   array
+                            (
+                                'name'  =>  FALSE,
+                                'data'  =>  FALSE,
+                            );
 
         /**
-         * Must return both email and member id bc a member can have more than one email address
+         * Must return both email and member id because a member may have more than one email address
          */
         $verifiedMemberIDArray  =   $this->verifyEmailByLinkAndGetMemberIDArray($vCode, 'VerificationDetailsForm');
 
@@ -795,17 +1449,17 @@ class AdminAuthController extends BaseController
                 {
                     if ($verifiedMemberIDArray['alreadyVerified'] === 0)
                     {
-                        // Create New Member Status for this member identifying as verified and starting trial
-                        $this->addMemberStatus('VerifiedEmail', $verifiedMemberIDArray['memberID']);
+                        // Create New Employee Status for this member identifying as verified
+                        $this->addEmployeeStatus('VerifiedEmail', $verifiedMemberIDArray['memberID']);
 
-                        $this->updateMemberEmail($verifiedMemberIDArray['memberID'], array
+                        $this->updateEmployeeEmail($verifiedMemberIDArray['memberID'], array
                         (
                             'verified'     =>  1,
                             'verified_on'  =>  strtotime('now'),
                         ));
                     }
 
-                    $this->addEmailStatus($verifiedMemberIDArray['email'], 'Verified');
+                    $this->addEmployeeEmailStatus($verifiedMemberIDArray['email'], 'Verified');
                 }
 	            else
 	            {
@@ -845,7 +1499,7 @@ class AdminAuthController extends BaseController
         }
         else
         {
-            // Create Member Details Form - also force to add name, gender, customer type and zip code and time zone in form
+            // Create Employee Details Form - also force to add name, gender, employee type and zip code and time zone in form
             $viewData   =   array
                             (
                                 'vcode'         =>  $vCode,
@@ -856,7 +1510,7 @@ class AdminAuthController extends BaseController
                                 'zipCode'       =>  '',
                                 'VerificationDetailsFormMessages'   => (isset($VerificationDetailsFormMessages) && $VerificationDetailsFormMessages != '' ?: ''),
                             );
-            return $this->makeResponseView('admin/auth/verified_email_success', $viewData);
+            return $this->makeResponseView('application/auth/verified_email_success', $viewData);
         }
     }
 
@@ -875,7 +1529,7 @@ class AdminAuthController extends BaseController
                                     'vcode'         =>  $vCode,
                                     'FormMessages'  =>  $FormMessages,
                                 );
-        return $this->makeResponseView('admin/auth/change-password-with-verified-email-link', $viewData);
+        return $this->makeResponseView('application/auth/change-password-with-verified-email-link', $viewData);
     }
 
     public function postChangePasswordWithVerifyEmailLink()
@@ -926,7 +1580,7 @@ class AdminAuthController extends BaseController
                                                                                         (
                                                                                             'required',
                                                                                             'email',
-                                                                                            'exists:member_emails,email_address',
+                                                                                            'exists:employee_emails,email_address',
                                                                                             'between:5,120',
                                                                                         ),
                                                         'password'                  =>  array
@@ -969,9 +1623,9 @@ class AdminAuthController extends BaseController
 	                                if( $vcodeDetails['email'] ==  $formFields['change_verify_member'])
 	                                {
 		                                // Current Member Email Status Should be Forgot
-		                                if($this->getEmailStatus($vcodeDetails['email']) == 'Forgot')
+		                                if($this->getEmployeeEmailStatus($vcodeDetails['email']) == 'Forgot')
 		                                {
-			                                $this->addEmailStatus($vcodeDetails['email'], 'Remembered');
+			                                $this->addEmployeeEmailStatus($vcodeDetails['email'], 'Remembered');
 
 			                                $LoginCredentials       =   $this->generateLoginCredentials($vcodeDetails['email'], $formFields['password']);
 					                        $memberFillableArray    =   array
@@ -982,29 +1636,29 @@ class AdminAuthController extends BaseController
 					                                                        'salt3'             =>  $LoginCredentials[3],
 					                                                    );
                                             $this->updateMember($vcodeDetails['memberID'], $memberFillableArray);
-                                            $this->addMemberStatus("ChangedPassword", $vcodeDetails['memberID']);
-                                            $this->addMemberStatus("ValidMember", $vcodeDetails['memberID']);
-                                            $this->addMemberSiteStatus("Member has changed their password.", $vcodeDetails['memberID']);
+                                            $this->addEmployeeStatus("ChangedPassword", $vcodeDetails['memberID']);
+                                            $this->addEmployeeStatus("ValidMember", $vcodeDetails['memberID']);
+                                            $this->addEmployeeSiteStatus("Member has changed their password.", $vcodeDetails['memberID']);
 
 			                                $this->registerAccessAttempt($this->getSiteUser()->getID(),$FormName, 1);
 
 			                                $successMessage[]       =   'Congratulations. You have successfully changed your password!';
                                             Session::put('successFlashMessage', $successMessage);
 
-			                                $MemberDetailsObject    =   $this->getMemberDetailsFromMemberID($vcodeDetails['memberID']);
+			                                $EmployeeDetailsObject    =   $this->getEmployeeDetailsFromMemberID($vcodeDetails['memberID']);
 			                                $sendEmailStatus        =   $this->sendEmail
 				                                                        (
 				                                                            'genericPasswordChange',
 				                                                            array
 				                                                            (
-				                                                                'first_name' 	=> 	$MemberDetailsObject->getMemberDetailsFirstName(),
-																				'last_name' 	=> 	$MemberDetailsObject->getMemberDetailsLastName(),
+				                                                                'first_name' 	=> 	$EmployeeDetailsObject->getEmployeeDetailsFirstName(),
+																				'last_name' 	=> 	$EmployeeDetailsObject->getEmployeeDetailsLastName(),
 				                                                            ),
 				                                                            array
 				                                                            (
 				                                                                'fromTag'       =>  'General',
 				                                                                'sendToEmail'   =>  $vcodeDetails['email'],
-				                                                                'sendToName'    =>  $MemberDetailsObject->getMemberDetailsFullName(),
+				                                                                'sendToName'    =>  $EmployeeDetailsObject->getEmployeeDetailsFullName(),
 				                                                                'subject'       =>  'Password Reset',
 				                                                                'ccArray'       =>  FALSE,
 				                                                                'attachArray'   =>  FALSE,
@@ -1015,19 +1669,19 @@ class AdminAuthController extends BaseController
 		                                                    (
 		                                                        'emailAddress'        =>  $vcodeDetails['email'],
 		                                                    );
-		                                    return $this->makeResponseView('admin/auth/reset-verified-password-success', $viewData);
+		                                    return $this->makeResponseView('application/auth/reset-verified-password-success', $viewData);
 
 		                                }
 		                                else
 		                                {
-			                                $FormMessages[]   =   'Your new access credentials can not be updated at this time. Please retry the link or contact Customer Service';
+			                                $FormMessages[]   =   'Your new access credentials can not be updated at this time. Please retry the link or contact Employee Service';
 			                                $this->registerAccessAttempt($this->getSiteUser()->getID(),$FormName, 0);
-		                                    Log::info($FormName . " - getEmailStatusStatus != 'Forgot'");
+		                                    Log::info($FormName . " - getEmployeeEmailStatusStatus != 'Forgot'");
 		                                }
 	                                }
 	                                else
 	                                {
-		                                $FormMessages[]   =   'Your new access credentials can not be updated at this time. Please retry the link or contact Customer Service';
+		                                $FormMessages[]   =   'Your new access credentials can not be updated at this time. Please retry the link or contact Employee Service';
 		                                $this->registerAccessAttempt($this->getSiteUser()->getID(),$FormName, 0);
 	                                    Log::info($FormName . " - vcodeDetails['email'] !=  formFields['change_verify_member'].");
 	                                }
@@ -1126,11 +1780,12 @@ class AdminAuthController extends BaseController
         }
         else
         {
-            $viewData   =   array(
-                'vcode'         =>  Input::get('vcode'),
-                'FormMessages'  =>  $FormMessages,
-            );
-            return $this->makeResponseView('admin/auth/change-password-with-verified-email-link', $viewData);
+            $viewData   =   array
+				            (
+				                'vcode'         =>  Input::get('vcode'),
+				                'FormMessages'  =>  $FormMessages,
+				            );
+            return $this->makeResponseView('application/auth/change-password-with-verified-email-link', $viewData);
         }
     }
 
@@ -1152,7 +1807,7 @@ class AdminAuthController extends BaseController
         $ipBin->blockIPAddress($this->getSiteUser()->getID(), $lockStatus, $this->getSiteUser()->getMemberID());
 
 		// Lock the user member status by adding a more current member status of $lockStatus
-		$this->addMemberStatus($lockStatus, $this->getSiteUser()->getMemberID());
+		$this->addEmployeeStatus($lockStatus, $this->getSiteUser()->getMemberID());
 
         /**
          * If an email address is passed we want to use it to inform the user/member that they were locked
@@ -1174,18 +1829,18 @@ class AdminAuthController extends BaseController
             if ($validator->passes())
             {
                 // if email is in our database
-                if($this->isEmailVerified($contactEmail))
+                if($this->isEmployeeEmailVerified($contactEmail))
                 {
-                    $MemberEmails       =   new MemberEmails();
-                    $memberID           =   $MemberEmails->getMemberIDFromEmailAddress($contactEmail);
-                    $memberPriEmail     =   $MemberEmails->getPrimaryEmailAddressFromMemberID($memberID);
-                    $MemberDetailsModel =   MemberDetails::where('member_id', '=', $memberID)->first();
-                    $sendToName         =   ($MemberDetailsModel->first_name != "" && $MemberDetailsModel->last_name != ""
-                                                ?   $MemberDetailsModel->first_name . " " . $MemberDetailsModel->last_name
-                                                :   "Ekinect Member");
+                    $EmployeeEmails         =   new EmployeeEmails();
+                    $memberID               =   $EmployeeEmails->getEmployeeMemberIDFromEmailAddress($contactEmail);
+                    $memberPriEmail         =   $EmployeeEmails->getEmployeePrimaryEmailAddressFromMemberID($memberID);
+                    $EmployeeDetailsModel   =   EmployeeDetails::where('member_id', '=', $memberID)->first();
+                    $sendToName             =   ($EmployeeDetailsModel->first_name != "" && $EmployeeDetailsModel->last_name != ""
+	                                                ?   $EmployeeDetailsModel->first_name . " " . $EmployeeDetailsModel->last_name
+	                                                :   "Ekinect Member");
 
                     // Lock the member
-                    $this->addMemberStatus($lockStatus, $memberID);
+                    $this->addEmployeeStatus($lockStatus, $memberID);
 
                     // Email Options for a Member
                     $messageOptionsArray    =   $this->getLockMessageOptions($lockStatus) + ['sendToEmail'   =>  $memberPriEmail, 'sendToName' => $sendToName,];
@@ -1205,8 +1860,8 @@ class AdminAuthController extends BaseController
     {
         switch($lockStatus)
         {
-            case 'Locked:Excessive-EmployeeLogin-Attempts'                      :   $messageOptionsArray    =   [
-                                                                                'fromTag'       =>  'Customer Service',
+            case 'Locked:Excessive-Login-Attempts'                      :   $messageOptionsArray    =   [
+                                                                                'fromTag'       =>  'Employee Service',
                                                                                 'subject'       =>  'Profile Change Notification',
                                                                                 'ccArray'       =>  FALSE,
                                                                                 'attachArray'   =>  FALSE,
@@ -1214,7 +1869,7 @@ class AdminAuthController extends BaseController
                                                                             break;
 
             case 'Locked:Excessive-Signup-Attempts'                     :   $messageOptionsArray    =   [
-                                                                                'fromTag'       =>  'Customer Service',
+                                                                                'fromTag'       =>  'Employee Service',
                                                                                 'subject'       =>  'Profile Change Notification',
                                                                                 'ccArray'       =>  FALSE,
                                                                                 'attachArray'   =>  FALSE,
@@ -1222,7 +1877,7 @@ class AdminAuthController extends BaseController
                                                                             break;
 
             case 'Locked:Excessive-ForgotLogin-Attempts'                :   $messageOptionsArray    =   [
-                                                                                'fromTag'       =>  'Customer Service',
+                                                                                'fromTag'       =>  'Employee Service',
                                                                                 'subject'       =>  'Profile Change Notification',
                                                                                 'ccArray'       =>  FALSE,
                                                                                 'attachArray'   =>  FALSE,
@@ -1230,7 +1885,7 @@ class AdminAuthController extends BaseController
                                                                             break;
 
             case 'Locked:Excessive-ChangeVerifiedLinkPassword-Attempts' :   $messageOptionsArray    =   [
-                                                                                'fromTag'       =>  'Customer Service',
+                                                                                'fromTag'       =>  'Employee Service',
                                                                                 'subject'       =>  'Profile Change Notification',
                                                                                 'ccArray'       =>  FALSE,
                                                                                 'attachArray'   =>  FALSE,
@@ -1238,7 +1893,7 @@ class AdminAuthController extends BaseController
                                                                             break;
 
             case 'Locked:Excessive-ChangeOldPassword-Attempts'          :   $messageOptionsArray    =   [
-                                                                                'fromTag'       =>  'Customer Service',
+                                                                                'fromTag'       =>  'Employee Service',
                                                                                 'subject'       =>  'Profile Change Notification',
                                                                                 'ccArray'       =>  FALSE,
                                                                                 'attachArray'   =>  FALSE,
@@ -1246,7 +1901,7 @@ class AdminAuthController extends BaseController
                                                                             break;
 
             case 'Locked:Excessive-LostSignupVerification-Attempts'     :   $messageOptionsArray    =   [
-                                                                                'fromTag'       =>  'Customer Service',
+                                                                                'fromTag'       =>  'Employee Service',
                                                                                 'subject'       =>  'Profile Change Notification',
                                                                                 'ccArray'       =>  FALSE,
                                                                                 'attachArray'   =>  FALSE,
@@ -1261,6 +1916,36 @@ class AdminAuthController extends BaseController
     }
 
 
+
+
+
+
+
+    public function generateVerifyEmailLink($memberEmail, $memberID, $emailTemplateName )
+    {
+        $siteSalt           =   $_ENV['ENCRYPTION_KEY_SITE_default_salt'];
+
+        $a                  =   base64_encode($this->twoWayCrypt('e',$memberEmail,$siteSalt));      // email address
+        $b                  =   base64_encode($this->createHash($memberID,$siteSalt));              // one-way hashed mid
+        $c                  =   base64_encode($this->twoWayCrypt('e',strtotime("now"),$siteSalt));  // vCode creation time
+        $addOn              =   str_replace("/", "--::--", $a . self::POLICY_EncryptedURLDelimiter . $b . self::POLICY_EncryptedURLDelimiter . $c);
+        $addOn              =   str_replace("+", "--:::--", $addOn);
+
+		switch($emailTemplateName)
+		{
+			case 'verify-new-member'		:	$router	=	'email-verification';
+												break;
+
+			case 'forgot-logins-success'	:	$router	=	'change-password-verification';
+												break;
+
+			default : throw new \Exception('Invalid Email route passed (' . $emailTemplateName . '.');
+		}
+        #$verifyEmailLink    =   self::POLICY_CompanyURL_protocol . self::POLICY_CompanyURL_prd . $router . "/" . $addOn;
+        $verifyEmailLink    =   (isset($_SERVER['HTTPS']) ? "https" : "http") . "://" . $_SERVER['HTTP_HOST'] . "/" . $router . "/" . $addOn;
+
+        return $verifyEmailLink;
+    }
 
 
     public function getAccessAttemptByUserIDs($accessFormName, $userIDArray, $timeFrame)
@@ -1298,12 +1983,12 @@ class AdminAuthController extends BaseController
         }
     }
 
-    public function getEmailStatus($emailAddress)
+    public function getEmployeeEmailStatus($emailAddress)
     {
         try
         {
-            $EmailStatus    =   new EmailStatus();
-            return $EmailStatus->getEmailStatus($emailAddress);
+            $EmailStatus    =   new EmployeeEmailStatus();
+            return $EmailStatus->getEmployeeEmailStatus($emailAddress);
         }
         catch(\Whoops\Example\Exception $e)
         {
@@ -1312,12 +1997,12 @@ class AdminAuthController extends BaseController
         }
     }
 
-    public function addEmailStatus($emailAddress, $status)
+    public function addEmployeeEmailStatus($emailAddress, $status)
     {
         try
         {
-            $EmailStatus    =   new EmailStatus();
-            $EmailStatus->addEmailStatus($emailAddress, $status);
+            $EmployeeEmailStatus    =   new EmployeeEmailStatus();
+            $EmployeeEmailStatus->addEmployeeEmailStatus($emailAddress, $status);
         }
         catch(\Whoops\Example\Exception $e)
         {
@@ -1329,8 +2014,8 @@ class AdminAuthController extends BaseController
     {
         try
         {
-            $EmailStatus    =   new EmailStatus();
-            return $EmailStatus->checkForPreviousEmailStatus($emailAddress, $status);
+            $EmployeeEmailStatus    =   new EmployeeEmailStatus();
+            return $EmployeeEmailStatus->checkForPreviousEmployeeEmailStatus($emailAddress, $status);
         }
         catch(\Whoops\Example\Exception $e)
         {
@@ -1357,7 +2042,7 @@ class AdminAuthController extends BaseController
             switch($verificationFormName)
             {
                 case 'VerificationDetailsForm'				:	// Check if email from vCode has already been validated and verified (user that clicks the link twice+)
-                    $emailIsAlreadyVerified     =   ($this->isEmailVerified($emailFromVcode) ? 1 : 0);
+                    $emailIsAlreadyVerified     =   ($this->isEmployeeEmailVerified($emailFromVcode) ? 1 : 0);
                     break;
 
                 case 'ChangePasswordWithVerifyLinkForm'		:	// Check ... something
@@ -1380,7 +2065,7 @@ class AdminAuthController extends BaseController
         else
         {
             // custom error
-            $errorMsg   =   "Error #1 - MemberEmailsTable->isVerifyLinkValid returned an invalid member id.";
+            $errorMsg   =   "Error #1 - EmployeeEmailsTable->isVerifyLinkValid returned an invalid member id.";
             Log::info($errorMsg);
             return  array
             (
@@ -1392,12 +2077,12 @@ class AdminAuthController extends BaseController
 
 
 
-    public function getMemberIDFromEmailAddress($emailAddress)
+    public function getEmployeeMemberIDFromEmailAddress($emailAddress)
     {
         try
         {
-            $MemberEmails   =   new MemberEmails();
-            return $MemberEmails->getMemberIDFromEmailAddress($emailAddress);
+            $EmployeeEmails   =   new EmployeeEmails();
+            return $EmployeeEmails->getEmployeeMemberIDFromEmailAddress($emailAddress);
         }
         catch(\Whoops\Example\Exception $e)
         {
@@ -1406,12 +2091,12 @@ class AdminAuthController extends BaseController
         }
     }
 
-    public function getMemberEmailIDFromEmailAddress($emailAddress)
+    public function getEmployeeEmailIDFromEmailAddress($emailAddress)
     {
         try
         {
-            $MemberEmails   =   new MemberEmails();
-            return $MemberEmails->getMemberEmailIDFromEmailAddress($emailAddress);
+            $EmployeeEmails   =   new EmployeeEmails();
+            return $EmployeeEmails->getEmployeeEmailIDFromEmailAddress($emailAddress);
         }
         catch(\Whoops\Example\Exception $e)
         {
@@ -1422,12 +2107,12 @@ class AdminAuthController extends BaseController
 
     public function getMemberIDFromVerifyLink($emailAddress, $memberIDHash)
     {
-        $wasVerificationLinkSent    =   $this->wasVerificationLinkSent($emailAddress);
+        $wasEmployeeVerificationLinkSent    =   $this->wasEmployeeVerificationLinkSent($emailAddress);
 
-        if($wasVerificationLinkSent)
+        if($wasEmployeeVerificationLinkSent)
         {
-            $MemberEmails               =   new MemberEmails();
-            $memberID   =   $MemberEmails->getMemberIDFromEmailAddress($emailAddress);
+            $EmployeeEmails               =   new EmployeeEmails();
+            $memberID   =   $EmployeeEmails->getEmployeeMemberIDFromEmailAddress($emailAddress);
             if($memberID >= 1)
             {
                 return ($this->isVerifyLinkValid($memberID, $memberIDHash)
@@ -1454,27 +2139,27 @@ class AdminAuthController extends BaseController
                     :   FALSE);
     }
 
-    public function addMember($newMemberEmail, $newMemberPassword)
+    public function addEmployee($newEmployeeEmail, $newMemberPassword)
     {
         try
         {
-            $LoginCredentials   =   $this->generateLoginCredentials($newMemberEmail, $newMemberPassword);
+            $LoginCredentials   =   $this->generateLoginCredentials($newEmployeeEmail, $newMemberPassword);
             $NewMember          =   new Member();
-            return $NewMember->addMember($LoginCredentials);
+            return $NewMember->addEmployee($LoginCredentials);
         }
         catch(\Whoops\Example\Exception $e)
         {
-            Log::error("Could not add a new Member identified by this email address [" . $newMemberEmail . "]. " . $e);
+            Log::error("Could not add a new Member identified by this email address [" . $newEmployeeEmail . "]. " . $e);
             return FALSE;
         }
     }
 
-    public function doMemberDetailsExist($memberID)
+    public function doEmployeeDetailsExist($memberID)
     {
         try
         {
-            $MemberDetails    =   new MemberDetails();
-            return $MemberDetails->doMemberDetailsExist($memberID);
+            $EmployeeDetails    =   new EmployeeDetails();
+            return $EmployeeDetails->doEmployeeDetailsExist($memberID);
         }
         catch(\Whoops\Example\Exception $e)
         {
@@ -1483,12 +2168,12 @@ class AdminAuthController extends BaseController
         }
     }
 
-    public function addMemberEmail($memberEmail, $memberID)
+    public function addEmployeeEmail($memberEmail, $memberID)
     {
         try
         {
-            $NewMemberEmail    =   new MemberEmails();
-            return $NewMemberEmail->addMemberEmail($memberEmail, $memberID);
+            $NewEmployeeEmail    =   new EmployeeEmails();
+            return $NewEmployeeEmail->addEmployeeEmail($memberEmail, $memberID);
         }
         catch(\Whoops\Example\Exception $e)
         {
@@ -1497,26 +2182,26 @@ class AdminAuthController extends BaseController
         }
     }
 
-    public function updateMemberEmail($memberEmailsID, $fillableArray)
+    public function updateEmployeeEmail($employeeEmailsID, $fillableArray)
     {
         try
         {
-            $MemberEmail    =   new MemberEmails();
-            return $MemberEmail->updateMemberEmail($memberEmailsID, $fillableArray);
+            $EmployeeEmail    =   new EmployeeEmails();
+            return $EmployeeEmail->updateEmployeeEmail($employeeEmailsID, $fillableArray);
         }
         catch(\Whoops\Example\Exception $e)
         {
-            Log::error("Could not update MemberEmails ID [" . $memberEmailsID . "] - " . $e);
+            Log::error("Could not update EmployeeEmails ID [" . $employeeEmailsID . "] - " . $e);
             return FALSE;
         }
     }
 
-    public function addMemberDetails($memberID, $fillableArray)
+    public function addEmployeeDetails($memberID, $fillableArray)
     {
         try
         {
-            $NewMemberDetail    =   new MemberDetails();
-            return $NewMemberDetail->addMemberDetails($memberID, $fillableArray);
+            $NewEmployeeDetail    =   new EmployeeDetails();
+            return $NewEmployeeDetail->addEmployeeDetails($memberID, $fillableArray);
         }
         catch(\Whoops\Example\Exception $e)
         {
@@ -1525,12 +2210,12 @@ class AdminAuthController extends BaseController
         }
     }
 
-    public function updateMemberDetails($memberID, $fillableArray)
+    public function updateEmployeeDetails($memberID, $fillableArray)
     {
         try
         {
-            $MemberDetails    =   new MemberDetails();
-            return $MemberDetails->updateMemberDetails($memberID, $fillableArray);
+            $EmployeeDetails    =   new EmployeeDetails();
+            return $EmployeeDetails->updateEmployeeDetails($memberID, $fillableArray);
         }
         catch(\Whoops\Example\Exception $e)
         {

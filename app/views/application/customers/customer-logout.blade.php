@@ -93,8 +93,8 @@
                                You have been logged out
                             </h1>
                             <br> <br>
-                            <p><?php echo (Session::has('memberLogoutMessage')
-                                            ? Session::pull('memberLogoutMessage')
+                            <p><?php echo (Session::has('customerLogoutMessage')
+                                            ? Session::pull('customerLogoutMessage')
                                             : 'Feel free to return anytime. In fact, you can do it now by clicking the button LOGIN button above!' )?></p>
                             <a href="/" class="btn btn-large btn-inverse">Back to homepage</a>
                         </div>

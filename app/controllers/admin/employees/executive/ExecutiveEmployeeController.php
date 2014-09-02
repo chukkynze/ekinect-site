@@ -11,7 +11,7 @@
   */
  
 
-class VendorController extends AbstractVendorController
+class ExecutiveEmployeeController extends AbstractExecutiveEmployeeController
 {
 
     public function __construct()

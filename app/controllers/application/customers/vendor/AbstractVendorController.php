@@ -11,12 +11,43 @@
      */
 
 
-class AbstractVendorController extends AbstractMemberController
+class AbstractVendorController extends AbstractCustomerController
 {
     use MemberControls;
+    use CustomerControls;
+    use SecurityControls;
 
     public $layoutData;
-    public $viewRootFolder = 'application/customer/vendor/';
+    public $viewRootFolder = 'application/customers/vendor/';
+	
+	public $vendorNamePrefix;
+    public $vendorFirstName;
+    public $vendorMidName1;
+    public $vendorMidName2;
+    public $vendorLastName;
+    public $vendorFullName;
+    public $vendorDisplayName;
+    public $vendorNameSuffix;
+
+    public $vendorGender;
+    public $vendorGenderRaw;
+    public $vendorBirthDate;
+
+    public $vendorPersonalSummary;
+
+    public $vendorLargeProfilePicUrl;
+    public $vendorMediumProfilePicUrl;
+    public $vendorSmallProfilePicUrl;
+    public $vendorXSmallProfilePicUrl;
+
+    public $vendorPersonalWebsiteLink;
+    public $vendorSocialLinkLinkedIn;
+    public $vendorSocialLinkGooglePlus;
+    public $vendorSocialLinkTwitter;
+    public $vendorSocialLinkFacebook;
+
+    public $vendorHomeLink;
+    public $vendorProfileLink;
 
     /**
      * The layout that should be used for responses.
@@ -30,7 +61,6 @@ class AbstractVendorController extends AbstractMemberController
 
         $this->layoutData         =   $this->getCloudLayoutVariables("array");
     }
-
 
     /**
      * @param \Illuminate\View\View $layout
@@ -48,19 +78,17 @@ class AbstractVendorController extends AbstractMemberController
         return $this->layout;
     }
 
-
-
     public function vendorLogout()
     {
         // Perform vendor specific action before logging out
+		$this->addCustomerSiteStatus("Vendor successfully logged out.", $this->customerID);
 
-        $this->memberLogout();
+	    // Generic Customer logout Activities
+	    $this->customerLogout();
 
         // Redirect to the logged out page
-        return $this->makeResponseView('application/customer/member-logout', array());
+        return $this->makeResponseView('application/customers/customer-logout', array());
     }
-
-
 
     public function forceVendorLogout()
     {
@@ -82,39 +110,37 @@ class AbstractVendorController extends AbstractMemberController
      */
     public function getCloudLayoutVariables($outputFormat="array")
     {
-        $MemberDetailsObject	            =	$this->getMemberDetailsObject($this->memberDetailsID);
-
-		/**
+        /**
 		 * Update Class Properties
 		 */
-		$this->memberNamePrefix   			=   $MemberDetailsObject->getMemberDetailsPrefix("text");
-		$this->memberFirstName   			=   $MemberDetailsObject->getMemberDetailsFirstName();
-		$this->memberMidName1   			=   $MemberDetailsObject->getMemberDetailsMidName1();
-		$this->memberMidName2  				=   $MemberDetailsObject->getMemberDetailsMidName2();
-    	$this->memberLastName   			=   $MemberDetailsObject->getMemberDetailsLastName();
-    	$this->memberFullName				=	$MemberDetailsObject->getMemberDetailsFullName();
-    	$this->memberDisplayName			=	$MemberDetailsObject->getMemberDetailsDisplayName();
-    	$this->memberNameSuffix				=	$MemberDetailsObject->getMemberDetailsSuffix("text");
+		$this->vendorNamePrefix   			=   $this->customerDetails->getCustomerDetailsPrefix("text");
+		$this->vendorFirstName   			=   $this->customerDetails->getCustomerDetailsFirstName();
+		$this->vendorMidName1   			=   $this->customerDetails->getCustomerDetailsMidName1();
+		$this->vendorMidName2  				=   $this->customerDetails->getCustomerDetailsMidName2();
+    	$this->vendorLastName   			=   $this->customerDetails->getCustomerDetailsLastName();
+    	$this->vendorFullName				=	$this->customerDetails->getCustomerDetailsFullName();
+    	$this->vendorDisplayName			=	$this->customerDetails->getCustomerDetailsDisplayName();
+    	$this->vendorNameSuffix				=	$this->customerDetails->getCustomerDetailsSuffix("text");
 
-    	$this->memberGender					=	$MemberDetailsObject->getMemberDetailsGender('text');
-    	$this->memberGenderRaw				=	$MemberDetailsObject->getMemberDetailsGender('raw');
-    	$this->memberBirthDate				=	$MemberDetailsObject->getMemberDetailsBirthDate();
+    	$this->vendorGender					=	$this->customerDetails->getCustomerDetailsGender('text');
+    	$this->vendorGenderRaw				=	$this->customerDetails->getCustomerDetailsGender('raw');
+    	$this->vendorBirthDate				=	$this->customerDetails->getCustomerDetailsBirthDate();
 
-		$this->memberPersonalSummary		=	$MemberDetailsObject->getMemberDetailsPersonalSummary();
+		$this->vendorPersonalSummary		=	$this->customerDetails->getCustomerDetailsPersonalSummary();
 
-		$this->memberLargeProfilePicUrl 	=	$MemberDetailsObject->getMemberDetailsProfilePicUrl();
-		$this->memberMediumProfilePicUrl 	=	$MemberDetailsObject->getMemberDetailsProfilePicUrl();
-		$this->memberSmallProfilePicUrl 	=	$MemberDetailsObject->getMemberDetailsProfilePicUrl();
-		$this->memberXSmallProfilePicUrl 	=	$MemberDetailsObject->getMemberDetailsProfilePicUrl();
+		$this->vendorLargeProfilePicUrl 	=	$this->customerDetails->getCustomerDetailsProfilePicUrl();
+		$this->vendorMediumProfilePicUrl 	=	$this->customerDetails->getCustomerDetailsProfilePicUrl();
+		$this->vendorSmallProfilePicUrl 	=	$this->customerDetails->getCustomerDetailsProfilePicUrl();
+		$this->vendorXSmallProfilePicUrl 	=	$this->customerDetails->getCustomerDetailsProfilePicUrl();
 
-		$this->memberPersonalWebsiteLink 	=	$MemberDetailsObject->getMemberDetailsPersonalSiteUrl();
-		$this->memberSocialLinkLinkedIn 	=	$MemberDetailsObject->getMemberDetailsLinkedInUrl();
-		$this->memberSocialLinkGooglePlus 	=	$MemberDetailsObject->getMemberDetailsGooglePlusUrl();
-		$this->memberSocialLinkTwitter 		=	$MemberDetailsObject->getMemberDetailsTwitterUrl();
-		$this->memberSocialLinkFacebook		=	$MemberDetailsObject->getMemberDetailsFacebookUrl();
+		$this->vendorPersonalWebsiteLink 	=	$this->customerDetails->getCustomerDetailsPersonalSiteUrl();
+		$this->vendorSocialLinkLinkedIn 	=	$this->customerDetails->getCustomerDetailsLinkedInUrl();
+		$this->vendorSocialLinkGooglePlus 	=	$this->customerDetails->getCustomerDetailsGooglePlusUrl();
+		$this->vendorSocialLinkTwitter 		=	$this->customerDetails->getCustomerDetailsTwitterUrl();
+		$this->vendorSocialLinkFacebook		=	$this->customerDetails->getCustomerDetailsFacebookUrl();
 
-    	$this->memberHomeLink				=	'/vendor/home';
-    	$this->memberProfileLink			=	'/vendor/profile';
+    	$this->vendorHomeLink				=	'/vendor/home';
+    	$this->vendorProfileLink			=	'/vendor/profile';
 
 		/**
 		 * ALERT Dropdown Variables
@@ -163,7 +189,7 @@ class AbstractVendorController extends AbstractMemberController
 										(
 											'messageLink' 			=>	'/vendor/inbox/message/',
 											'messageLinkID'			=>	'1',
-											'messageAvatar'			=>	'/app/customer/vendor/img/avatars/avatar8.jpg',
+											'messageAvatar'			=>	'/app/customers/vendor/theme/img/avatars/avatar8.jpg',
 											'messageAvatarAltText'	=>	'Jane Doe',
 											'messageFromMemberType'	=>	'Signing Agency',
 											'messageFrom'			=>	'Jane Doe',
@@ -177,7 +203,7 @@ class AbstractVendorController extends AbstractMemberController
 										(
 											'messageLink' 			=>	'/vendor/inbox/message/',
 											'messageLinkID'			=>	'2',
-											'messageAvatar'			=>	'/app/customer/vendor/img/avatars/avatar7.jpg',
+											'messageAvatar'			=>	'/app/customers/vendor/theme/img/avatars/avatar7.jpg',
 											'messageAvatarAltText'	=>	'Jane Doe',
 											'messageFromMemberType'	=>	'Vendor',
 											'messageFrom'			=>	'Jane Doe',
@@ -191,7 +217,7 @@ class AbstractVendorController extends AbstractMemberController
 										(
 											'messageLink' 			=>	'/vendor/inbox/message/',
 											'messageLinkID'			=>	'3',
-											'messageAvatar'			=>	'/app/customer/vendor/img/avatars/avatar6.jpg',
+											'messageAvatar'			=>	'/app/customers/vendor/theme/img/avatars/avatar6.jpg',
 											'messageAvatarAltText'	=>	'Jane Doe',
 											'messageFromMemberType'	=>	'Signing Source',
 											'messageFrom'			=>	'Jane Doe',
@@ -205,7 +231,7 @@ class AbstractVendorController extends AbstractMemberController
 										(
 											'messageLink' 			=>	'/vendor/inbox/message/',
 											'messageLinkID'			=>	'3',
-											'messageAvatar'			=>	'/app/customer/vendor/img/avatars/default-male.jpg',
+											'messageAvatar'			=>	'/app/customers/vendor/theme/img/avatars/default-male.jpg',
 											'messageAvatarAltText'	=>	'Jane Doe',
 											'messageFromMemberType'	=>	'Client',
 											'messageFrom'			=>	'Jane Doe',
@@ -219,7 +245,7 @@ class AbstractVendorController extends AbstractMemberController
 										(
 											'messageLink' 			=>	'/vendor/inbox/message/',
 											'messageLinkID'			=>	'3',
-											'messageAvatar'			=>	'/app/customer/vendor/img/avatars/default-male.jpg',
+											'messageAvatar'			=>	'/app/customers/vendor/theme/img/avatars/default-male.jpg',
 											'messageAvatarAltText'	=>	'Jane Doe',
 											'messageFromMemberType'	=>	'Guest',
 											'messageFrom'			=>	'Jane Doe',
@@ -297,15 +323,15 @@ class AbstractVendorController extends AbstractMemberController
 										),
 									);
 
-		$defaultLargeProfilePicUrl  	=	isset($this->memberGender) ? '/app/customer/vendor/img/avatars/default-' . strtolower($this->memberGender) . '-large.jpg'    :   '/app/customer/vendor/img/avatars/default-female-large.jpg';
-		$defaultMediumProfilePicUrl  	=	isset($this->memberGender) ? '/app/customer/vendor/img/avatars/default-' . strtolower($this->memberGender) . '.jpg'          :   '/app/customer/vendor/img/avatars/default-female.jpg';
-		$defaultSmallProfilePicUrl  	=	isset($this->memberGender) ? '/app/customer/vendor/img/avatars/default-' . strtolower($this->memberGender) . '.jpg'          :   '/app/customer/vendor/img/avatars/default-female.jpg';
-		$defaultXSmallProfilePicUrl  	=	isset($this->memberGender) ? '/app/customer/vendor/img/avatars/default-' . strtolower($this->memberGender) . '.jpg'          :   '/app/customer/vendor/img/avatars/default-female.jpg';
+		$defaultLargeProfilePicUrl  	=	isset($this->vendorGender) ? '/app/customers/vendor/theme/img/avatars/default-' . strtolower($this->vendorGender) . '-large.jpg'    :   '/app/customers/vendor/theme/img/avatars/default-female-large.jpg';
+		$defaultMediumProfilePicUrl  	=	isset($this->vendorGender) ? '/app/customers/vendor/theme/img/avatars/default-' . strtolower($this->vendorGender) . '.jpg'          :   '/app/customers/vendor/theme/img/avatars/default-female.jpg';
+		$defaultSmallProfilePicUrl  	=	isset($this->vendorGender) ? '/app/customers/vendor/theme/img/avatars/default-' . strtolower($this->vendorGender) . '.jpg'          :   '/app/customers/vendor/theme/img/avatars/default-female.jpg';
+		$defaultXSmallProfilePicUrl  	=	isset($this->vendorGender) ? '/app/customers/vendor/theme/img/avatars/default-' . strtolower($this->vendorGender) . '.jpg'          :   '/app/customers/vendor/theme/img/avatars/default-female.jpg';
 
-		$memberPicUrlLarge				=	$MemberDetailsObject->getMemberDetailsProfilePicUrl();
-		$memberPicUrlMedium				=	$MemberDetailsObject->getMemberDetailsProfilePicUrl();
-		$memberPicUrlSmall				=	$MemberDetailsObject->getMemberDetailsProfilePicUrl();
-		$memberPicUrlXSmall				=	$MemberDetailsObject->getMemberDetailsProfilePicUrl();
+		$memberPicUrlLarge				=	$this->customerDetails->getCustomerDetailsProfilePicUrl();
+		$memberPicUrlMedium				=	$this->customerDetails->getCustomerDetailsProfilePicUrl();
+		$memberPicUrlSmall				=	$this->customerDetails->getCustomerDetailsProfilePicUrl();
+		$memberPicUrlXSmall				=	$this->customerDetails->getCustomerDetailsProfilePicUrl();
 
 
 		/**
@@ -385,8 +411,8 @@ class AbstractVendorController extends AbstractMemberController
         $output =   array
                     (
                         'memberID'      =>  $this->memberID,
-                        'displayName'  =>  $this->memberDisplayName,
-                        'profileLink'  =>  'vendor/profile',
+                        'displayName'  =>  $this->vendorDisplayName,
+                        'profileLink'  =>  '/vendor/profile',
 
 
                         /**
@@ -427,7 +453,7 @@ class AbstractVendorController extends AbstractMemberController
                          * Custom Ekinect JSS & CSS Files
                          */
                         'turnOnFlotCharts' 						=> 	FALSE,
-                        'ModuleDirectoryReference' 				=>	'vendor/',
+                        'ModuleDirectoryReference' 				=>	'/vendor/',
                         'cloudLayoutJSPageName'					=>	'vendorHome',
                         'actionSpecificCSSFilesArray'			=>	array(),
                         'actionSpecificJSFilesTopArray'			=>	array(),
@@ -468,8 +494,8 @@ class AbstractVendorController extends AbstractMemberController
                         /**
                          * User Login Dropdown Variables
                          */
-                        'memberLoginDropDownDisplayName' 		=> 	$MemberDetailsObject->getMemberDetailsFirstName(),
-                        'memberFullName' 						=> 	$MemberDetailsObject->getMemberDetailsFullName(),
+                        'memberLoginDropDownDisplayName' 		=> 	$this->customerDetails->getCustomerDetailsFirstName(),
+                        'memberFullName' 						=> 	$this->customerDetails->getCustomerDetailsFullName(),
                         'memberHomeLink' 						=> 	'/vendor/home',
                         'memberUserMenuArray' 					=> 	$memberUserMenuArray,
 
@@ -486,13 +512,9 @@ class AbstractVendorController extends AbstractMemberController
         return $this->changeArrayFormat($output, $outputFormat);
     }
 
-
-
-
-
     public function showChangePasswordWithOldPassword()
     {
-        $this->addMemberSiteStatus("Member has chosen to change password.", $this->memberID);
+        $this->addCustomerSiteStatus("Vendor has chosen to change password.", $this->memberID);
 
         $FormMessages       =   '';
         $AttemptMessages    =   '';
@@ -508,7 +530,7 @@ class AbstractVendorController extends AbstractMemberController
 
     public function postChangePasswordWithOldPassword()
     {
-        $this->addMemberSiteStatus("Member is submitting a password change.", $this->memberID);
+        $this->addCustomerSiteStatus("Vendor is submitting a password change.", $this->memberID);
 
         $FormName           =   'ChangePasswordWithOldPasswordForm';
         $AttemptMessages    =   '';
@@ -564,38 +586,77 @@ class AbstractVendorController extends AbstractMemberController
 
                 if ($validator->passes() && $passwordCheck['status'])
                 {
-                    $salts              =   $this->getMemberSaltFromID($this->memberID);
-                    $loginCredentials   =   $this->generateMemberLoginCredentials($this->memberPrimaryEmail, $formFields['current_password'], $salts['salt1'], $salts['salt2'], $salts['salt3']);
+	                // Create current login credentials
+                    $salts                      =   $this->getMemberSaltFromID($this->memberID);
+                    $currentLoginCredentials    =   $this->generateMemberLoginCredentials
+			                                        (
+			                                             $this->customerPrimaryEmail,
+			                                             $formFields['current_password'],
+			                                             $salts['salt1'],
+			                                             $salts['salt2'],
+			                                             $salts['salt3']
+			                                        );
 
-                    // create our user data for the authentication
-                    $authData           =   array
-                                            (
-                                                'id' 	    =>  $this->memberID,
-                                                'password'  =>  $loginCredentials,
-                                            );
+                    $currentAuthData            =   array
+		                                            (
+		                                                'id' 	    =>  $this->memberID,
+		                                                'password'  =>  $currentLoginCredentials,
+		                                            );
 
-                    if (Auth::attempt($authData, true))
+	                // Check if current login credentials work
+                    if (Auth::attempt($currentAuthData, true))
                     {
-                        $LoginCredentials       =   $this->generateLoginCredentials($this->memberPrimaryEmail, $formFields['password']);
-                        $memberFillableArray    =   array
-                                                    (
-                                                        'password'          =>  Hash::make($LoginCredentials[0]),
-                                                        'salt1'             =>  $LoginCredentials[1],
-                                                        'salt2'             =>  $LoginCredentials[2],
-                                                        'salt3'             =>  $LoginCredentials[3],
-                                                    );
-                        $this->updateMember($this->memberID, $memberFillableArray);
-                        $this->addMemberStatus("ChangedPassword.", $this->memberID);
-                        $this->addMemberStatus("ValidMember.", $this->memberID);
-                        $this->addMemberSiteStatus("Member has changed their password.", $this->memberID);
+                        // Ensure customer did not change to same password
+                        $newCheckLoginCredentials   =   $this->generateMemberLoginCredentials
+				                                        (
+				                                             $this->customerPrimaryEmail,
+				                                             $formFields['password'],
+				                                             $salts['salt1'],
+				                                             $salts['salt2'],
+				                                             $salts['salt3']
+				                                        );
+	                    $newCheckAuthData           =   array
+			                                            (
+			                                                'id' 	    =>  $this->memberID,
+			                                                'password'  =>  $newCheckLoginCredentials,
+			                                            );
 
-                        $successMessage[]   =   'Congratulations. You have successfully changed your password!';
-                        Session::put('successFlashMessage', $successMessage);
+	                    if (!Auth::attempt($newCheckAuthData))
+	                    {
+		                    // Create New Login credentials
+	                        $NewLoginCredentials    =   $this->generateLoginCredentials($this->customerPrimaryEmail, $formFields['password']);
+	                        $memberFillableArray    =   array
+	                                                    (
+	                                                        'password'          =>  Hash::make($NewLoginCredentials[0]),
+	                                                        'salt1'             =>  $NewLoginCredentials[1],
+	                                                        'salt2'             =>  $NewLoginCredentials[2],
+	                                                        'salt3'             =>  $NewLoginCredentials[3],
+	                                                    );
+
+	                        $this->updateMember($this->memberID, $memberFillableArray);
+	                        $this->addCustomerStatus("ChangedPassword", $this->memberID);
+	                        $this->addCustomerStatus("ValidMember", $this->memberID);
+	                        $this->addCustomerSiteStatus("Vendor has changed their password.", $this->memberID);
+
+	                        $successMessage[]   =   'Congratulations. You have successfully changed your password!';
+	                        Session::put('successFlashMessage', $successMessage);
+                            $returnToRoute      =   array
+	                                                (
+	                                                    'name'  =>  'showVendorDashboard',
+	                                                    'data'  =>  array(),
+	                                                );
+	                    }
+	                    else
+	                    {
+		                    $FormMessages   =   array();
+		                    $FormMessages[] =   "Please change your password to something new.";
+		                    Log::info($FormName . " - form values did not validate.");
+	                    }
                     }
                     else
                     {
                         $this->addAdminAlert();
-                        Session::put('memberLogoutMessage', 'We did not recognize your login credentials. Please login and retry.');
+                        Session::put('customerLogoutMessage', 'We did not recognize your login credentials. Please login and retry.');
                         Log::info($FormName . " - invalid login credentials.");
                         $returnToRoute  =   $this->forceVendorLogout();
                     }
@@ -623,7 +684,7 @@ class AbstractVendorController extends AbstractMemberController
             else
             {
                 $this->addAdminAlert();
-                Session::put('memberLogoutMessage', 'Unfortunately, there was an issue with your submission. Please login and retry.');
+                Session::put('customerLogoutMessage', 'Unfortunately, there was an issue with your submission. Please login and retry.');
                 Log::warning($FormName . " is not clean.");
                 $returnToRoute  =   $this->forceVendorLogout();
             }
@@ -631,11 +692,10 @@ class AbstractVendorController extends AbstractMemberController
         else
         {
             $this->addAdminAlert();
-            Session::put('memberLogoutMessage', 'Unfortunately, there was an issue with your submission. Please login and retry.');
+            Session::put('customerLogoutMessage', 'Unfortunately, there was an issue with your submission. Please login and retry.');
             Log::info($FormName . " - is not being correctly posted to.");
             $returnToRoute  =   $this->forceVendorLogout();
         }
-
 
 
         if(FALSE != $returnToRoute['name'])
@@ -653,6 +713,5 @@ class AbstractVendorController extends AbstractMemberController
 
             return $this->makeResponseView($this->viewRootFolder . 'change-password-with-old-password', $viewData);
         }
-
     }
 }

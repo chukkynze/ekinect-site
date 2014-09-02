@@ -13,10 +13,40 @@
 
 class AbstractSuperUserEmployeeController extends AbstractEmployeeController
 {
+    use MemberControls;
     use EmployeeControls;
+    use SecurityControls;
 
     public $layoutData;
-    public $viewRootFolder = 'admin/employees/superuser/';
+    public $viewRootFolder = 'admin/employees/';
+
+    public $employeeNamePrefix;
+    public $employeeFirstName;
+    public $employeeMidName1;
+    public $employeeMidName2;
+    public $employeeLastName;
+    public $employeeFullName;
+    public $employeeDisplayName;
+    public $employeeNameSuffix;
+
+    public $employeeGender;
+    public $employeeGenderRaw;
+    public $employeeBirthDate;
+
+    public $employeePersonalSummary;
+
+    public $employeeLargeProfilePicUrl;
+    public $employeeMediumProfilePicUrl;
+    public $employeeSmallProfilePicUrl;
+    public $employeeXSmallProfilePicUrl;
+
+    public $employeeTitle;
+    public $employeeDepartment;
+    public $employeeHireDate;
+    public $employeeFireDate;
+
+    public $employeeHomeLink;
+    public $employeeProfileLink;
 
     /**
      * The layout that should be used for responses.
@@ -53,11 +83,12 @@ class AbstractSuperUserEmployeeController extends AbstractEmployeeController
     public function superUserLogout()
     {
         // Perform superuser specific action before logging out
+		$this->addEmployeeSiteStatus("Successfully logged out.", $this->employeeID);
 
         $this->employeeLogout();
 
         // Redirect to the logged out page
-        return $this->makeResponseView('application/employees/employee-logout', array());
+        return $this->makeResponseView('admin/employees/employee-logout', array());
     }
 
 
@@ -82,39 +113,36 @@ class AbstractSuperUserEmployeeController extends AbstractEmployeeController
      */
     public function getCloudLayoutVariables($outputFormat="array")
     {
-        $EmployeeDetailsObject	                =	$this->getEmployeeDetailsObject($this->employeeDetailsID);
-
-		/**
+        /**
 		 * Update Class Properties
 		 */
-		$this->employeeNamePrefix   			=   $EmployeeDetailsObject->getEmployeeDetailsPrefix("text");
-		$this->employeeFirstName   			    =   $EmployeeDetailsObject->getEmployeeDetailsFirstName();
-		$this->employeeMidName1   			    =   $EmployeeDetailsObject->getEmployeeDetailsMidName1();
-		$this->employeeMidName2  				=   $EmployeeDetailsObject->getEmployeeDetailsMidName2();
-    	$this->employeeLastName   			    =   $EmployeeDetailsObject->getEmployeeDetailsLastName();
-    	$this->employeeFullName				    =	$EmployeeDetailsObject->getEmployeeDetailsFullName();
-    	$this->employeeDisplayName			    =	$EmployeeDetailsObject->getEmployeeDetailsDisplayName();
-    	$this->employeeNameSuffix				=	$EmployeeDetailsObject->getEmployeeDetailsSuffix("text");
+		$this->employeeNamePrefix   			=   $this->employeeDetails->getEmployeeDetailsPrefix("text");
+		$this->employeeFirstName   			    =   $this->employeeDetails->getEmployeeDetailsFirstName();
+		$this->employeeMidName1   			    =   $this->employeeDetails->getEmployeeDetailsMidName1();
+		$this->employeeMidName2  				=   $this->employeeDetails->getEmployeeDetailsMidName2();
+    	$this->employeeLastName   			    =   $this->employeeDetails->getEmployeeDetailsLastName();
+    	$this->employeeFullName				    =	$this->employeeDetails->getEmployeeDetailsFullName();
+    	$this->employeeDisplayName			    =	$this->employeeDetails->getEmployeeDetailsDisplayName();
+    	$this->employeeNameSuffix				=	$this->employeeDetails->getEmployeeDetailsSuffix("text");
 
-    	$this->employeeGender					=	$EmployeeDetailsObject->getEmployeeDetailsGender('text');
-    	$this->employeeGenderRaw				=	$EmployeeDetailsObject->getEmployeeDetailsGender('raw');
-    	$this->employeeBirthDate				=	$EmployeeDetailsObject->getEmployeeDetailsBirthDate();
+    	$this->employeeGender					=	$this->employeeDetails->getEmployeeDetailsGender('text');
+    	$this->employeeGenderRaw				=	$this->employeeDetails->getEmployeeDetailsGender('raw');
+    	$this->employeeBirthDate				=	$this->employeeDetails->getEmployeeDetailsBirthDate();
 
-		$this->employeePersonalSummary		    =	$EmployeeDetailsObject->getEmployeeDetailsPersonalSummary();
+		$this->employeePersonalSummary		    =	$this->employeeDetails->getEmployeeDetailsPersonalSummary();
 
-		$this->employeeLargeProfilePicUrl 	    =	$EmployeeDetailsObject->getEmployeeDetailsProfilePicUrl();
-		$this->employeeMediumProfilePicUrl 	    =	$EmployeeDetailsObject->getEmployeeDetailsProfilePicUrl();
-		$this->employeeSmallProfilePicUrl 	    =	$EmployeeDetailsObject->getEmployeeDetailsProfilePicUrl();
-		$this->employeeXSmallProfilePicUrl 	    =	$EmployeeDetailsObject->getEmployeeDetailsProfilePicUrl();
+		$this->employeeLargeProfilePicUrl 	    =	$this->employeeDetails->getEmployeeDetailsProfilePicUrl();
+		$this->employeeMediumProfilePicUrl 	    =	$this->employeeDetails->getEmployeeDetailsProfilePicUrl();
+		$this->employeeSmallProfilePicUrl 	    =	$this->employeeDetails->getEmployeeDetailsProfilePicUrl();
+		$this->employeeXSmallProfilePicUrl 	    =	$this->employeeDetails->getEmployeeDetailsProfilePicUrl();
 
-		$this->employeePersonalWebsiteLink 	    =	$EmployeeDetailsObject->getEmployeeDetailsPersonalSiteUrl();
-		$this->employeeSocialLinkLinkedIn 	    =	$EmployeeDetailsObject->getEmployeeDetailsLinkedInUrl();
-		$this->employeeSocialLinkGooglePlus 	=	$EmployeeDetailsObject->getEmployeeDetailsGooglePlusUrl();
-		$this->employeeSocialLinkTwitter 		=	$EmployeeDetailsObject->getEmployeeDetailsTwitterUrl();
-		$this->employeeSocialLinkFacebook		=	$EmployeeDetailsObject->getEmployeeDetailsFacebookUrl();
+		$this->employeeTitle 	                =	$this->employeeDetails->getEmployeeDetailsTitle();
+		$this->employeeDepartment 	            =	$this->employeeDetails->getEmployeeDetailsDepartment();
+		$this->employeeHireDate 	            =	$this->employeeDetails->getEmployeeDetailsHireDate();
+		$this->employeeFireDate		            =	$this->employeeDetails->getEmployeeDetailsFireDate();
 
-    	$this->employeeHomeLink				    =	'/superuser/home';
-    	$this->employeeProfileLink			    =	'/superuser/profile';
+    	$this->employeeHomeLink				    =	'/admin/superuser/home';
+    	$this->employeeProfileLink			    =	'/admin/superuser/profile';
 
 		/**
 		 * ALERT Dropdown Variables
@@ -123,7 +151,7 @@ class AbstractSuperUserEmployeeController extends AbstractEmployeeController
 									(
 										array
 										(
-											'alertLink' 			=>	'/superuser/alert/notice/',
+											'alertLink' 			=>	'/admin/superuser/alert/notice/',
 											'alertLinkID'			=>	'1',
 											'alertLabelClass'		=>	'label label-success',
 											'alertIconClass'		=>	'fa fa-user',
@@ -133,7 +161,7 @@ class AbstractSuperUserEmployeeController extends AbstractEmployeeController
 										),
 										array
 										(
-											'alertLink' 			=>	'/superuser/alert/notice/',
+											'alertLink' 			=>	'/admin/superuser/alert/notice/',
 											'alertLinkID'			=>	'1',
 											'alertLabelClass'		=>	'label label-primary',
 											'alertIconClass'		=>	'fa fa-comment',
@@ -143,7 +171,7 @@ class AbstractSuperUserEmployeeController extends AbstractEmployeeController
 										),
 										array
 										(
-											'alertLink' 			=>	'/superuser/alert/notice/',
+											'alertLink' 			=>	'/admin/superuser/alert/notice/',
 											'alertLinkID'			=>	'1',
 											'alertLabelClass'		=>	'label label-warning',
 											'alertIconClass'		=>	'fa fa-lock',
@@ -161,9 +189,9 @@ class AbstractSuperUserEmployeeController extends AbstractEmployeeController
 									(
 										array
 										(
-											'messageLink' 			=>	'/superuser/inbox/message/',
+											'messageLink' 			=>	'/admin/superuser/inbox/message/',
 											'messageLinkID'			=>	'1',
-											'messageAvatar'			=>	'/app/employees/superuser/img/avatars/avatar8.jpg',
+											'messageAvatar'			=>	'/admin/theme/img/avatars/avatar8.jpg',
 											'messageAvatarAltText'	=>	'Jane Doe',
 											'messageFromEmployeeType'	=>	'Signing Agency',
 											'messageFrom'			=>	'Jane Doe',
@@ -175,9 +203,9 @@ class AbstractSuperUserEmployeeController extends AbstractEmployeeController
 										),
 										array
 										(
-											'messageLink' 			=>	'/superuser/inbox/message/',
+											'messageLink' 			=>	'/admin/superuser/inbox/message/',
 											'messageLinkID'			=>	'2',
-											'messageAvatar'			=>	'/app/employees/superuser/img/avatars/avatar7.jpg',
+											'messageAvatar'			=>	'/admin/theme/img/avatars/avatar7.jpg',
 											'messageAvatarAltText'	=>	'Jane Doe',
 											'messageFromEmployeeType'	=>	'Somebody',
 											'messageFrom'			=>	'Jane Doe',
@@ -189,9 +217,9 @@ class AbstractSuperUserEmployeeController extends AbstractEmployeeController
 										),
 										array
 										(
-											'messageLink' 			=>	'/superuser/inbox/message/',
+											'messageLink' 			=>	'/admin/superuser/inbox/message/',
 											'messageLinkID'			=>	'3',
-											'messageAvatar'			=>	'/app/employees/superuser/img/avatars/avatar6.jpg',
+											'messageAvatar'			=>	'/admin/theme/img/avatars/avatar6.jpg',
 											'messageAvatarAltText'	=>	'Jane Doe',
 											'messageFromEmployeeType'	=>	'Signing Source',
 											'messageFrom'			=>	'Jane Doe',
@@ -203,9 +231,9 @@ class AbstractSuperUserEmployeeController extends AbstractEmployeeController
 										),
 										array
 										(
-											'messageLink' 			=>	'/superuser/inbox/message/',
+											'messageLink' 			=>	'/admin/superuser/inbox/message/',
 											'messageLinkID'			=>	'3',
-											'messageAvatar'			=>	'/app/employees/superuser/img/avatars/default-male.jpg',
+											'messageAvatar'			=>	'/admin/theme/img/avatars/default-male.jpg',
 											'messageAvatarAltText'	=>	'Jane Doe',
 											'messageFromEmployeeType'	=>	'Client',
 											'messageFrom'			=>	'Jane Doe',
@@ -217,9 +245,9 @@ class AbstractSuperUserEmployeeController extends AbstractEmployeeController
 										),
 										array
 										(
-											'messageLink' 			=>	'/superuser/inbox/message/',
+											'messageLink' 			=>	'/admin/superuser/inbox/message/',
 											'messageLinkID'			=>	'3',
-											'messageAvatar'			=>	'/app/employees/superuser/img/avatars/default-male.jpg',
+											'messageAvatar'			=>	'/admin/theme/img/avatars/default-male.jpg',
 											'messageAvatarAltText'	=>	'Jane Doe',
 											'messageFromEmployeeType'	=>	'Guest',
 											'messageFrom'			=>	'Jane Doe',
@@ -297,15 +325,15 @@ class AbstractSuperUserEmployeeController extends AbstractEmployeeController
 										),
 									);
 
-		$defaultLargeProfilePicUrl  	=	isset($this->employeeGender) ? '/app/employees/superuser/img/avatars/default-' . strtolower($this->employeeGender) . '-large.jpg'    :   '/app/employees/superuser/img/avatars/default-female-large.jpg';
-		$defaultMediumProfilePicUrl  	=	isset($this->employeeGender) ? '/app/employees/superuser/img/avatars/default-' . strtolower($this->employeeGender) . '.jpg'          :   '/app/employees/superuser/img/avatars/default-female.jpg';
-		$defaultSmallProfilePicUrl  	=	isset($this->employeeGender) ? '/app/employees/superuser/img/avatars/default-' . strtolower($this->employeeGender) . '.jpg'          :   '/app/employees/superuser/img/avatars/default-female.jpg';
-		$defaultXSmallProfilePicUrl  	=	isset($this->employeeGender) ? '/app/employees/superuser/img/avatars/default-' . strtolower($this->employeeGender) . '.jpg'          :   '/app/employees/superuser/img/avatars/default-female.jpg';
+		$defaultLargeProfilePicUrl  	=	isset($this->employeeGender) ? '/admin/theme/img/avatars/default-' . strtolower($this->employeeGender) . '-large.jpg'    :   '/admin/theme/img/avatars/default-female-large.jpg';
+		$defaultMediumProfilePicUrl  	=	isset($this->employeeGender) ? '/admin/theme/img/avatars/default-' . strtolower($this->employeeGender) . '.jpg'          :   '/admin/theme/img/avatars/default-female.jpg';
+		$defaultSmallProfilePicUrl  	=	isset($this->employeeGender) ? '/admin/theme/img/avatars/default-' . strtolower($this->employeeGender) . '.jpg'          :   '/admin/theme/img/avatars/default-female.jpg';
+		$defaultXSmallProfilePicUrl  	=	isset($this->employeeGender) ? '/admin/theme/img/avatars/default-' . strtolower($this->employeeGender) . '.jpg'          :   '/admin/theme/img/avatars/default-female.jpg';
 
-		$employeePicUrlLarge		    =	$EmployeeDetailsObject->getEmployeeDetailsProfilePicUrl();
-		$employeePicUrlMedium		    =	$EmployeeDetailsObject->getEmployeeDetailsProfilePicUrl();
-		$employeePicUrlSmall			=	$EmployeeDetailsObject->getEmployeeDetailsProfilePicUrl();
-		$employeePicUrlXSmall			=	$EmployeeDetailsObject->getEmployeeDetailsProfilePicUrl();
+		$employeePicUrlLarge		    =	$this->employeeDetails->getEmployeeDetailsProfilePicUrl();
+		$employeePicUrlMedium		    =	$this->employeeDetails->getEmployeeDetailsProfilePicUrl();
+		$employeePicUrlSmall			=	$this->employeeDetails->getEmployeeDetailsProfilePicUrl();
+		$employeePicUrlXSmall			=	$this->employeeDetails->getEmployeeDetailsProfilePicUrl();
 
 
 		/**
@@ -325,56 +353,56 @@ class AbstractSuperUserEmployeeController extends AbstractEmployeeController
 										 */
 										array
 										(
-											'link'			=>	'/superuser/profile',
+											'link'			=>	'/admin/superuser/profile',
 											'iconClass'		=>	'fa fa-user',
 											'sectionName'	=>	'My Profile',
 											'labelClass'	=>	'',
 										),
 										array
 										(
-											'link'			=>	'/superuser/account-ettings',
+											'link'			=>	'/admin/superuser/account-ettings',
 											'iconClass'		=>	'fa fa-cog',
 											'sectionName'	=>	'Account Settings',
 											'labelClass'	=>	'',
 										),
 										array
 										(
-											'link'			=>	'/superuser/address-book',
+											'link'			=>	'/admin/superuser/address-book',
 											'iconClass'		=>	'fa fa-book',
 											'sectionName'	=>	'Address Book',
 											'labelClass'	=>	'',
 										),
 										array
 										(
-											'link'			=>	'/superuser/privacy-settings',
+											'link'			=>	'/admin/superuser/privacy-settings',
 											'iconClass'		=>	'fa fa-eye',
 											'sectionName'	=>	'Privacy Settings',
 											'labelClass'	=>	'',
 										),
 										array
 										(
-											'link'			=>	'/superuser/change-password',
+											'link'			=>	'/admin/superuser/change-password',
 											'iconClass'		=>	'fa fa-lock',
 											'sectionName'	=>	'Change Password',
 											'labelClass'	=>	'',
 										),
 										array
 										(
-											'link'			=>	'/superuser/logout',
+											'link'			=>	'/admin/superuser/logout',
 											'iconClass'		=>	'fa fa-power-off',
 											'sectionName'	=>	'Log Out',
 											'labelClass'	=>	'',
 										),
 										array
 										(
-											'link'			=>	'/superuser/terms',
+											'link'			=>	'/admin/superuser/terms',
 											'iconClass'		=>	'fa fa-lock',
 											'sectionName'	=>	'Terms',
 											'labelClass'	=>	'',
 										),
 										array
 										(
-											'link'			=>	'/superuser/privacy',
+											'link'			=>	'/admin/superuser/privacy',
 											'iconClass'		=>	'fa fa-power-off',
 											'sectionName'	=>	'Privacy Policy',
 											'labelClass'	=>	'',
@@ -437,7 +465,7 @@ class AbstractSuperUserEmployeeController extends AbstractEmployeeController
                         /**
                          * NOTIFICATION/Alerts Dropdown Variables
                          */
-                        'ALERT_footerLink'  					=> 	'/superuser/alerts',
+                        'ALERT_footerLink'  					=> 	'/admin/superuser/alerts',
                         'ALERT_totalMessageCount'  				=> 	(string) $ALERT_listItemsCount > 0 ? $ALERT_listItemsCount : '0',
                         'ALERT_title'  							=> 	'' . $ALERT_listItemsCount . ' Notification' . ($ALERT_listItemsCount == 1 ? '' : 's'),
                         'ALERT_listItemsArray'  				=> 	$ALERT_listItemsArray,
@@ -446,12 +474,12 @@ class AbstractSuperUserEmployeeController extends AbstractEmployeeController
                         /**
                          * INBOX Dropdown Variables
                          */
-                        'INBOX_sidebarLink'  					=> 	'/superuser/inbox',
-                        'INBOX_sidebarLink_all'  				=> 	'/superuser/inbox/all',
-                        'INBOX_sidebarLink_new'  				=> 	'/superuser/inbox/new',
-                        'INBOX_sidebarLink_favorites'  			=> 	'/superuser/inbox/favorites',
-                        'INBOX_footerLink'  					=> 	'/superuser/inbox',
-                        'INBOX_composeNewLink'  				=> 	'/superuser/inbox/compose-new-message',
+                        'INBOX_sidebarLink'  					=> 	'/admin/superuser/inbox',
+                        'INBOX_sidebarLink_all'  				=> 	'/admin/superuser/inbox/all',
+                        'INBOX_sidebarLink_new'  				=> 	'/admin/superuser/inbox/new',
+                        'INBOX_sidebarLink_favorites'  			=> 	'/admin/superuser/inbox/favorites',
+                        'INBOX_footerLink'  					=> 	'/admin/superuser/inbox',
+                        'INBOX_composeNewLink'  				=> 	'/admin/superuser/inbox/compose-new-message',
                         'INBOX_totalMessageCount'  				=> 	(string) $INBOX_listItemsCount > 0 ? $INBOX_listItemsCount : '0',
                         'INBOX_title'  							=> 	'' . $INBOX_listItemsCount . ' Message' . ($INBOX_listItemsCount == 1 ? '' : 's'),
                         'INBOX_listItemsArray'  				=> 	$INBOX_listItemsArray,
@@ -460,7 +488,7 @@ class AbstractSuperUserEmployeeController extends AbstractEmployeeController
                         /**
                          * TODO_ Dropdown Variables
                          */
-                        'TODO_footerLink'  						=> 	'/superuser/tasks',
+                        'TODO_footerLink'  						=> 	'/admin/superuser/tasks',
                         'TODO_listTotalNumber'  				=> 	(string) count($TODO_listItemsArray) > 0 ? count($TODO_listItemsArray) : '0',
                         'TODO_listItemsArray'  					=> 	$TODO_listItemsArray,
 
@@ -468,9 +496,9 @@ class AbstractSuperUserEmployeeController extends AbstractEmployeeController
                         /**
                          * User Login Dropdown Variables
                          */
-                        'employeeLoginDropDownDisplayName' 		=> 	$EmployeeDetailsObject->getEmployeeDetailsFirstName(),
-                        'employeeFullName' 						=> 	$EmployeeDetailsObject->getEmployeeDetailsFullName(),
-                        'employeeHomeLink' 						=> 	'/superuser/home',
+                        'employeeLoginDropDownDisplayName' 		=> 	$this->employeeDetails->getEmployeeDetailsFirstName(),
+                        'employeeFullName' 						=> 	$this->employeeDetails->getEmployeeDetailsFullName(),
+                        'employeeHomeLink' 						=> 	'/admin/superuser/home',
                         'employeeUserMenuArray' 					=> 	$employeeUserMenuArray,
 
 
